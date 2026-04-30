@@ -1,21 +1,26 @@
 #!/bin/sh
 # ============================================================
 #  MUUU APP · Docker Entrypoint de producción
-#  Sustituye $PORT en la config de nginx y arranca supervisor.
+#  Inyecta $PORT en el config de nginx y arranca supervisor.
 # ============================================================
 set -e
 
-# Render inyecta $PORT — usamos 10000 como fallback
-export PORT="${PORT:-10000}"
+# Render inyecta $PORT — fallback 10000
+PORT="${PORT:-10000}"
 
 echo "[entrypoint] Puerto asignado: $PORT"
 
-# Generar la config final de nginx con el puerto correcto
-envsubst '$PORT' \
-  < /etc/nginx/conf.d/default.conf.template \
-  > /etc/nginx/conf.d/default.conf
+# Reemplaza el placeholder __PORT__ con el valor real
+# (usamos sed en lugar de envsubst para no tocar las variables $uri etc. de nginx)
+sed "s/__PORT__/${PORT}/g" \
+  /etc/nginx/http.d/default.conf.template \
+  > /etc/nginx/http.d/default.conf
 
-echo "[entrypoint] Nginx configurado. Iniciando servicios..."
+echo "[entrypoint] Config nginx generada. Validando..."
 
-# Supervisord gestiona php-fpm + nginx como procesos hijos
+# Valida la sintaxis antes de arrancar (falla rápido si hay error)
+nginx -t
+
+echo "[entrypoint] OK. Iniciando servicios con supervisord..."
+
 exec /usr/bin/supervisord -n -c /etc/supervisor/conf.d/supervisord.conf

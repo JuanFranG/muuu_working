@@ -30,8 +30,14 @@ RUN npm run build
 # ──────────────────────────────────────────────────────────────
 FROM php:8.3-fpm-alpine
 
-# ── Sistema: nginx, supervisor, gettext (envsubst) ───────────
-RUN apk add --no-cache nginx supervisor gettext
+# ── Sistema: nginx, supervisor ───────────────────────────────
+# gettext ya no es necesario (usamos sed para reemplazar __PORT__)
+RUN apk add --no-cache nginx supervisor && \
+    # Elimina el virtual-host por defecto de Alpine nginx
+    # (conflictúa con nuestro config en puerto 10000)
+    rm -f /etc/nginx/http.d/default.conf && \
+    # Directorios necesarios para que nginx arranque correctamente
+    mkdir -p /var/log/nginx /var/lib/nginx/tmp /run/nginx
 
 # ── Extensiones PHP necesarias ───────────────────────────────
 RUN docker-php-ext-install pdo pdo_mysql mysqli
@@ -63,7 +69,8 @@ RUN mkdir -p /var/www/html/uploads && \
 COPY --from=frontend-builder /build/dist /var/www/html/dist
 
 # ── Configuraciones de Nginx y Supervisor ────────────────────
-COPY nginx/production.conf /etc/nginx/conf.d/default.conf.template
+# El template va a http.d/ (Alpine nginx usa http.d/, no conf.d/)
+COPY nginx/production.conf /etc/nginx/http.d/default.conf.template
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # ── Script de arranque ────────────────────────────────────────
