@@ -1,0 +1,154 @@
+================================================================
+  MUUU APP — Plataforma de Cálculo Integral
+  Universidad del Magdalena · 2026-I
+  Equipo: Barrera, Russo, González
+  Docente: Johan Robles
+================================================================
+
+REQUISITOS PREVIOS
+------------------
+  - Docker Desktop instalado y corriendo
+      https://www.docker.com/products/docker-desktop/
+  - Node.js 20+ instalado
+      https://nodejs.org/
+  - Terminal (macOS/Linux) o PowerShell (Windows)
+
+
+================================================================
+  PASO 1 — Levantar el backend con Docker
+================================================================
+
+  1. Abre una terminal en la raíz del proyecto (carpeta "muuu/").
+
+
+  2. Levanta todos los servicios:
+
+       docker compose up --build -d
+
+     Esto inicia tres contenedores:
+       · muuu_mysql  — base de datos MySQL 8
+       · muuu_php    — PHP 8.3-FPM con el backend
+       · muuu_nginx  — servidor web Nginx en el puerto 8080
+
+  3. Espera ~20 segundos mientras MySQL termina de inicializarse.
+     Puedes verificar que todo esté en verde con:
+
+       docker compose ps
+
+     Todos deben aparecer como "running" o "healthy".
+
+  4. Verifica que la API responde:
+
+       curl http://localhost:8080/api/auth/me
+
+     Respuesta esperada:
+       {"ok":false,"mensaje":"No hay sesión activa."}
+
+  ✅ Backend listo en: http://localhost:8080
+
+
+================================================================
+  PASO 2 — Levantar el frontend React
+================================================================
+
+  1. Abre UNA NUEVA terminal (deja la anterior con Docker abierta).
+
+  2. Entra a la carpeta del frontend:
+
+       cd "App Mockup Muuu v2026-3"
+
+  3. Instala las dependencias (solo la primera vez):
+
+       npm install
+
+  4. Inicia el servidor de desarrollo:
+
+       npm run dev
+
+     Verás algo como:
+       ➜  Local:   http://localhost:5173/
+       ➜  Network: http://192.168.x.x:5173/
+
+  5. Abre tu navegador en:
+
+       http://localhost:5173
+
+  ✅ Frontend listo. El proxy de Vite redirige /api/* → :8080
+     automáticamente, por lo que no necesitas configurar nada más.
+
+
+================================================================
+  PASO 3 — Acceso a las vistas clásicas PHP (MVC Opción B)
+================================================================
+
+  Las vistas clásicas PHP también están disponibles directamente
+  en el backend sin necesitar React:
+
+    · Login:    http://localhost:8080/vista/?action=login
+    · Registro: http://localhost:8080/vista/?action=registro
+
+  Estas vistas demuestran el patrón MVC completo en PHP puro
+  (Modelo → Controlador → Vista).
+
+
+================================================================
+  USUARIOS DE PRUEBA (precargados en la base de datos)
+================================================================
+
+    CORREO                        CONTRASEÑA   ROL
+    ---------------------------------------------------
+    ada@muuu.com                  123456       Estudiante
+    docente@muuu.com              123456       Docente
+    juan.perez@unimagdalena.edu   123456       Estudiante
+    maria.gomez@unimagdalena.edu  123456       Estudiante
+
+
+================================================================
+  COMANDOS ÚTILES
+================================================================
+
+  Ver logs en tiempo real:
+    docker compose logs -f
+
+  Ver logs solo del PHP:
+    docker compose logs -f php
+
+  Detener todos los servicios:
+    docker compose down
+
+  Detener Y borrar la base de datos (reseteo total):
+    docker compose down -v
+
+  Reiniciar un servicio específico:
+    docker compose restart php
+
+
+================================================================
+  ESTRUCTURA DEL PROYECTO (resumen)
+================================================================
+
+  muuu/
+  ├── backend/
+  │   ├── index.php              ← Router API (JSON)
+  │   ├── controlador/
+  │   │   └── UserController.php ← Controlador (MVC)
+  │   ├── modelo/
+  │   │   ├── Conexion.php       ← Singleton PDO
+  │   │   └── Usuario.php        ← Modelo (MVC)
+  │   ├── vista/
+  │   │   ├── index.php          ← Front Controller vistas PHP
+  │   │   ├── login.php          ← Vista login (MVC)
+  │   │   ├── registro.php       ← Vista registro (MVC)
+  │   │   └── bienvenida.php     ← Vista post-login (MVC)
+  │   └── config/
+  │       └── config.php         ← Configuración BD
+  ├── App Mockup Muuu v2026-3/   ← Frontend React + Vite
+  ├── database/
+  │   └── init.sql               ← Esquema + datos de prueba
+  ├── nginx/
+  │   └── default.conf           ← Configuración Nginx
+  ├── docker-compose.yml
+  └── .env
+
+
+

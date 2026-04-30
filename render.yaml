@@ -1,0 +1,45 @@
+# ============================================================
+#  MUUU APP · render.yaml — Blueprint de Render.com
+#
+#  Despliega la aplicación completa:
+#    - Web Service: contenedor Docker con Nginx + PHP-FPM
+#    - Disk:        disco persistente para uploads de docentes
+#
+#  Las variables de entorno marcadas con "sync: false" deben
+#  configurarse manualmente en el dashboard de Render.
+# ============================================================
+
+services:
+  - type: web
+    name: muuu-app
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+
+    # Render Free tier: 512 MB RAM, 0.1 CPU
+    plan: free
+
+    # Render inyecta automáticamente la variable PORT
+    # (el entrypoint la usa para configurar nginx)
+
+    envVars:
+      # ── Base de datos MySQL (Railway u otro proveedor) ───────
+      - key: DB_HOST
+        sync: false          # Configura esto en el dashboard de Render
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_NAME
+        value: muuu_db
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+
+    # ── Disco persistente para archivos subidos ───────────────
+    # Evita que los uploads se pierdan cuando Render reinicia el contenedor.
+    # Plan: 1 GB = $0.25 USD/mes (mínimo).
+    disk:
+      name: muuu-uploads
+      mountPath: /var/www/html/uploads
+      sizeGB: 1
+
+    healthCheckPath: /health

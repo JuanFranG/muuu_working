@@ -1,0 +1,241 @@
+<?php
+// ============================================================
+//  MUUU APP · Controlador — Material
+//  Rutas:
+//    GET  /api/materiales       → listar (todos o del docente)
+//    POST /api/materiales       → crear (solo docente)
+//    GET  /api/docentes         → lista de docentes con flashcards publicadas
+// ============================================================
+
+require_once __DIR__ . '/../modelo/Material.php';
+require_once __DIR__ . '/../modelo/Conexion.php';
+
+class MaterialController
+{
+    // ── GET /api/materiales ───────────────────────────────────
+    // ?docente=id  → filtra por ese docente (vista estudiante)
+    public function listar(): void
+    {
+        session_start();
+
+        $model = new Material();
+
+        // Filtro por docente (para estudiante seleccionando un docente concreto)
+        if (isset($_GET['docente']) && is_numeric($_GET['docente'])) {
+            $materiales = $model->listarPublicosPorDocente((int) $_GET['docente']);
+            echo json_encode(['ok' => true, 'materiales' => $materiales], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        // Si el usuario es docente, devuelve sus propios materiales
+        // Si es estudiante (o sin sesión), devuelve todos los materiales
+        if (
+            isset($_SESSION['id_usuario']) &&
+            isset($_SESSION['rol']) &&
+            $_SESSION['rol'] === 'DOCENTE'
+        ) {
+            $materiales = $model->listarPorDocente((int) $_SESSION['id_usuario']);
+        } else {
+            $materiales = $model->listarTodos();
+        }
+
+        echo json_encode([
+            'ok'         => true,
+            'materiales' => $materiales,
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+    // ── GET /api/materiales/{id} ──────────────────────────────
+    public function obtener(int $id): void
+    {
+        session_start();
+
+        if (empty($_SESSION['id_usuario']) || ($_SESSION['rol'] ?? '') !== 'DOCENTE') {
+            http_response_code(403);
+            echo json_encode(['ok' => false, 'mensaje' => 'Acceso no autorizado.']);
+            return;
+        }
+
+        $model    = new Material();
+        $material = $model->buscarPorId($id);
+
+        if (!$material || (int)$material['id_usuario'] !== (int)$_SESSION['id_usuario']) {
+            http_response_code(404);
+            echo json_encode(['ok' => false, 'mensaje' => 'Material no encontrado.']);
+            return;
+        }
+
+        echo json_encode(['ok' => true, 'material' => $material], JSON_UNESCAPED_UNICODE);
+    }
+
+    // ── PUT /api/materiales/{id} ──────────────────────────────
+    public function actualizar(int $id): void
+    {
+        session_start();
+
+        if (empty($_SESSION['id_usuario']) || ($_SESSION['rol'] ?? '') !== 'DOCENTE') {
+            http_response_code(403);
+            echo json_encode(['ok' => false, 'mensaje' => 'Solo los docentes pueden editar materiales.']);
+            return;
+        }
+
+        $model    = new Material();
+        $existente = $model->buscarPorId($id);
+
+        if (!$existente || (int)$existente['id_usuario'] !== (int)$_SESSION['id_usuario']) {
+            http_response_code(404);
+            echo json_encode(['ok' => false, 'mensaje' => 'Material no encontrado o sin permiso.']);
+            return;
+        }
+
+        $body         = json_decode(file_get_contents('php://input'), true) ?? [];
+        $titulo       = trim($body['titulo']       ?? '');
+        $tipo         = trim($body['tipo']          ?? '');
+        $urlArchivo   = trim($body['urlArchivo']    ?? $existente['urlArchivo']);
+        $idTema       = (int)($body['id_tema']       ?? 0);
+        $idDificultad = (int)($body['id_dificultad'] ?? 0);
+
+        if (!$titulo || !$tipo || !$idTema || !$idDificultad) {
+            http_response_code(422);
+            echo json_encode(['ok' => false, 'mensaje' => 'Faltan campos obligatorios.']);
+            return;
+        }
+
+        $mapaaTipo = ['documento' => 'PDF', 'foto' => 'IMAGEN', 'video' => 'VIDEO', 'link' => 'LINK'];
+        $tipoDb    = $mapaaTipo[$tipo] ?? strtoupper($tipo);
+
+        $model->actualizar($id, $titulo, $tipoDb, $urlArchivo, $idTema, $idDificultad);
+
+        echo json_encode(['ok' => true, 'mensaje' => 'Material actualizado.'], JSON_UNESCAPED_UNICODE);
+    }
+
+    // ── DELETE /api/materiales/{id} ───────────────────────────
+    public function eliminarMaterial(int $id): void
+    {
+        session_start();
+
+        if (empty($_SESSION['id_usuario']) || ($_SESSION['rol'] ?? '') !== 'DOCENTE') {
+            http_response_code(403);
+            echo json_encode(['ok' => false, 'mensaje' => 'Solo los docentes pueden eliminar materiales.']);
+            return;
+        }
+
+        $model    = new Material();
+        $existente = $model->buscarPorId($id);
+
+        if (!$existente || (int)$existente['id_usuario'] !== (int)$_SESSION['id_usuario']) {
+            http_response_code(404);
+            echo json_encode(['ok' => false, 'mensaje' => 'Material no encontrado o sin permiso.']);
+            return;
+        }
+
+        $model->eliminar($id);
+        echo json_encode(['ok' => true, 'mensaje' => 'Material eliminado.'], JSON_UNESCAPED_UNICODE);
+    }
+
+    // ── GET /api/docentes-materiales ──────────────────────────
+    // Docentes que tienen al menos un material (para el selector del estudiante)
+    public function listarDocentesMateriales(): void
+    {
+        $model    = new Material();
+        $docentes = $model->listarDocentesConMateriales();
+        echo json_encode(['ok' => true, 'docentes' => $docentes], JSON_UNESCAPED_UNICODE);
+    }
+
+    // ── POST /api/materiales ──────────────────────────────────
+    public function crear(): void
+    {
+        session_start();
+
+        if (empty($_SESSION['id_usuario']) || ($_SESSION['rol'] ?? '') !== 'DOCENTE') {
+            http_response_code(403);
+            echo json_encode(['ok' => false, 'mensaje' => 'Solo los docentes pueden subir material.']);
+            return;
+        }
+
+        $body = json_decode(file_get_contents('php://input'), true) ?? [];
+
+        $titulo       = trim($body['titulo']      ?? '');
+        $tipo         = trim($body['tipo']         ?? '');
+        $urlArchivo   = trim($body['urlArchivo']   ?? 'sin-archivo');
+        $idTema       = (int)($body['id_tema']      ?? 0);
+        $idDificultad = (int)($body['id_dificultad'] ?? 0);
+
+        // Validaciones básicas
+        if (!$titulo || !$tipo || !$idTema || !$idDificultad) {
+            http_response_code(422);
+            echo json_encode(['ok' => false, 'mensaje' => 'Faltan campos obligatorios (titulo, tipo, id_tema, id_dificultad).']);
+            return;
+        }
+
+        // Mapear tipo frontend → tipo DB
+        $tiposPermitidos = ['documento', 'foto', 'video', 'link', 'PDF', 'IMAGEN', 'VIDEO', 'LINK', 'RESUMEN'];
+        if (!in_array($tipo, $tiposPermitidos, true)) {
+            http_response_code(422);
+            echo json_encode(['ok' => false, 'mensaje' => "Tipo de material no válido: {$tipo}"]);
+            return;
+        }
+
+        // Normalizar: si viene en minúsculas del frontend, convertir a valor DB
+        $mapaaTipo = [
+            'documento' => 'PDF',
+            'foto'      => 'IMAGEN',
+            'video'     => 'VIDEO',
+            'link'      => 'LINK',
+        ];
+        $tipoDb = $mapaaTipo[$tipo] ?? strtoupper($tipo);
+
+        $model      = new Material();
+        $idMaterial = $model->crear(
+            $titulo,
+            $tipoDb,
+            $urlArchivo,
+            $idTema,
+            $idDificultad,
+            (int) $_SESSION['id_usuario']
+        );
+
+        http_response_code(201);
+        echo json_encode([
+            'ok'         => true,
+            'id_material' => $idMaterial,
+            'mensaje'    => 'Material creado exitosamente.',
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+    // ── GET /api/docentes ─────────────────────────────────────
+    // Devuelve docentes que tienen flashcards publicadas
+    public function listarDocentes(): void
+    {
+        $db = Conexion::obtener();
+
+        $stmt = $db->prepare(
+            "SELECT u.id_usuario,
+                    u.nombre,
+                    u.fotoPerfil,
+                    COUNT(f.id_flashcard) AS totalFlashcards,
+                    (SELECT t2.nombre
+                     FROM   FLASHCARDS f2
+                     JOIN   TEMA t2 ON t2.id_tema = f2.id_tema
+                     WHERE  f2.id_usuario = u.id_usuario
+                       AND  f2.estado = 'PUBLICADO'
+                     GROUP  BY f2.id_tema
+                     ORDER  BY COUNT(*) DESC
+                     LIMIT  1) AS temaPrincipal
+             FROM   USUARIO   u
+             JOIN   ROL       r  ON r.id_rol    = u.id_rol
+             JOIN   FLASHCARDS f ON f.id_usuario = u.id_usuario
+             WHERE  r.nombre = 'DOCENTE'
+               AND  f.estado = 'PUBLICADO'
+             GROUP  BY u.id_usuario, u.nombre, u.fotoPerfil
+             ORDER  BY totalFlashcards DESC"
+        );
+        $stmt->execute();
+        $docentes = $stmt->fetchAll();
+
+        echo json_encode([
+            'ok'       => true,
+            'docentes' => $docentes,
+        ], JSON_UNESCAPED_UNICODE);
+    }
+}

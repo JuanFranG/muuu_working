@@ -1,0 +1,404 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-size: 14px;
+  
+  /* ============================================ */
+  /* PALETA DE COLORES MUUU */
+  /* ============================================ */
+  
+  /* MORADO - ROL ESTUDIANTE */
+  --muuu-purple-primary: #9B7EC7;      /* Morado principal (fondo logo) */
+  --muuu-purple-dark: #7952B3;          /* Morado oscuro (boina de Ada) */
+  --muuu-purple-vibrant: #8A2BE2;       /* Morado vibrante (boina interna) */
+  --muuu-purple-light: #B8A4D9;         /* Morado claro */
+  --muuu-purple-pale: #E6D5F0;          /* Morado pálido (fondos suaves) */
+  --muuu-purple-soft: #F3EBFF;          /* Morado muy suave */
+  
+  /* AMARILLO - ROL DOCENTE */
+  --muuu-yellow-primary: #FFD700;       /* Amarillo dorado (letras MUUU) */
+  --muuu-yellow-bright: #FFEB3B;        /* Amarillo brillante */
+  --muuu-yellow-dark: #FFC107;          /* Amarillo oscuro */
+  --muuu-yellow-light: #FFF9C4;         /* Amarillo claro */
+  --muuu-yellow-pale: #FFFDE7;          /* Amarillo pálido */
+  
+  /* ROSA - ACENTO */
+  --muuu-pink-nose: #DDA0DD;            /* Rosa nariz Ada */
+  --muuu-pink-light: #F4E4F4;           /* Rosa claro */
+  
+  /* GRISES Y NEUTROS */
+  --muuu-gray-uniform: #696969;         /* Gris saco uniforme */
+  --muuu-gray-dark: #4A4A4A;           /* Gris oscuro */
+  --muuu-gray-medium: #7D7D7D;         /* Gris medio */
+  --muuu-gray-light: #CCCCCC;          /* Gris claro */
+  --muuu-gray-pale: #F5F5F5;           /* Gris muy claro */
+  
+  /* BLANCO Y NEGRO */
+  --muuu-white: #FFFFFF;                /* Vaca blanca */
+  --muuu-black: #000000;                /* Manchas de vaca */
+  --muuu-black-soft: #1A1A1A;          /* Negro suave */
+  
+  /* ESTADOS */
+  --muuu-success: #10B981;              /* Verde éxito */
+  --muuu-error: #EF4444;                /* Rojo error */
+  --muuu-warning: #F59E0B;              /* Naranja advertencia */
+  --muuu-info: #3B82F6;                 /* Azul información */
+  
+  /* FONDOS */
+  --muuu-bg-primary: #FFFFFF;           /* Fondo principal */
+  --muuu-bg-secondary: #FAFAFA;         /* Fondo secundario */
+  --muuu-bg-student: #F3EBFF;           /* Fondo estudiante */
+  --muuu-bg-teacher: #FFFDE7;           /* Fondo docente */
+  
+  /* TEXTOS */
+  --texto-principal: #1E293B;           
+  --texto-secundario: #475569;          
+  --texto-terciario: #667388;           
+  --texto-sobre-morado: #FFFFFF;
+  --texto-sobre-amarillo: #1A1A1A;
+  
+  /* ALERTAS Y ESTADOS */
+  --sobre-error: #FEE2E2;
+  --sobre-verde: #FFFFFF;
+  
+  /* ============================================ */
+  /* VARIABLES PRINCIPALES (MAPEO A MUUU) */
+  /* ============================================ */
+  
+  --background: var(--muuu-white);
+  --foreground: var(--texto-principal);
+  --card: var(--muuu-white);
+  --card-foreground: var(--texto-principal);
+  --popover: var(--muuu-white);
+  --popover-foreground: var(--texto-principal);
+  --primary: var(--muuu-purple-primary);
+  --primary-foreground: var(--texto-sobre-morado);
+  --secondary: var(--muuu-yellow-primary);
+  --secondary-foreground: var(--texto-sobre-amarillo);
+  --muted: var(--muuu-gray-pale);
+  --muted-foreground: var(--muuu-gray-medium);
+  --accent: var(--muuu-pink-light);
+  --accent-foreground: var(--texto-principal);
+  --destructive: var(--muuu-error);
+  --destructive-foreground: var(--muuu-white);
+  --border: var(--muuu-purple-light);
+  --input: transparent;
+  --input-background: var(--muuu-white);
+  --switch-background: var(--muuu-gray-light);
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: var(--muuu-purple-primary);
+  --chart-1: var(--muuu-purple-primary);
+  --chart-2: var(--muuu-yellow-primary);
+  --chart-3: var(--muuu-pink-nose);
+  --chart-4: var(--muuu-purple-vibrant);
+  --chart-5: var(--muuu-success);
+  --radius: 0.625rem;
+  --sidebar: var(--muuu-white);
+  --sidebar-foreground: var(--texto-principal);
+  --sidebar-primary: var(--muuu-purple-primary);
+  --sidebar-primary-foreground: var(--texto-sobre-morado);
+  --sidebar-accent: var(--muuu-bg-secondary);
+  --sidebar-accent-foreground: var(--texto-principal);
+  --sidebar-border: var(--muuu-purple-light);
+  --sidebar-ring: var(--muuu-purple-primary);
+  --light-blue: var(--muuu-purple-light);
+  
+  /* Tipografías */
+  --font-primary: 'Montserrat', sans-serif;
+  --font-secondary: 'Merriweather', serif;
+  --font-tertiary: 'Poppins', sans-serif;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --input-background: oklch(0.269 0 0);
+  --switch-background: oklch(0.439 0 0);
+  --ring: oklch(0.439 0 0);
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+  --light-blue: oklch(0.269 0 0);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-light-blue: var(--light-blue);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  
+  /* Colores específicos de Muuu */
+  --color-muuu-purple-primary: var(--muuu-purple-primary);
+  --color-muuu-purple-dark: var(--muuu-purple-dark);
+  --color-muuu-purple-vibrant: var(--muuu-purple-vibrant);
+  --color-muuu-purple-light: var(--muuu-purple-light);
+  --color-muuu-purple-pale: var(--muuu-purple-pale);
+  --color-muuu-purple-soft: var(--muuu-purple-soft);
+  --color-muuu-yellow-primary: var(--muuu-yellow-primary);
+  --color-muuu-yellow-bright: var(--muuu-yellow-bright);
+  --color-muuu-yellow-dark: var(--muuu-yellow-dark);
+  --color-muuu-yellow-light: var(--muuu-yellow-light);
+  --color-muuu-yellow-pale: var(--muuu-yellow-pale);
+  --color-muuu-pink-nose: var(--muuu-pink-nose);
+  --color-muuu-pink-light: var(--muuu-pink-light);
+  --color-muuu-success: var(--muuu-success);
+  --color-muuu-error: var(--muuu-error);
+  --color-muuu-warning: var(--muuu-warning);
+  --color-muuu-info: var(--muuu-info);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/**
+ * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
+ */
+@layer base {
+  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+    h1 {
+      font-family: var(--font-primary);
+      font-size: var(--text-2xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h2 {
+      font-family: var(--font-primary);
+      font-size: var(--text-xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h3 {
+      font-family: var(--font-primary);
+      font-size: var(--text-lg);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h4 {
+      font-family: var(--font-primary);
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    p {
+      font-family: var(--font-secondary);
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    label {
+      font-family: var(--font-primary);
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    button {
+      font-family: var(--font-primary);
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    input {
+      font-family: var(--font-primary);
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+  }
+}
+
+html {
+  font-size: var(--font-size);
+  font-family: var(--font-primary);
+}
+
+/* Ensure proper mobile viewport handling */
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+/* Hide scrollbar but keep scroll functionality */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Specific styles for overflow containers */
+.overflow-y-auto, .overflow-auto, .overflow-scroll {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-auto::-webkit-scrollbar,
+.overflow-scroll::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* iPhone mockup specific styles */
+@layer utilities {
+  .iphone-frame {
+    background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+    box-shadow: 
+      0 20px 40px rgba(0, 0, 0, 0.4),
+      0 10px 20px rgba(0, 0, 0, 0.3),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+  
+  .iphone-screen {
+    background: #000;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Safe area utilities for mobile devices */
+@layer utilities {
+  .safe-area-top {
+    padding-top: max(3rem, env(safe-area-inset-top, 3rem));
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem));
+  }
+  
+  .safe-area-left {
+    padding-left: max(1rem, env(safe-area-inset-left, 1rem));
+  }
+  
+  .safe-area-right {
+    padding-right: max(1rem, env(safe-area-inset-right, 1rem));
+  }
+}
+
+/* Dark mode overrides for better visibility */
+@layer utilities {
+  .dark {
+    color-scheme: dark;
+  }
+  
+  .dark .bg-light-blue {
+    background-color: var(--color-light-blue);
+  }
+  
+  /* Ensure cards have proper contrast in dark mode */
+  .dark .border {
+    border-color: var(--color-border);
+  }
+  
+  /* Better button visibility in dark mode */
+  .dark button {
+    color: var(--color-foreground);
+  }
+  
+  /* Improve input visibility in dark mode */
+  .dark input {
+    background-color: var(--color-input-background);
+    color: var(--color-foreground);
+  }
+  
+  /* Better select visibility */
+  .dark select {
+    background-color: var(--color-input-background);
+    color: var(--color-foreground);
+  }
+  
+  /* Textarea improvements */
+  .dark textarea {
+    background-color: var(--color-input-background);
+    color: var(--color-foreground);
+  }
+}
+
+/* Animaciones personalizadas */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

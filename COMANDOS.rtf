@@ -1,0 +1,89 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2869
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 ENTRAR A MYSQL\
+\
+docker exec -it muuu_mysql mysql -u muuu_user -pmuuu_pass_2026 muuu_db\
+\
+USUARIOS\
+\
+SELECT \
+    u.id_usuario,\
+    u.nombre,\
+    u.correo,\
+    r.nombre             AS rol,\
+    u.nivel,\
+    u.totalPuntos,\
+    u.rachaActual,\
+    u.flashcardsEstudiadas,\
+    u.esActivo,\
+    u.fechaRegistro\
+FROM USUARIO u\
+JOIN ROL r ON u.id_rol = r.id_rol\
+ORDER BY u.fechaRegistro DESC;\
+\
+\
+CANTIDAD DE USUARIOS POR ROL\
+\
+SELECT \
+    r.nombre AS rol,\
+    COUNT(*) AS total\
+FROM USUARIO u\
+JOIN ROL r ON u.id_rol = r.id_rol\
+GROUP BY r.nombre;\
+\
+USUARIO POR CORREO\
+\
+SELECT id_usuario, nombre, correo, esActivo\
+FROM USUARIO\
+WHERE correo = 'ada@muuu.com';\
+\
+TODAS LAS TABLAS\
+\
+SHOW TABLES;\
+\
+\
+FLASHCARDS CREADAS\
+\
+SELECT \
+    f.id_flashcard,\
+    f.pregunta,\
+    f.respuesta,\
+    t.nombre AS tema,\
+    d.nombre AS dificultad\
+FROM FLASHCARDS f\
+JOIN TEMA t      ON f.id_tema       = t.id_tema\
+JOIN DIFICULTAD d ON f.id_dificultad = d.id_dificultad\
+ORDER BY f.id_flashcard;\
+\
+\
+VER RANKING;\
+\
+SELECT \
+    u.nombre,\
+    r.nombre   AS rol,\
+    u.totalPuntos,\
+    u.nivel,\
+    u.rachaActual\
+FROM USUARIO u\
+JOIN ROL r ON u.id_rol = r.id_rol\
+ORDER BY u.totalPuntos DESC;\
+\
+PROGRESO DE MATERIALES\
+\
+SELECT \
+    u.nombre        AS estudiante,\
+    m.titulo        AS material,\
+    pm.completado,\
+    pm.fechaVisto\
+FROM PROGRESO_MATERIAL pm\
+JOIN USUARIO  u ON pm.id_usuario  = u.id_usuario\
+JOIN MATERIAL m ON pm.id_material = m.id_material;\
+\
+\
+\
+}
