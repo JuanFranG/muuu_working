@@ -19,7 +19,8 @@ COPY ["App Mockup Muuu v2026-4/package.json", "App Mockup Muuu v2026-4/package-l
 RUN npm ci --prefer-offline
 
 # Copia el resto del frontend y construye
-COPY "App Mockup Muuu v2026-4/" .
+# Nota: JSON-array es obligatorio para rutas con espacios en Docker
+COPY ["App Mockup Muuu v2026-4/", "."]
 RUN npm run build
 # Resultado en /build/dist/
 
