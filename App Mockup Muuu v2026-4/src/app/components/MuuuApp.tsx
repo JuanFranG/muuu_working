@@ -23,6 +23,7 @@ import { GuiasEstudio } from './GuiasEstudio';
 import { AgregarMaterial } from './AgregarMaterial';
 import { MisFlashcards } from './MisFlashcards';
 import { MisDocumentos } from './MisDocumentos';
+import { Categorias } from './Categorias';
 
 // Pantalla Home Estudiante
 function StudentHomeScreen({ userName = 'Estudiante', onNavigate }: { userName?: string; onNavigate: (screen: string) => void }) {
@@ -1075,7 +1076,7 @@ function RegisterScreen({ userType, onBack, onRegisterSuccess }: { userType: 'st
 }
 
 // Componente Principal
-type AppState = 'loading' | 'home' | 'login' | 'roleSelection' | 'register' | 'registroExitoso' | 'studentHome' | 'teacherHome' | 'aprendeUnPoco' | 'aprendeUnPocoMinimal' | 'disenarFlashcard' | 'editarFlashcard' | 'misFlashcards' | 'misDocumentos' | 'editarMaterial' | 'rankings' | 'perfilEstudiante' | 'perfilDocente' | 'configuraciones' | 'configuracionesDocente' | 'perfilMenu' | 'perfilMenuDocente' | 'ponteAPrueba' | 'desafiaAlguien' | 'salaDesafio' | 'miProgreso' | 'guiasEstudio' | 'agregarMaterial';
+type AppState = 'loading' | 'home' | 'login' | 'roleSelection' | 'register' | 'registroExitoso' | 'studentHome' | 'teacherHome' | 'aprendeUnPoco' | 'aprendeUnPocoMinimal' | 'disenarFlashcard' | 'editarFlashcard' | 'misFlashcards' | 'misDocumentos' | 'editarMaterial' | 'rankings' | 'perfilEstudiante' | 'perfilDocente' | 'configuraciones' | 'configuracionesDocente' | 'perfilMenu' | 'perfilMenuDocente' | 'ponteAPrueba' | 'desafiaAlguien' | 'salaDesafio' | 'miProgreso' | 'guiasEstudio' | 'agregarMaterial' | 'categorias';
 
 export function MuuuApp() {
   const [appState, setAppState] = useState<AppState>('loading');
@@ -1889,6 +1890,15 @@ export function MuuuApp() {
           onBack={() => setAppState('misDocumentos')}
           materialId={materialEditarId}
         />
+        <NavButtons />
+      </>
+    );
+  }
+
+  if (appState === 'categorias') {
+    return (
+      <>
+        <Categorias onBack={() => setAppState('teacherHome')} />
         <NavButtons />
       </>
     );

@@ -33,6 +33,11 @@ export interface TemaAPI {
   icono:       string | null;
 }
 
+export interface TemaEstadisticasAPI extends TemaAPI {
+  totalFlashcards: number;
+  totalMateriales: number;
+}
+
 export interface DificultadAPI {
   id_dificultad: number;
   nombre:        string;
@@ -146,6 +151,31 @@ export async function listarTemasAPI(): Promise<TemaAPI[]> {
     'GET', '/temas'
   );
   return data.temas;
+}
+
+/** Lista temas con conteo de flashcards y materiales asociados (solo docente) */
+export async function listarTemasEstadisticasAPI(): Promise<TemaEstadisticasAPI[]> {
+  const data = await peticion<{ ok: boolean; temas: TemaEstadisticasAPI[] }>(
+    'GET', '/temas-estadisticas'
+  );
+  return data.temas;
+}
+
+/** Crea un nuevo tema (solo docente) */
+export async function crearTemaAPI(params: {
+  nombre:      string;
+  descripcion?: string;
+  icono?:       string;
+}): Promise<TemaEstadisticasAPI> {
+  const data = await peticion<{ ok: boolean; tema: TemaEstadisticasAPI; mensaje: string }>(
+    'POST', '/temas', params
+  );
+  return data.tema;
+}
+
+/** Elimina un tema (solo si no tiene flashcards o materiales vinculados) */
+export async function eliminarTemaAPI(id: number): Promise<void> {
+  await peticion<{ ok: boolean }>('DELETE', `/temas/${id}`);
 }
 
 /** Lista todos los niveles de dificultad */

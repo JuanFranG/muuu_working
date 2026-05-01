@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Bell, Edit3, ClipboardList, BarChart3, Archive, Tag, Home, User, Settings, HelpCircle, ChevronRight, Users, FileStack, Upload } from 'lucide-react';
-import { listarFlashcardsAPI, listarMaterialesAPI } from '../services/api';
+import { listarFlashcardsAPI, listarMaterialesAPI, listarTemasAPI } from '../services/api';
 
 interface TeacherHomeProps {
   userName?: string;
@@ -10,6 +10,7 @@ interface TeacherHomeProps {
 export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps) {
   const [totalFlashcards, setTotalFlashcards] = useState<number | null>(null);
   const [totalDocumentos, setTotalDocumentos] = useState<number | null>(null);
+  const [totalCategorias, setTotalCategorias] = useState<number | null>(null);
 
   useEffect(() => {
     listarFlashcardsAPI()
@@ -18,13 +19,14 @@ export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps
     listarMaterialesAPI()
       .then(mats => setTotalDocumentos(mats.length))
       .catch(() => setTotalDocumentos(null));
+    listarTemasAPI()
+      .then(temas => setTotalCategorias(temas.length))
+      .catch(() => setTotalCategorias(null));
   }, []);
 
   const stats = {
     students: 89,
     successRate: 89,
-    questions: 342,
-    categories: 12
   };
 
   return (
@@ -427,10 +429,10 @@ export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps
             onClick={() => onNavigate('categorias')}
             className="transition-all hover:scale-[1.02]"
             style={{
-              backgroundColor: '#FFFFFF',
+              background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)',
               borderRadius: '16px',
               padding: '20px',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
+              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.25)',
               border: 'none',
               cursor: 'pointer',
               display: 'flex',
@@ -440,27 +442,23 @@ export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps
               gap: '8px'
             }}
           >
-            <span style={{ fontSize: '40px' }}>🏷️</span>
-            <p 
-              style={{
-                fontFamily: 'Poppins, sans-serif',
-                fontWeight: 800,
-                fontSize: '32px',
-                color: '#78350F',
-                lineHeight: '1'
-              }}
-            >
-              {stats.categories}
+            <div style={{
+              width: '48px', height: '48px', borderRadius: '50%',
+              backgroundColor: 'rgba(255,255,255,0.9)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Tag size={24} color="#F59E0B" strokeWidth={2.5} />
+            </div>
+            <p style={{
+              fontFamily: 'Poppins, sans-serif', fontWeight: 800,
+              fontSize: '28px', color: '#78350F', lineHeight: '1', margin: 0,
+            }}>
+              {totalCategorias !== null ? totalCategorias : '…'}
             </p>
-            <p 
-              style={{
-                fontFamily: 'Poppins, sans-serif',
-                fontWeight: 500,
-                fontSize: '12px',
-                color: '#6B7280',
-                textAlign: 'center'
-              }}
-            >
+            <p style={{
+              fontFamily: 'Poppins, sans-serif', fontWeight: 600,
+              fontSize: '12px', color: '#78350F', textAlign: 'center', margin: 0,
+            }}>
               Categorías
             </p>
           </button>

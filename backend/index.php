@@ -96,6 +96,9 @@ $rutasEstaticas = [
     'GET:docentes-materiales'   => ['MaterialController',  'listarDocentesMateriales'],
     // Subida de archivos (solo docentes)
     'POST:upload'        => ['UploadController',    'subir'],
+    // Temas — estadísticas y creación
+    'GET:temas-estadisticas' => ['TemaController',  'listarConEstadisticas'],
+    'POST:temas'             => ['TemaController',  'crear'],
 ];
 
 if (isset($rutasEstaticas[$clave])) {
@@ -112,6 +115,8 @@ $rutasDinamicas = [
     '#^DELETE:flashcards/(\d+)$#'           => ['FlashcardController', 'eliminar'],
     '#^PATCH:flashcards/(\d+)/publicar$#'   => ['FlashcardController', 'publicar'],
     '#^PATCH:flashcards/(\d+)/borrador$#'   => ['FlashcardController', 'borrador'],
+    // Temas — eliminar por id
+    '#^DELETE:temas/(\d+)$#'               => ['TemaController',      'eliminar'],
     // Materiales CRUD por id
     '#^GET:materiales/(\d+)$#'              => ['MaterialController',  'obtener'],
     '#^PUT:materiales/(\d+)$#'              => ['MaterialController',  'actualizar'],
