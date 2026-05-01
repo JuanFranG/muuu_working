@@ -10,10 +10,10 @@
 
 | Nombre | Rol |
 |---|---|
-| Juan Gonzalez | Desarrollo Full-Stack |
-| Shania Russo | Desarrollo Full-Stack |
-| David Hasbum | Desarrollo Full-Stack |
-| Isabel Duran | Desarrollo Full-Stack |
+| Juan Gonzalez | Diseñador de Datos y Desarrollador Principal |
+| Shania Russo | Arquitecta de Software |
+| David Hasbum | Analista de requisitos |
+| Isabel Duran | Responsable QA |
 
 ---
 
