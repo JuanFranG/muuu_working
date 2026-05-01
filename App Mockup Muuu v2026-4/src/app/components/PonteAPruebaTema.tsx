@@ -11,8 +11,6 @@ interface PonteAPruebaTemaProps {
   onSelectTema:  (idTema: number, nombreTema: string) => void;
 }
 
-const TEMA_COLORS = ['#9B7EC7', '#7952B3', '#B8A4D9', '#8A2BE2', '#5B3F9A'];
-
 export function PonteAPruebaTema({ onBack, onSelectTema }: PonteAPruebaTemaProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [temas,       setTemas]       = useState<TemaAPI[]>([]);
@@ -120,60 +118,45 @@ export function PonteAPruebaTema({ onBack, onSelectTema }: PonteAPruebaTemaProps
           </div>
         )}
 
-        {!cargando && filteredTemas.map((tema, idx) => {
-          const color = TEMA_COLORS[idx % TEMA_COLORS.length];
-
-          return (
-            <div key={tema.id_tema} style={{
-              display: 'flex', alignItems: 'center', gap: '16px', padding: '16px',
-              borderRadius: '24px', marginBottom: '12px', backgroundColor: '#FFFFFF',
-              boxShadow: '0 4px 16px rgba(155,126,199,0.15)', border: '2px solid #F3EBFF',
-            }}>
-              {/* Ícono / inicial */}
-              <div style={{
-                width: '52px', height: '52px', borderRadius: '16px', backgroundColor: color,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0, fontSize: tema.icono ? '24px' : '20px',
-                fontFamily: 'Poppins, sans-serif', fontWeight: 700, color: '#FFFFFF',
+        {!cargando && filteredTemas.map((tema) => (
+          <div key={tema.id_tema} style={{
+            display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 18px',
+            borderRadius: '20px', marginBottom: '10px', backgroundColor: '#FFFFFF',
+            boxShadow: '0 4px 16px rgba(155,126,199,0.12)', border: '1.5px solid #EDE4F8',
+          }}>
+            {/* Info — nombre + descripción sin truncar */}
+            <div style={{ flex: 1 }}>
+              <h3 style={{
+                fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px',
+                color: '#1E293B', margin: '0 0 4px 0', lineHeight: '1.35',
               }}>
-                {tema.icono ? tema.icono : tema.nombre.charAt(0).toUpperCase()}
-              </div>
-
-              {/* Info */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <h3 style={{
-                  fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '15px',
-                  color: '#1E293B', margin: '0 0 4px 0',
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                {tema.nombre}
+              </h3>
+              {tema.descripcion && (
+                <p style={{
+                  fontFamily: 'Poppins, sans-serif', fontSize: '12px', color: '#7D7D7D',
+                  margin: 0, lineHeight: '1.45',
                 }}>
-                  {tema.nombre}
-                </h3>
-                {tema.descripcion && (
-                  <p style={{
-                    fontFamily: 'Poppins, sans-serif', fontSize: '12px', color: '#7D7D7D',
-                    margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  }}>
-                    {tema.descripcion}
-                  </p>
-                )}
-              </div>
-
-              {/* Botón Practicar */}
-              <button
-                onClick={() => onSelectTema(tema.id_tema, tema.nombre)}
-                style={{
-                  padding: '10px 20px', borderRadius: '999px', border: 'none',
-                  backgroundColor: '#9B7EC7', color: '#FFFFFF',
-                  fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '13px',
-                  cursor: 'pointer', boxShadow: '0 4px 12px rgba(155,126,199,0.4)',
-                  flexShrink: 0, whiteSpace: 'nowrap',
-                }}
-              >
-                Practicar
-              </button>
+                  {tema.descripcion}
+                </p>
+              )}
             </div>
-          );
-        })}
+
+            {/* Botón Practicar */}
+            <button
+              onClick={() => onSelectTema(tema.id_tema, tema.nombre)}
+              style={{
+                padding: '10px 18px', borderRadius: '999px', border: 'none',
+                backgroundColor: '#9B7EC7', color: '#FFFFFF',
+                fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '13px',
+                cursor: 'pointer', boxShadow: '0 4px 12px rgba(155,126,199,0.35)',
+                flexShrink: 0, whiteSpace: 'nowrap',
+              }}
+            >
+              Practicar
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   );
