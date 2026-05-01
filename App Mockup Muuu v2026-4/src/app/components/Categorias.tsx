@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Trash2, Loader2, AlertTriangle, BookOpen, FileText, Tag } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Loader2, AlertTriangle, BookOpen, FileText, Tag, Lock } from 'lucide-react';
 import {
   listarTemasEstadisticasAPI,
   crearTemaAPI,
@@ -305,35 +305,53 @@ export function Categorias({ onBack }: CategoriasProps) {
                 </div>
               </div>
 
-              {/* Botón eliminar */}
-              <button
-                onClick={() => {
-                  setErrorBorrado(null);
-                  setConfirmDeleteId(tema.id_tema);
-                }}
-                disabled={eliminandoId === tema.id_tema}
-                style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '10px',
-                  border: 'none',
-                  backgroundColor: '#FEF2F2',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  flexShrink: 0,
-                }}
-              >
-                {eliminandoId === tema.id_tema
-                  ? <Loader2 size={16} color="#EF4444" style={{ animation: 'spin 1s linear infinite' }} />
-                  : <Trash2 size={16} color="#EF4444" strokeWidth={2.5} />
-                }
-              </button>
+              {/* Botón: candado si es sistema, basura si es custom */}
+              {tema.esSistema ? (
+                <div
+                  title="Tema del sistema — no se puede eliminar"
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '10px',
+                    backgroundColor: '#F3F4F6',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Lock size={15} color="#9CA3AF" strokeWidth={2.5} />
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    setErrorBorrado(null);
+                    setConfirmDeleteId(tema.id_tema);
+                  }}
+                  disabled={eliminandoId === tema.id_tema}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    backgroundColor: '#FEF2F2',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                  }}
+                >
+                  {eliminandoId === tema.id_tema
+                    ? <Loader2 size={16} color="#EF4444" style={{ animation: 'spin 1s linear infinite' }} />
+                    : <Trash2 size={16} color="#EF4444" strokeWidth={2.5} />
+                  }
+                </button>
+              )}
             </div>
 
-            {/* Confirmación de borrado */}
-            {confirmDeleteId === tema.id_tema && (
+            {/* Confirmación de borrado (solo temas custom) */}
+            {!tema.esSistema && confirmDeleteId === tema.id_tema && (
               <div
                 style={{
                   marginTop: '12px',
@@ -388,8 +406,8 @@ export function Categorias({ onBack }: CategoriasProps) {
               </div>
             )}
 
-            {/* Error de borrado (tiene vínculos) */}
-            {errorBorrado?.id === tema.id_tema && (
+            {/* Error de borrado (tiene vínculos, solo custom) */}
+            {!tema.esSistema && errorBorrado?.id === tema.id_tema && (
               <div
                 style={{
                   marginTop: '10px',

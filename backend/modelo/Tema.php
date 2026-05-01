@@ -19,7 +19,7 @@ class Tema
     public function listar(): array
     {
         $stmt = $this->db->query(
-            'SELECT id_tema, nombre, descripcion, icono
+            'SELECT id_tema, nombre, descripcion, icono, esSistema
              FROM   TEMA
              ORDER BY id_tema'
         );
@@ -35,12 +35,13 @@ class Tema
                  t.nombre,
                  t.descripcion,
                  t.icono,
+                 t.esSistema,
                  COUNT(DISTINCT f.id_flashcard) AS totalFlashcards,
                  COUNT(DISTINCT m.id_material)  AS totalMateriales
              FROM   TEMA t
              LEFT JOIN FLASHCARDS f ON f.id_tema = t.id_tema
              LEFT JOIN MATERIAL   m ON m.id_tema = t.id_tema
-             GROUP BY t.id_tema, t.nombre, t.descripcion, t.icono
+             GROUP BY t.id_tema, t.nombre, t.descripcion, t.icono, t.esSistema
              ORDER BY t.id_tema'
         );
         return $stmt->fetchAll();
@@ -50,7 +51,7 @@ class Tema
     public function buscarPorId(int $id): ?array
     {
         $stmt = $this->db->prepare(
-            'SELECT id_tema, nombre, descripcion, icono
+            'SELECT id_tema, nombre, descripcion, icono, esSistema
              FROM   TEMA
              WHERE  id_tema = ?
              LIMIT  1'

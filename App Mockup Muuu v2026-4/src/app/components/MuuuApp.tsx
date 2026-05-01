@@ -1093,6 +1093,20 @@ export function MuuuApp() {
     return () => clearTimeout(timer);
   }, []);
 
+  // ── Actualiza theme-color según la pantalla activa ───────
+  useEffect(() => {
+    const TEACHER_SCREENS: AppState[] = [
+      'teacherHome', 'disenarFlashcard', 'editarFlashcard',
+      'misFlashcards', 'misDocumentos', 'editarMaterial',
+      'agregarMaterial', 'categorias', 'perfilDocente',
+      'perfilMenuDocente', 'configuracionesDocente',
+    ];
+    const color = TEACHER_SCREENS.includes(appState) ? '#F59E0B' : '#7952B3';
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', color);
+    document.body.style.backgroundColor = color;
+  }, [appState]);
+
   const handleRoleSelected = (role: 'student' | 'teacher') => {
     setUserRole(role);
     setAppState('register');

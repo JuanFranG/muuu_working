@@ -36,6 +36,7 @@ export interface TemaAPI {
 export interface TemaEstadisticasAPI extends TemaAPI {
   totalFlashcards: number;
   totalMateriales: number;
+  esSistema:       boolean;
 }
 
 export interface DificultadAPI {

@@ -8,7 +8,9 @@
           content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <!-- ── Theme color: tiñe la barra del navegador en Android Chrome ──── -->
-    <meta name="theme-color" content="#F59E0B" />
+    <!-- El valor inicial es morado (pantalla de inicio/estudiante).        -->
+    <!-- MuuuApp.tsx lo actualiza dinámicamente según la pantalla activa.   -->
+    <meta name="theme-color" content="#7952B3" />
 
     <!-- ── iOS Safari: barra de estado transparente sobre el header ─────── -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -20,7 +22,8 @@
       html, body {
         height: 100%;
         margin: 0;
-        background-color: #F59E0B; /* mismo naranja: rellena el hueco del safe-area */
+        background-color: #7952B3; /* morado inicial; JS lo cambia según pantalla */
+        transition: background-color 0.3s ease;
       }
       #root {
         height: 100%;
