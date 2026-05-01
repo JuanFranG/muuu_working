@@ -1082,7 +1082,6 @@ export function MuuuApp() {
   const [appState, setAppState] = useState<AppState>('loading');
   const [userRole, setUserRole] = useState<'student' | 'teacher' | null>(null);
   const [userName, setUserName] = useState('Martínez');
-  const [showNavOverlay, setShowNavOverlay] = useState(false);
   const [flashcardEditarId, setFlashcardEditarId] = useState<number | undefined>(undefined);
   const [materialEditarId,  setMaterialEditarId]  = useState<number | undefined>(undefined);
 
@@ -1125,559 +1124,47 @@ export function MuuuApp() {
       setUserRole('teacher');
     }
     setAppState(screen);
-    setShowNavOverlay(false);
   };
-
-  // BOTONES INVISIBLES DE NAVEGACIÓN
-  const NavButtons = () => (
-    <>
-      {/* Botón invisible esquina superior izquierda - Toggle menú navegación */}
-      <button
-        onClick={() => setShowNavOverlay(!showNavOverlay)}
-        className="fixed top-0 left-0 z-[9999]"
-        style={{
-          width: '60px',
-          height: '60px',
-          backgroundColor: 'transparent',
-          border: 'none',
-          cursor: 'pointer',
-          opacity: 0.01
-        }}
-        title="Navegación rápida"
-      />
-
-      {/* Botón invisible esquina superior derecha - Loading */}
-      <button
-        onClick={() => navigateToScreen('loading')}
-        className="fixed top-0 right-0 z-[9999]"
-        style={{
-          width: '60px',
-          height: '60px',
-          backgroundColor: 'transparent',
-          border: 'none',
-          cursor: 'pointer',
-          opacity: 0.01
-        }}
-        title="Loading Screen"
-      />
-
-      {/* Botón invisible esquina inferior izquierda - Student Home */}
-      <button
-        onClick={() => navigateToScreen('studentHome')}
-        className="fixed bottom-0 left-0 z-[9999]"
-        style={{
-          width: '60px',
-          height: '60px',
-          backgroundColor: 'transparent',
-          border: 'none',
-          cursor: 'pointer',
-          opacity: 0.01
-        }}
-        title="Student Home"
-      />
-
-      {/* Botón invisible esquina inferior derecha - Teacher Home */}
-      <button
-        onClick={() => navigateToScreen('teacherHome')}
-        className="fixed bottom-0 right-0 z-[9999]"
-        style={{
-          width: '60px',
-          height: '60px',
-          backgroundColor: 'transparent',
-          border: 'none',
-          cursor: 'pointer',
-          opacity: 0.01
-        }}
-        title="Teacher Home"
-      />
-
-      {/* Overlay de navegación */}
-      {showNavOverlay && (
-        <div 
-          className="fixed inset-0 z-[9998] flex items-center justify-center"
-          style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.85)',
-            backdropFilter: 'blur(8px)'
-          }}
-          onClick={() => setShowNavOverlay(false)}
-        >
-          <div 
-            className="relative"
-            style={{
-              backgroundColor: '#FFFFFF',
-              borderRadius: '20px',
-              padding: '32px',
-              maxWidth: '340px',
-              width: '90%',
-              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div style={{ marginBottom: '24px', textAlign: 'center' }}>
-              <h2 
-                style={{
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 700,
-                  fontSize: '20px',
-                  color: '#1E293B',
-                  marginBottom: '8px'
-                }}
-              >
-                🚀 Navegación Rápida
-              </h2>
-              <p 
-                style={{
-                  fontFamily: 'Poppins, sans-serif',
-                  fontSize: '12px',
-                  color: '#64748B'
-                }}
-              >
-                Salta a cualquier pantalla
-              </p>
-            </div>
-
-            {/* Grid de botones */}
-            <div style={{ display: 'grid', gap: '8px' }}>
-              {/* Pantallas generales */}
-              <button
-                onClick={() => navigateToScreen('loading')}
-                className="transition-all hover:scale-[1.02]"
-                style={{
-                  padding: '14px 16px',
-                  backgroundColor: '#F3EBFF',
-                  border: '2px solid #E6D5F0',
-                  borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 600,
-                  fontSize: '14px',
-                  color: '#7952B3',
-                  textAlign: 'left',
-                  cursor: 'pointer'
-                }}
-              >
-                🔄 Pantalla de Carga
-              </button>
-
-              <button
-                onClick={() => navigateToScreen('home')}
-                className="transition-all hover:scale-[1.02]"
-                style={{
-                  padding: '14px 16px',
-                  backgroundColor: '#F3EBFF',
-                  border: '2px solid #E6D5F0',
-                  borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 600,
-                  fontSize: '14px',
-                  color: '#7952B3',
-                  textAlign: 'left',
-                  cursor: 'pointer'
-                }}
-              >
-                🏠 Inicio (Home)
-              </button>
-
-              <button
-                onClick={() => navigateToScreen('login')}
-                className="transition-all hover:scale-[1.02]"
-                style={{
-                  padding: '14px 16px',
-                  backgroundColor: '#F3EBFF',
-                  border: '2px solid #E6D5F0',
-                  borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 600,
-                  fontSize: '14px',
-                  color: '#7952B3',
-                  textAlign: 'left',
-                  cursor: 'pointer'
-                }}
-              >
-                🔐 Login
-              </button>
-
-              <button
-                onClick={() => navigateToScreen('roleSelection')}
-                className="transition-all hover:scale-[1.02]"
-                style={{
-                  padding: '14px 16px',
-                  backgroundColor: '#F3EBFF',
-                  border: '2px solid #E6D5F0',
-                  borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 600,
-                  fontSize: '14px',
-                  color: '#7952B3',
-                  textAlign: 'left',
-                  cursor: 'pointer'
-                }}
-              >
-                👤 Selección de Rol
-              </button>
-
-              <button
-                onClick={() => {
-                  setUserRole('student');
-                  navigateToScreen('register');
-                }}
-                className="transition-all hover:scale-[1.02]"
-                style={{
-                  padding: '14px 16px',
-                  backgroundColor: '#F3EBFF',
-                  border: '2px solid #E6D5F0',
-                  borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 600,
-                  fontSize: '14px',
-                  color: '#7952B3',
-                  textAlign: 'left',
-                  cursor: 'pointer'
-                }}
-              >
-                📝 Registro Estudiante
-              </button>
-
-              <button
-                onClick={() => {
-                  setUserRole('teacher');
-                  navigateToScreen('register');
-                }}
-                className="transition-all hover:scale-[1.02]"
-                style={{
-                  padding: '14px 16px',
-                  backgroundColor: '#FFFDE7',
-                  border: '2px solid #FFF9C4',
-                  borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 600,
-                  fontSize: '14px',
-                  color: '#F59E0B',
-                  textAlign: 'left',
-                  cursor: 'pointer'
-                }}
-              >
-                📝 Registro Docente
-              </button>
-
-              {/* Divisor */}
-              <div 
-                style={{
-                  height: '1px',
-                  backgroundColor: '#E6D5F0',
-                  margin: '8px 0'
-                }}
-              />
-
-              {/* Pantallas de estudiante */}
-              <button
-                onClick={() => navigateToScreen('studentHome')}
-                className="transition-all hover:scale-[1.02]"
-                style={{
-                  padding: '14px 16px',
-                  backgroundColor: '#9B7EC7',
-                  border: '2px solid #7952B3',
-                  borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 700,
-                  fontSize: '14px',
-                  color: '#FFFFFF',
-                  textAlign: 'left',
-                  cursor: 'pointer'
-                }}
-              >
-                🎓 Home Estudiante
-              </button>
-
-              <button
-                onClick={() => navigateToScreen('aprendeUnPoco')}
-                className="transition-all hover:scale-[1.02]"
-                style={{
-                  padding: '14px 16px',
-                  backgroundColor: '#9B7EC7',
-                  border: '2px solid #7952B3',
-                  borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 700,
-                  fontSize: '14px',
-                  color: '#FFFFFF',
-                  textAlign: 'left',
-                  cursor: 'pointer'
-                }}
-              >
-                💡 Aprende un Poco (Original)
-              </button>
-
-              <button
-                onClick={() => navigateToScreen('aprendeUnPocoMinimal')}
-                className="transition-all hover:scale-[1.02]"
-                style={{
-                  padding: '14px 16px',
-                  backgroundColor: '#9B7EC7',
-                  border: '2px solid #7952B3',
-                  borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 700,
-                  fontSize: '14px',
-                  color: '#FFFFFF',
-                  textAlign: 'left',
-                  cursor: 'pointer'
-                }}
-              >
-                💡 Aprende un Poco (Minimal)
-              </button>
-
-              <button
-                onClick={() => navigateToScreen('ponteAPrueba')}
-                className="transition-all hover:scale-[1.02]"
-                style={{
-                  padding: '14px 16px',
-                  backgroundColor: '#9B7EC7',
-                  border: '2px solid #7952B3',
-                  borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 700,
-                  fontSize: '14px',
-                  color: '#FFFFFF',
-                  textAlign: 'left',
-                  cursor: 'pointer'
-                }}
-              >
-                🏆 Ponte a Prueba
-              </button>
-
-              <button
-                onClick={() => navigateToScreen('desafiaAlguien')}
-                className="transition-all hover:scale-[1.02]"
-                style={{
-                  padding: '14px 16px',
-                  backgroundColor: '#9B7EC7',
-                  border: '2px solid #7952B3',
-                  borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 700,
-                  fontSize: '14px',
-                  color: '#FFFFFF',
-                  textAlign: 'left',
-                  cursor: 'pointer'
-                }}
-              >
-                ⚔️ Desafía a Alguien
-              </button>
-
-              <button
-                onClick={() => navigateToScreen('miProgreso')}
-                className="transition-all hover:scale-[1.02]"
-                style={{
-                  padding: '14px 16px',
-                  backgroundColor: '#9B7EC7',
-                  border: '2px solid #7952B3',
-                  borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 700,
-                  fontSize: '14px',
-                  color: '#FFFFFF',
-                  textAlign: 'left',
-                  cursor: 'pointer'
-                }}
-              >
-                📊 Mi Progreso
-              </button>
-
-              <button
-                onClick={() => navigateToScreen('rankings')}
-                className="transition-all hover:scale-[1.02]"
-                style={{
-                  padding: '14px 16px',
-                  backgroundColor: '#9B7EC7',
-                  border: '2px solid #7952B3',
-                  borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 700,
-                  fontSize: '14px',
-                  color: '#FFFFFF',
-                  textAlign: 'left',
-                  cursor: 'pointer'
-                }}
-              >
-                🏅 Rankings
-              </button>
-
-              <button
-                onClick={() => {
-                  setUserRole('student');
-                  navigateToScreen('perfilEstudiante');
-                }}
-                className="transition-all hover:scale-[1.02]"
-                style={{
-                  padding: '14px 16px',
-                  backgroundColor: '#9B7EC7',
-                  border: '2px solid #7952B3',
-                  borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 700,
-                  fontSize: '14px',
-                  color: '#FFFFFF',
-                  textAlign: 'left',
-                  cursor: 'pointer'
-                }}
-              >
-                👤 Perfil Estudiante
-              </button>
-
-              {/* Divisor */}
-              <div 
-                style={{
-                  height: '1px',
-                  backgroundColor: '#FFF9C4',
-                  margin: '8px 0'
-                }}
-              />
-
-              {/* Pantallas de docente */}
-              <button
-                onClick={() => navigateToScreen('teacherHome')}
-                className="transition-all hover:scale-[1.02]"
-                style={{
-                  padding: '14px 16px',
-                  backgroundColor: '#FFD700',
-                  border: '2px solid #FFA000',
-                  borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 700,
-                  fontSize: '14px',
-                  color: '#1A1A1A',
-                  textAlign: 'left',
-                  cursor: 'pointer'
-                }}
-              >
-                👨‍🏫 Home Docente
-              </button>
-
-              <button
-                onClick={() => navigateToScreen('disenarFlashcard')}
-                className="transition-all hover:scale-[1.02]"
-                style={{
-                  padding: '14px 16px',
-                  backgroundColor: '#FFD700',
-                  border: '2px solid #FFA000',
-                  borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif',
-                  fontWeight: 700,
-                  fontSize: '14px',
-                  color: '#1A1A1A',
-                  textAlign: 'left',
-                  cursor: 'pointer'
-                }}
-              >
-                ✏️ Diseñar Flashcard
-              </button>
-            </div>
-
-            {/* Footer info */}
-            <div 
-              style={{
-                marginTop: '20px',
-                padding: '12px',
-                backgroundColor: '#F8F9FA',
-                borderRadius: '8px',
-                textAlign: 'center'
-              }}
-            >
-              <p 
-                style={{
-                  fontFamily: 'Poppins, sans-serif',
-                  fontSize: '11px',
-                  color: '#64748B',
-                  lineHeight: '1.4'
-                }}
-              >
-                <strong>Atajos:</strong><br />
-                Esquina superior izq. = Este menú<br />
-                Esquina inferior izq. = Student Home<br />
-                Esquina inferior der. = Teacher Home
-              </p>
-            </div>
-
-            {/* Botón cerrar */}
-            <button
-              onClick={() => setShowNavOverlay(false)}
-              className="absolute top-4 right-4 transition-all hover:scale-110"
-              style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '50%',
-                backgroundColor: '#F1F5F9',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#64748B'
-              }}
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
-    </>
-  );
 
   if (appState === 'loading') {
     return (
-      <>
-        <LoadingScreen />
-        <NavButtons />
-      </>
+      <LoadingScreen />
     );
   }
 
   if (appState === 'home') {
     return (
-      <>
-        <HomeScreen onLoginClick={() => setAppState('login')} onRegisterClick={() => setAppState('roleSelection')} />
-        <NavButtons />
-      </>
+      <HomeScreen onLoginClick={() => setAppState('login')} onRegisterClick={() => setAppState('roleSelection')} />
     );
   }
 
   if (appState === 'login') {
     return (
-      <>
-        <LoginScreen 
-          onBack={() => setAppState('home')} 
-          onRegister={() => setAppState('roleSelection')}
-          onLoginSuccess={(role, lastName) => {
-            setUserRole(role);
-            setUserName(lastName);
-            if (role === 'student') {
-              setAppState('studentHome');
-            } else {
-              setAppState('teacherHome');
-            }
-          }}
-        />
-        <NavButtons />
-      </>
+      <LoginScreen
+        onBack={() => setAppState('home')}
+        onRegister={() => setAppState('roleSelection')}
+        onLoginSuccess={(role, lastName) => {
+          setUserRole(role);
+          setUserName(lastName);
+          if (role === 'student') {
+            setAppState('studentHome');
+          } else {
+            setAppState('teacherHome');
+          }
+        }}
+      />
     );
   }
 
   if (appState === 'roleSelection') {
     return (
-      <>
-        <RoleSelectionScreen onRoleSelected={handleRoleSelected} onBack={() => setAppState('home')} />
-        <NavButtons />
-      </>
+      <RoleSelectionScreen onRoleSelected={handleRoleSelected} onBack={() => setAppState('home')} />
     );
   }
 
   if (appState === 'register') {
     return (
-      <>
-        <RegisterScreen userType={userRole} onBack={() => setAppState('roleSelection')} onRegisterSuccess={handleRegisterSuccess} />
-        <NavButtons />
-      </>
+      <RegisterScreen userType={userRole} onBack={() => setAppState('roleSelection')} onRegisterSuccess={handleRegisterSuccess} />
     );
   }
 
@@ -1738,263 +1225,191 @@ export function MuuuApp() {
 
   if (appState === 'studentHome') {
     return (
-      <>
-        <StudentHome userName={userName} onNavigate={setAppState} />
-        <NavButtons />
-      </>
+      <StudentHome userName={userName} onNavigate={setAppState} />
     );
   }
 
   if (appState === 'aprendeUnPoco') {
     return (
-      <>
-        <AprendeUnPocoMinimal onBack={() => setAppState('studentHome')} />
-        <NavButtons />
-      </>
+      <AprendeUnPocoMinimal onBack={() => setAppState('studentHome')} />
     );
   }
 
   if (appState === 'aprendeUnPocoMinimal') {
     return (
-      <>
-        <AprendeUnPocoMinimal onBack={() => setAppState('studentHome')} />
-        <NavButtons />
-      </>
+      <AprendeUnPocoMinimal onBack={() => setAppState('studentHome')} />
     );
   }
 
   // Versión original de Aprende un Poco (mantenida para referencia)
   if (appState === 'aprendeUnPocoOriginal') {
     return (
-      <>
-        <AprendeUnPoco onBack={() => setAppState('studentHome')} />
-        <NavButtons />
-      </>
+      <AprendeUnPoco onBack={() => setAppState('studentHome')} />
     );
   }
 
   if (appState === 'ponteAPrueba') {
     return (
-      <>
-        <PonteAPrueba onBack={() => setAppState('studentHome')} />
-        <NavButtons />
-      </>
+      <PonteAPrueba onBack={() => setAppState('studentHome')} />
     );
   }
 
   if (appState === 'desafiaAlguien') {
     return (
-      <>
-        <DesafiaAlguien 
-          onBack={() => setAppState('studentHome')} 
-          onCreateRoom={(config) => {
-            console.log('Creating room with config:', config);
-            setAppState('salaDesafio');
-          }}
-        />
-        <NavButtons />
-      </>
+      <DesafiaAlguien
+        onBack={() => setAppState('studentHome')}
+        onCreateRoom={(config) => {
+          console.log('Creating room with config:', config);
+          setAppState('salaDesafio');
+        }}
+      />
     );
   }
 
   if (appState === 'salaDesafio') {
     return (
-      <>
-        <SalaDesafio 
-          onBack={() => setAppState('desafiaAlguien')} 
-          onStartGame={() => {
-            console.log('Starting game');
-            // Aquí podría ir a una pantalla de juego
-            setAppState('studentHome');
-          }}
-        />
-        <NavButtons />
-      </>
+      <SalaDesafio
+        onBack={() => setAppState('desafiaAlguien')}
+        onStartGame={() => {
+          console.log('Starting game');
+          // Aquí podría ir a una pantalla de juego
+          setAppState('studentHome');
+        }}
+      />
     );
   }
 
   if (appState === 'miProgreso') {
     return (
-      <>
-        <MiProgreso onBack={() => setAppState('studentHome')} />
-        <NavButtons />
-      </>
+      <MiProgreso onBack={() => setAppState('studentHome')} />
     );
   }
 
   if (appState === 'guiasEstudio') {
     return (
-      <>
-        <GuiasEstudio onBack={() => setAppState('studentHome')} />
-        <NavButtons />
-      </>
+      <GuiasEstudio onBack={() => setAppState('studentHome')} />
     );
   }
 
   if (appState === 'teacherHome') {
     return (
-      <>
-        <TeacherHome userName={userName} onNavigate={setAppState} />
-        <NavButtons />
-      </>
+      <TeacherHome userName={userName} onNavigate={setAppState} />
     );
   }
 
   if (appState === 'disenarFlashcard') {
     return (
-      <>
-        <DisenarFlashcard onBack={() => setAppState('teacherHome')} />
-        <NavButtons />
-      </>
+      <DisenarFlashcard onBack={() => setAppState('teacherHome')} />
     );
   }
 
   if (appState === 'misFlashcards') {
     return (
-      <>
-        <MisFlashcards
-          onBack={() => setAppState('teacherHome')}
-          onEditFlashcard={(id) => {
-            setFlashcardEditarId(id);
-            setAppState('editarFlashcard');
-          }}
-        />
-        <NavButtons />
-      </>
+      <MisFlashcards
+        onBack={() => setAppState('teacherHome')}
+        onEditFlashcard={(id) => {
+          setFlashcardEditarId(id);
+          setAppState('editarFlashcard');
+        }}
+      />
     );
   }
 
   if (appState === 'editarFlashcard') {
     return (
-      <>
-        <DisenarFlashcard
-          onBack={() => setAppState('misFlashcards')}
-          flashcardId={flashcardEditarId}
-        />
-        <NavButtons />
-      </>
+      <DisenarFlashcard
+        onBack={() => setAppState('misFlashcards')}
+        flashcardId={flashcardEditarId}
+      />
     );
   }
 
   if (appState === 'agregarMaterial') {
     return (
-      <>
-        <AgregarMaterial onBack={() => setAppState('teacherHome')} />
-        <NavButtons />
-      </>
+      <AgregarMaterial onBack={() => setAppState('teacherHome')} />
     );
   }
 
   if (appState === 'misDocumentos') {
     return (
-      <>
-        <MisDocumentos
-          onBack={() => setAppState('teacherHome')}
-          onEditMaterial={(id) => { setMaterialEditarId(id); setAppState('editarMaterial'); }}
-        />
-        <NavButtons />
-      </>
+      <MisDocumentos
+        onBack={() => setAppState('teacherHome')}
+        onEditMaterial={(id) => { setMaterialEditarId(id); setAppState('editarMaterial'); }}
+      />
     );
   }
 
   if (appState === 'editarMaterial') {
     return (
-      <>
-        <AgregarMaterial
-          onBack={() => setAppState('misDocumentos')}
-          materialId={materialEditarId}
-        />
-        <NavButtons />
-      </>
+      <AgregarMaterial
+        onBack={() => setAppState('misDocumentos')}
+        materialId={materialEditarId}
+      />
     );
   }
 
   if (appState === 'categorias') {
     return (
-      <>
-        <Categorias onBack={() => setAppState('teacherHome')} />
-        <NavButtons />
-      </>
+      <Categorias onBack={() => setAppState('teacherHome')} />
     );
   }
 
   if (appState === 'rankings') {
     return (
-      <>
-        <Rankings onBack={() => setAppState('studentHome')} />
-        <NavButtons />
-      </>
+      <Rankings onBack={() => setAppState('studentHome')} />
     );
   }
 
   if (appState === 'perfilEstudiante') {
     return (
-      <>
-        <PerfilEstudiante onBack={() => setAppState('perfilMenu')} />
-        <NavButtons />
-      </>
+      <PerfilEstudiante onBack={() => setAppState('perfilMenu')} />
     );
   }
 
   if (appState === 'perfilDocente') {
     return (
-      <>
-        <PerfilDocente 
-          onBack={() => setAppState('perfilMenuDocente')} 
-          onNavigateToMenu={() => setAppState('perfilMenuDocente')}
-        />
-        <NavButtons />
-      </>
+      <PerfilDocente
+        onBack={() => setAppState('perfilMenuDocente')}
+        onNavigateToMenu={() => setAppState('perfilMenuDocente')}
+      />
     );
   }
 
   if (appState === 'configuraciones') {
     return (
-      <>
-        <Configuraciones 
-          onBack={() => setAppState('perfilMenu')} 
-          onLogout={() => setAppState('login')}
-        />
-        <NavButtons />
-      </>
+      <Configuraciones
+        onBack={() => setAppState('perfilMenu')}
+        onLogout={() => setAppState('login')}
+      />
     );
   }
 
   if (appState === 'configuracionesDocente') {
     return (
-      <>
-        <ConfiguracionesDocente 
-          onBack={() => setAppState('teacherHome')} 
-          onLogout={() => setAppState('login')}
-        />
-        <NavButtons />
-      </>
+      <ConfiguracionesDocente
+        onBack={() => setAppState('teacherHome')}
+        onLogout={() => setAppState('login')}
+      />
     );
   }
 
   if (appState === 'perfilMenu') {
     return (
-      <>
-        <PerfilMenu 
-          userName={userName} 
-          onBack={() => setAppState('studentHome')} 
-          onNavigate={setAppState} 
-        />
-        <NavButtons />
-      </>
+      <PerfilMenu
+        userName={userName}
+        onBack={() => setAppState('studentHome')}
+        onNavigate={setAppState}
+      />
     );
   }
 
   if (appState === 'perfilMenuDocente') {
     return (
-      <>
-        <PerfilMenuDocente 
-          userName={userName} 
-          onBack={() => setAppState('teacherHome')} 
-          onNavigate={setAppState} 
-        />
-        <NavButtons />
-      </>
+      <PerfilMenuDocente
+        userName={userName}
+        onBack={() => setAppState('teacherHome')}
+        onNavigate={setAppState}
+      />
     );
   }
 
