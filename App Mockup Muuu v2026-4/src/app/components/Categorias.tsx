@@ -11,8 +11,6 @@ interface CategoriasProps {
   onBack: () => void;
 }
 
-const EMOJIS_SUGERIDOS = ['📋', '🐄', '📐', '✂️', '🔢', '⚖️', '📊', '📚', '🧮', '∫', '🔬', '💡', '🎯', '📌', '🏷️'];
-
 export function Categorias({ onBack }: CategoriasProps) {
   const [temas, setTemas]             = useState<TemaEstadisticasAPI[]>([]);
   const [cargando, setCargando]       = useState(true);
@@ -22,7 +20,6 @@ export function Categorias({ onBack }: CategoriasProps) {
   const [mostrarForm, setMostrarForm] = useState(false);
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [nuevaDesc,   setNuevaDesc]   = useState('');
-  const [nuevoIcono,  setNuevoIcono]  = useState('🏷️');
   const [guardando,   setGuardando]   = useState(false);
   const [errorForm,   setErrorForm]   = useState('');
 
@@ -58,12 +55,10 @@ export function Categorias({ onBack }: CategoriasProps) {
       const nuevo = await crearTemaAPI({
         nombre:      nuevoNombre.trim(),
         descripcion: nuevaDesc.trim() || undefined,
-        icono:       nuevoIcono || undefined,
       });
       setTemas(prev => [...prev, nuevo]);
       setNuevoNombre('');
       setNuevaDesc('');
-      setNuevoIcono('🏷️');
       setMostrarForm(false);
     } catch (err: unknown) {
       setErrorForm(err instanceof Error ? err.message : 'Error al crear la categoría.');
@@ -209,31 +204,14 @@ export function Categorias({ onBack }: CategoriasProps) {
             style={{
               backgroundColor: '#FFFFFF',
               borderRadius: '16px',
-              padding: '16px',
+              padding: '16px 20px',
               marginBottom: '12px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
               border: '1.5px solid #F3F4F6',
             }}
           >
             {/* Fila principal */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              {/* Icono */}
-              <div
-                style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '14px',
-                  background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '22px',
-                  flexShrink: 0,
-                }}
-              >
-                {tema.icono || '🏷️'}
-              </div>
-
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
               {/* Nombre + desc */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p
@@ -243,9 +221,7 @@ export function Categorias({ onBack }: CategoriasProps) {
                     fontSize: '14px',
                     color: '#1F2937',
                     margin: 0,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
+                    lineHeight: '1.4',
                   }}
                 >
                   {tema.nombre}
@@ -256,10 +232,8 @@ export function Categorias({ onBack }: CategoriasProps) {
                       fontFamily: 'Poppins, sans-serif',
                       fontSize: '11px',
                       color: '#6B7280',
-                      margin: '2px 0 0 0',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
+                      margin: '4px 0 0 0',
+                      lineHeight: '1.5',
                     }}
                   >
                     {tema.descripcion}
@@ -462,33 +436,6 @@ export function Categorias({ onBack }: CategoriasProps) {
               Nueva categoría
             </p>
 
-            {/* Selector de emoji */}
-            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: '#6B7280', margin: '0 0 6px 0' }}>
-              Ícono
-            </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
-              {EMOJIS_SUGERIDOS.map(e => (
-                <button
-                  key={e}
-                  onClick={() => setNuevoIcono(e)}
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '8px',
-                    border: nuevoIcono === e ? '2px solid #F59E0B' : '1.5px solid #E5E7EB',
-                    backgroundColor: nuevoIcono === e ? '#FEF3C7' : '#FFFFFF',
-                    fontSize: '18px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  {e}
-                </button>
-              ))}
-            </div>
-
             {/* Nombre */}
             <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: '#6B7280', margin: '0 0 4px 0' }}>
               Nombre <span style={{ color: '#EF4444' }}>*</span>
@@ -574,7 +521,7 @@ export function Categorias({ onBack }: CategoriasProps) {
                 }
               </button>
               <button
-                onClick={() => { setMostrarForm(false); setErrorForm(''); setNuevoNombre(''); setNuevaDesc(''); setNuevoIcono('🏷️'); }}
+                onClick={() => { setMostrarForm(false); setErrorForm(''); setNuevoNombre(''); setNuevaDesc(''); }}
                 style={{
                   padding: '10px 16px',
                   borderRadius: '10px',
