@@ -1,6 +1,7 @@
 # Muuu — Aplicación Web de Estudio con Flashcards
 
-> Proyecto académico del programa de Ingeniería de Sistemas de la Facultad de ingeniería 
+> Programa de Ingeniería de Sistemas
+> Facultad de ingeniería 
 > Universidad del Magdalena · 2026-1
 
 ---
