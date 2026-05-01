@@ -1,5 +1,5 @@
 import { useState, useEffect, CSSProperties } from 'react';
-import { ArrowLeft, Search, Heart, Loader2 } from 'lucide-react';
+import { ArrowLeft, Search, Heart, Loader2, ChevronDown, ChevronUp, Users } from 'lucide-react';
 import { listarDocentesAPI, suscribirseAPI, type DocenteAPI } from '../services/api';
 
 interface PonteAPruebaDocentesProps {
@@ -25,6 +25,14 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
   const [cargando,       setCargando]       = useState(true);
   const [errorMsg,       setErrorMsg]       = useState('');
   const [suscribiendo,   setSuscribiendo]   = useState<number | null>(null);
+  const [expandidos,     setExpandidos]     = useState<Set<number>>(new Set());
+
+  const toggleExpandir = (id: number) =>
+    setExpandidos(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
 
   useEffect(() => {
     let activo = true;
@@ -43,21 +51,17 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
   }, []);
 
   // Filtros dinámicos derivados de los temas de los docentes
-  const temas: string[] = ['Todos', ...Array.from(
-    new Set(
-      docentes
-        .map(d => d.temaPrincipal)
-        .filter((t): t is string => typeof t === 'string' && t.length > 0)
-    )
+  const filtrosTemas: string[] = ['Todos', ...Array.from(
+    new Set(docentes.flatMap(d => d.temas))
   )];
 
   const filteredDocentes = docentes.filter(d => {
     const q = searchQuery.toLowerCase();
     const matchesSearch =
       d.nombre.toLowerCase().includes(q) ||
-      (d.temaPrincipal ?? '').toLowerCase().includes(q);
+      d.temas.some(t => t.toLowerCase().includes(q));
     const matchesFilter =
-      selectedFilter === 'Todos' || d.temaPrincipal === selectedFilter;
+      selectedFilter === 'Todos' || d.temas.includes(selectedFilter);
     return matchesSearch && matchesFilter;
   });
 
@@ -105,7 +109,7 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
           </button>
 
           <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '17px', color: '#1E293B', margin: 0 }}>
-            Elige un Docente 👨‍🏫
+            Elige un Docente
           </h1>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -138,9 +142,9 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
         </div>
 
         {/* Pills de filtro */}
-        {!cargando && temas.length > 1 && (
+        {!cargando && filtrosTemas.length > 1 && (
           <div style={pillsScrollStyle}>
-            {temas.map(tema => (
+            {filtrosTemas.map(tema => (
               <button key={tema} onClick={() => setSelectedFilter(tema)} style={{
                 padding: '8px 16px', borderRadius: '999px', whiteSpace: 'nowrap',
                 flexShrink: 0, cursor: 'pointer', fontFamily: 'Poppins, sans-serif',
@@ -187,110 +191,141 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
         )}
 
         {!cargando && filteredDocentes.map((docente, idx) => {
-          const avatarColor = AVATAR_COLORS[idx % AVATAR_COLORS.length];
-          const inicial     = docente.nombre.charAt(0).toUpperCase();
+          const avatarColor  = AVATAR_COLORS[idx % AVATAR_COLORS.length];
+          const inicial      = docente.nombre.charAt(0).toUpperCase();
           const cargandoEste = suscribiendo === docente.id_usuario;
+          const expandido    = expandidos.has(docente.id_usuario);
+          const TEMAS_VISIBLES = 2;
+          const temasVisibles  = expandido ? docente.temas : docente.temas.slice(0, TEMAS_VISIBLES);
+          const temasOcultos   = docente.temas.length - TEMAS_VISIBLES;
 
           return (
             <div key={docente.id_usuario} style={{
-              display: 'flex', alignItems: 'center', gap: '14px', padding: '16px',
-              borderRadius: '24px', marginBottom: '12px', backgroundColor: '#FFFFFF',
-              boxShadow: '0 4px 16px rgba(155,126,199,0.15)', border: '2px solid #F3EBFF',
-              flexWrap: 'wrap',
+              display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '14px 16px',
+              borderRadius: '20px', marginBottom: '10px', backgroundColor: '#FFFFFF',
+              boxShadow: '0 4px 16px rgba(155,126,199,0.12)', border: '1.5px solid #EDE4F8',
             }}>
               {/* Avatar */}
               {docente.fotoPerfil ? (
                 <img src={docente.fotoPerfil} alt={docente.nombre} style={{
-                  width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover',
-                  border: '3px solid #FFFFFF', boxShadow: '0 2px 8px rgba(155,126,199,0.2)', flexShrink: 0,
+                  width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover',
+                  border: '2px solid #EDE4F8', flexShrink: 0, marginTop: '2px',
                 }} />
               ) : (
                 <div style={{
-                  width: '56px', height: '56px', borderRadius: '50%', backgroundColor: avatarColor,
-                  border: '3px solid #FFFFFF', boxShadow: '0 2px 8px rgba(155,126,199,0.2)',
+                  width: '48px', height: '48px', borderRadius: '50%', backgroundColor: avatarColor,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '22px',
-                  color: '#FFFFFF', flexShrink: 0,
+                  fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '20px',
+                  color: '#FFFFFF', flexShrink: 0, marginTop: '2px',
                 }}>
                   {inicial}
                 </div>
               )}
 
-              {/* Info */}
+              {/* Info central */}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                  <h3 style={{
-                    fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '15px',
-                    color: '#1E293B', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  }}>
-                    {docente.nombre}
-                  </h3>
-                  {/* Badge suscrito */}
+                {/* Nombre completo */}
+                <h3 style={{
+                  fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px',
+                  color: '#1E293B', margin: '0 0 6px 0', lineHeight: '1.3',
+                }}>
+                  {docente.nombre}
+                </h3>
+
+                {/* Pills de temas */}
+                {docente.temas.length > 0 && (
+                  <div style={{ marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                      {temasVisibles.map(t => (
+                        <span key={t} style={{
+                          backgroundColor: '#F3EBFF', color: '#7952B3',
+                          padding: '3px 8px', borderRadius: '999px',
+                          fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '10px',
+                        }}>
+                          {t}
+                        </span>
+                      ))}
+                      {!expandido && temasOcultos > 0 && (
+                        <button onClick={() => toggleExpandir(docente.id_usuario)} style={{
+                          backgroundColor: '#EDE4F8', color: '#9B7EC7',
+                          padding: '3px 8px', borderRadius: '999px', border: 'none',
+                          fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '10px',
+                          cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px',
+                        }}>
+                          +{temasOcultos} <ChevronDown size={10} strokeWidth={2.5} />
+                        </button>
+                      )}
+                      {expandido && temasOcultos > 0 && (
+                        <button onClick={() => toggleExpandir(docente.id_usuario)} style={{
+                          backgroundColor: '#EDE4F8', color: '#9B7EC7',
+                          padding: '3px 8px', borderRadius: '999px', border: 'none',
+                          fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '10px',
+                          cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px',
+                        }}>
+                          Menos <ChevronUp size={10} strokeWidth={2.5} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Flashcards + suscriptores */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px',
+                    fontWeight: 600, color: '#9B7EC7' }}>
+                    {docente.totalFlashcards} Flashcards
+                  </span>
+                  {docente.totalSuscritos > 0 && (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '3px',
+                      fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: '#7D7D7D' }}>
+                      <Users size={11} strokeWidth={2} color="#9B7EC7" />
+                      {docente.totalSuscritos}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Columna derecha: badge Suscrito + botón acción */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',
+                gap: '6px', flexShrink: 0 }}>
+                {/* Badge Suscrito (siempre ocupa espacio para mantener alineación) */}
+                <div style={{ height: '20px', display: 'flex', alignItems: 'center' }}>
                   {docente.esSuscrito && (
                     <span style={{
                       backgroundColor: '#D1FAE5', color: '#10B981', padding: '2px 8px',
                       borderRadius: '999px', fontFamily: 'Poppins, sans-serif',
-                      fontWeight: 600, fontSize: '10px', whiteSpace: 'nowrap', flexShrink: 0,
+                      fontWeight: 600, fontSize: '10px', whiteSpace: 'nowrap',
                     }}>
                       ✓ Suscrito
                     </span>
                   )}
                 </div>
 
-                {docente.temaPrincipal && (
-                  <p style={{
-                    fontFamily: 'Poppins, sans-serif', fontSize: '12px', color: '#7D7D7D',
-                    margin: '0 0 6px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  }}>
-                    {docente.temaPrincipal}
-                  </p>
-                )}
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%',
-                      backgroundColor: '#9B7EC7', flexShrink: 0 }} />
-                    <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px',
-                      fontWeight: 600, color: '#9B7EC7' }}>
-                      {docente.totalFlashcards} Flashcards
-                    </span>
-                  </div>
-                  {docente.totalSuscritos > 0 && (
-                    <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: '#7D7D7D' }}>
-                      👥 {docente.totalSuscritos}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Acciones */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0 }}>
+                {/* Botón acción */}
                 {!docente.esSuscrito ? (
-                  // Botón Suscribirse
                   <button
                     onClick={() => handleSuscribir(docente.id_usuario)}
                     disabled={cargandoEste}
                     style={{
-                      padding: '10px 18px', borderRadius: '999px', border: 'none',
+                      padding: '9px 16px', borderRadius: '999px', border: 'none',
                       backgroundColor: cargandoEste ? '#CCCCCC' : '#9B7EC7',
                       color: '#FFFFFF', fontFamily: 'Poppins, sans-serif', fontWeight: 700,
-                      fontSize: '13px', cursor: cargandoEste ? 'not-allowed' : 'pointer',
-                      boxShadow: cargandoEste ? 'none' : '0 4px 12px rgba(155,126,199,0.4)',
-                      whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px',
+                      fontSize: '12px', cursor: cargandoEste ? 'not-allowed' : 'pointer',
+                      boxShadow: cargandoEste ? 'none' : '0 4px 12px rgba(155,126,199,0.35)',
+                      whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '5px',
                     }}
                   >
-                    {cargandoEste && <Loader2 size={14} className="animate-spin" />}
+                    {cargandoEste && <Loader2 size={12} className="animate-spin" />}
                     Suscribirse
                   </button>
                 ) : (
-                  // Botón Practicar (solo si suscrito)
                   <button
                     onClick={() => onSelectTeacher(String(docente.id_usuario), docente.nombre)}
                     style={{
-                      padding: '10px 20px', borderRadius: '999px', border: 'none',
+                      padding: '9px 16px', borderRadius: '999px', border: 'none',
                       backgroundColor: '#9B7EC7', color: '#FFFFFF',
-                      fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '13px',
-                      cursor: 'pointer', boxShadow: '0 4px 12px rgba(155,126,199,0.4)',
+                      fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '12px',
+                      cursor: 'pointer', boxShadow: '0 4px 12px rgba(155,126,199,0.35)',
                       whiteSpace: 'nowrap',
                     }}
                   >

@@ -275,7 +275,7 @@ export interface DocenteAPI {
   nombre:          string;
   fotoPerfil:      string | null;
   totalFlashcards: number;
-  temaPrincipal:   string | null;
+  temas:           string[];
   totalSuscritos:  number;
   esSuscrito:      boolean;
 }
