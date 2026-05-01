@@ -467,48 +467,62 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
                 backgroundColor: '#FAFAFA',
                 border: `2px solid ${option.isCorrect ? '#10B981' : '#E5E7EB'}`,
                 borderRadius: '8px' }}>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex items-center justify-center flex-shrink-0"
-                    style={{ width: '32px', height: '32px',
-                      backgroundColor: option.isCorrect ? '#10B981' : '#E5B32E',
-                      color: '#FFFFFF', fontFamily: 'Poppins, sans-serif',
-                      fontWeight: 700, fontSize: '14px', borderRadius: '50%' }}>
+
+                {/* ── Fila superior: círculo + "Correcta" toggle ── */}
+                <div style={{ display: 'flex', alignItems: 'center',
+                  justifyContent: 'space-between', marginBottom: '8px' }}>
+                  {/* Círculo con letra */}
+                  <div style={{ display: 'flex', alignItems: 'center',
+                    justifyContent: 'center', flexShrink: 0,
+                    width: '32px', height: '32px',
+                    backgroundColor: option.isCorrect ? '#10B981' : '#E5B32E',
+                    color: '#FFFFFF', fontFamily: 'Poppins, sans-serif',
+                    fontWeight: 700, fontSize: '14px', borderRadius: '50%' }}>
                     {option.label}
                   </div>
-                  <input type="text" value={option.text}
-                    onChange={e => handleOptionChange(option.id, e.target.value)}
-                    placeholder={`Escribe la opción ${option.label}`} className="flex-1"
-                    style={{ height: '36px', padding: '8px', border: '1.5px solid #D1D5DB',
-                      borderRadius: '6px', fontFamily: 'Poppins, sans-serif',
-                      fontSize: '12px', outline: 'none', backgroundColor: '#FFFFFF' }}
-                    onFocus={e => { e.target.style.borderColor = '#E6B82E'; }}
-                    onBlur={e => { e.target.style.borderColor = '#D1D5DB'; }} />
-                  <div className="flex items-center gap-1 px-2 py-1"
-                    style={{ backgroundColor: option.isCorrect ? '#10B981' : '#FFFFFF',
+
+                  {/* Botón "Correcta" — compacto, no desborda */}
+                  <button
+                    onClick={() => handleCorrectChange(option.id)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '6px',
+                      padding: '5px 12px',
+                      backgroundColor: option.isCorrect ? '#10B981' : '#FFFFFF',
                       border: `1.5px solid ${option.isCorrect ? '#10B981' : '#D1D5DB'}`,
-                      borderRadius: '6px' }}>
-                    <input type="checkbox" checked={option.isCorrect}
-                      onChange={() => handleCorrectChange(option.id)}
-                      id={`correct-${option.id}`}
-                      style={{ width: '14px', height: '14px', cursor: 'pointer', accentColor: '#10B981' }} />
-                    <label htmlFor={`correct-${option.id}`}
-                      style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', fontWeight: 600,
-                        color: option.isCorrect ? '#FFFFFF' : '#6B7280', cursor: 'pointer',
-                        whiteSpace: 'nowrap' }}>
-                      Correcta
-                    </label>
-                  </div>
+                      borderRadius: '20px', cursor: 'pointer',
+                      fontFamily: 'Poppins, sans-serif', fontWeight: 700,
+                      fontSize: '11px',
+                      color: option.isCorrect ? '#FFFFFF' : '#6B7280',
+                      transition: 'all 0.2s ease',
+                      flexShrink: 0,
+                    }}>
+                    <span style={{ fontSize: '13px' }}>{option.isCorrect ? '✓' : '○'}</span>
+                    Correcta
+                  </button>
                 </div>
 
-                {/* Retroalimentación */}
+                {/* ── Input de texto — ancho completo, sin desborde ── */}
+                <input type="text" value={option.text}
+                  onChange={e => handleOptionChange(option.id, e.target.value)}
+                  placeholder={`Escribe la opción ${option.label}`}
+                  style={{ width: '100%', boxSizing: 'border-box',
+                    height: '36px', padding: '8px 10px',
+                    border: '1.5px solid #D1D5DB', borderRadius: '6px',
+                    fontFamily: 'Poppins, sans-serif', fontSize: '12px',
+                    outline: 'none', backgroundColor: '#FFFFFF',
+                    marginBottom: '8px' }}
+                  onFocus={e => { e.target.style.borderColor = '#E6B82E'; }}
+                  onBlur={e => { e.target.style.borderColor = '#D1D5DB'; }} />
+
+                {/* ── Retroalimentación ── */}
                 <div style={{ padding: '10px',
                   backgroundColor: option.isCorrect ? '#E8F5E9' : '#FFFBF0',
                   borderRadius: '6px',
                   border: `1.5px solid ${option.isCorrect ? '#10B981' : '#E6B82E'}` }}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span style={{ fontSize: '16px' }}>{option.isCorrect ? '✅' : '💡'}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '14px' }}>{option.isCorrect ? '✅' : '💡'}</span>
                     <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', fontWeight: 700,
-                      color: option.isCorrect ? '#047857' : '#92400E' }}>
+                      color: option.isCorrect ? '#047857' : '#92400E', margin: 0 }}>
                       {option.isCorrect ? 'Retroalimentación — acierto' : 'Retroalimentación — error'}
                     </p>
                   </div>
@@ -518,7 +532,8 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
                       ? '¿Por qué esta respuesta es correcta?'
                       : 'Explica por qué esta opción es incorrecta'}
                     className="w-full resize-none" rows={2}
-                    style={{ padding: '8px', border: '1px solid transparent', borderRadius: '4px',
+                    style={{ width: '100%', boxSizing: 'border-box',
+                      padding: '8px', border: '1px solid transparent', borderRadius: '4px',
                       fontFamily: 'Poppins, sans-serif', fontSize: '11px', lineHeight: '1.4',
                       outline: 'none', backgroundColor: '#FFFFFF', color: '#4A4A4A' }}
                     onFocus={e => { e.target.style.borderColor = option.isCorrect ? '#10B981' : '#E6B82E'; }}
