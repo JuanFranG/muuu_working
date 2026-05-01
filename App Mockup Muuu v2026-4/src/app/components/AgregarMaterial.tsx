@@ -915,7 +915,7 @@ export function AgregarMaterial({ onBack, materialId }: AgregarMaterialProps) {
                         margin: 0
                       }}
                     >
-                      Aprende un Poco 💡
+                      Aprende un Poco
                     </h2>
                     <Sparkles size={20} color="#9B7EC7" strokeWidth={2.5} />
                   </div>

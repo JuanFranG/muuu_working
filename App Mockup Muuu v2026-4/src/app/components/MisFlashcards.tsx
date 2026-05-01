@@ -103,7 +103,7 @@ export function MisFlashcards({ onBack, onEditFlashcard }: MisFlashcardsProps) {
               fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '18px',
               color: '#3D2301', margin: 0,
             }}>
-              Mis Flashcards 📋
+              Mis Flashcards
             </h1>
             {!cargando && (
               <p style={{

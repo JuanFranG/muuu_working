@@ -303,7 +303,7 @@ export function QuizScreen({
             <ArrowLeft size={20} strokeWidth={2.5} />
           </button>
           <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '16px', color: '#1E293B' }}>
-            Ponte a Prueba 🏆
+            Ponte a Prueba
           </h1>
           <div className="flex items-center gap-1">
             {[1, 2, 3].map(life => (

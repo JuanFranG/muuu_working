@@ -198,7 +198,7 @@ export function FlashcardNemotecnia({ onClose, question, answer }: FlashcardNemo
                 textAlign: 'center'
               }}
             >
-              Respuesta & Nemotécnica 💡
+              Respuesta & Nemotécnica
             </div>
 
             <div

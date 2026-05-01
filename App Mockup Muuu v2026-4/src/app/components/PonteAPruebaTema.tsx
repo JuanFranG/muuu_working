@@ -61,7 +61,7 @@ export function PonteAPruebaTema({ onBack, onSelectTema }: PonteAPruebaTemaProps
           </button>
 
           <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '17px', color: '#1E293B', margin: 0 }}>
-            Ponte a Prueba por Tema 📚
+            Ponte a Prueba por Tema
           </h1>
 
           <div style={{ width: '36px' }} />

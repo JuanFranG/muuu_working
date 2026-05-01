@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Flame } from 'lucide-react';
 
 interface MiProgresoProps {
   onBack: () => void;
@@ -86,7 +86,7 @@ export function MiProgreso({ onBack }: MiProgresoProps) {
             color: '#FFFFFF'
           }}
         >
-          Mi Progreso 📊
+          Mi Progreso
         </h1>
 
         <div style={{ width: '36px' }}></div>
@@ -216,9 +216,9 @@ export function MiProgreso({ onBack }: MiProgresoProps) {
             className="flex flex-col items-center"
             style={{
               padding: '12px 8px',
-              backgroundColor: '#FFFBF0',
+              backgroundColor: '#F9F0F5',
               borderRadius: '12px',
-              border: '2px solid #FEF3C7'
+              border: '2px solid #E8C8D8'
             }}
           >
             <div
@@ -226,21 +226,14 @@ export function MiProgreso({ onBack }: MiProgresoProps) {
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 800,
                 fontSize: '20px',
-                color: '#F59E0B',
+                color: '#9B2355',
                 marginBottom: '4px'
               }}
             >
               {pointsByCategory.streak}
             </div>
-            <div
-              style={{
-                fontFamily: 'Poppins, sans-serif',
-                fontSize: '9px',
-                color: '#D97706',
-                textAlign: 'center'
-              }}
-            >
-              🔥
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Flame size={16} color="#9B2355" strokeWidth={2} />
             </div>
           </div>
 

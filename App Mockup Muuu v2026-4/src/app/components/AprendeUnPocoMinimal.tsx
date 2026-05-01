@@ -396,7 +396,7 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
             <ArrowLeft size={20} strokeWidth={2.5} />
           </button>
           <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '16px', color: '#1E293B' }}>
-            Aprende un Poco 💡
+            Aprende un Poco
           </h1>
           <div style={{ width: '32px' }}>
             <Sparkles size={20} color="#9B7EC7" strokeWidth={2.5} />
@@ -525,7 +525,7 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
             flex: 1,
           }}
         >
-          {docenteSeleccionado.nombre.split(' ')[0]} 💡
+          {docenteSeleccionado.nombre.split(' ')[0]}
         </h1>
 
         {/* Icono */}

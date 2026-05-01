@@ -236,7 +236,7 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
           </button>
           <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '18px',
             color: '#3D2301', letterSpacing: '-0.3px', lineHeight: '1.2' }}>
-            {modoEdicion ? 'Editar' : 'Diseñar'}<br />Flashcard ✏️
+            {modoEdicion ? 'Editar' : 'Diseñar'}<br />Flashcard
           </h1>
         </div>
         <button onClick={handleSaveDraft} disabled={guardando}

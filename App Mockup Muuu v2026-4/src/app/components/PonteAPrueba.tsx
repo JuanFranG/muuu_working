@@ -212,7 +212,7 @@ export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
         </button>
         <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '17px',
           color: '#1E293B', margin: 0 }}>
-          Ponte a Prueba 🏆
+          Ponte a Prueba
         </h1>
       </div>
 

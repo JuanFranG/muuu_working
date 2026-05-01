@@ -41,7 +41,7 @@ export function GuiasEstudio({ onBack }: GuiasEstudioProps) {
             color: '#FFFFFF'
           }}
         >
-          Guías de Estudio 📚
+          Guías de Estudio
         </h1>
 
         <div style={{ width: '36px' }}></div>

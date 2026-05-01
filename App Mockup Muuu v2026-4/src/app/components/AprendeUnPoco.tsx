@@ -256,7 +256,7 @@ export function AprendeUnPoco({ onBack }: AprendeUnPocoProps) {
             color: '#1E293B'
           }}
         >
-          Aprende un Poco 💡
+          Aprende un Poco
         </h1>
 
         {/* Botón cambiar modo */}
