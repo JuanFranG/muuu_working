@@ -9,10 +9,10 @@
 
 | Nombre | Rol |
 |---|---|
-| Juan González | Desarrollo Full-Stack |
+| Juan Gonzalez | Desarrollo Full-Stack |
 | Shania Russo | Desarrollo Full-Stack |
 | David Hasbum | Desarrollo Full-Stack |
-| Isabel Durán | Desarrollo Full-Stack |
+| Isabel Duran | Desarrollo Full-Stack |
 
 ---
 
