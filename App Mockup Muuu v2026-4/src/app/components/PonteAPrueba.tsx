@@ -197,35 +197,31 @@ function QuizScreen({
       padding: '12px 16px',
       borderRadius: '12px',
       cursor: isVerified ? 'default' : 'pointer',
-      transition: 'all 0.3s ease',
+      transition: 'all 0.2s ease',
       fontFamily: 'Poppins, sans-serif',
-      border: '3px solid #E6D5F0',
+      border: '2px solid #E6D5F0',
       backgroundColor: '#FFFFFF',
-      marginBottom: '8px'
+      marginBottom: '8px',
+      opacity: 1,
     };
 
-    if (isVerified && optionId === correctAnswer) {
-      return {
-        ...baseStyle,
-        border: '3px solid #10B981',
-        backgroundColor: '#D1FAE5'
-      };
+    // ── Después de verificar ─────────────────────────────────
+    if (isVerified) {
+      // Respuesta correcta → siempre verde
+      if (optionId === correctAnswer) {
+        return { ...baseStyle, border: '2px solid #10B981', backgroundColor: '#D1FAE5', opacity: 1 };
+      }
+      // Selección incorrecta → rojo
+      if (selectedOption === optionId) {
+        return { ...baseStyle, border: '2px solid #EF4444', backgroundColor: '#FEE2E2', opacity: 1 };
+      }
+      // Opciones no relevantes → atenuadas para no confundir
+      return { ...baseStyle, border: '2px solid #E6D5F0', backgroundColor: '#FAFAFA', opacity: 0.5 };
     }
 
-    if (isVerified && selectedOption === optionId && selectedOption !== correctAnswer) {
-      return {
-        ...baseStyle,
-        border: '3px solid #EF4444',
-        backgroundColor: '#FEE2E2'
-      };
-    }
-
-    if (!isVerified && selectedOption === optionId) {
-      return {
-        ...baseStyle,
-        border: '3px solid #9B7EC7',
-        backgroundColor: '#F3EBFF'
-      };
+    // ── Antes de verificar ───────────────────────────────────
+    if (selectedOption === optionId) {
+      return { ...baseStyle, border: '2px solid #9B7EC7', backgroundColor: '#F3EBFF' };
     }
 
     return baseStyle;
@@ -914,6 +910,7 @@ function QuizScreen({
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: 700,
                         fontSize: '14px',
+                        // Solo se colorean las opciones realmente activas
                         backgroundColor: isVerified && option.id === correctAnswer
                           ? '#10B981'
                           : isVerified && selectedOption === option.id && selectedOption !== correctAnswer
@@ -921,7 +918,11 @@ function QuizScreen({
                           : !isVerified && selectedOption === option.id
                           ? '#9B7EC7'
                           : '#E6D5F0',
-                        color: isVerified || selectedOption === option.id ? '#FFFFFF' : '#7952B3',
+                        // Texto blanco SOLO en opciones realmente destacadas (fix del bug)
+                        color: (isVerified && option.id === correctAnswer)
+                          || (isVerified && selectedOption === option.id)
+                          || (!isVerified && selectedOption === option.id)
+                          ? '#FFFFFF' : '#7952B3',
                         flexShrink: 0
                       }}
                     >
