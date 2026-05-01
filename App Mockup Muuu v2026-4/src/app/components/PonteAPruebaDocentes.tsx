@@ -1,4 +1,4 @@
-import { useState, useEffect, CSSProperties } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Heart, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { listarDocentesAPI, suscribirseAPI, type DocenteAPI } from '../services/api';
 
@@ -9,18 +9,8 @@ interface PonteAPruebaDocentesProps {
 
 const AVATAR_COLORS = ['#9B7EC7', '#8A2BE2', '#B8A4D9', '#9370DB', '#7952B3'];
 
-// Estilos para ocultar la barra de scroll horizontal en los filtros
-const pillsScrollStyle: CSSProperties = {
-  scrollbarWidth: 'none' as CSSProperties['scrollbarWidth'],
-  overflowX:      'auto',
-  paddingBottom:  '8px',
-  display:        'flex',
-  gap:            '8px',
-};
-
 export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDocentesProps) {
   const [searchQuery,    setSearchQuery]    = useState('');
-  const [selectedFilter, setSelectedFilter] = useState<string>('Todos');
   const [docentes,       setDocentes]       = useState<DocenteAPI[]>([]);
   const [cargando,       setCargando]       = useState(true);
   const [errorMsg,       setErrorMsg]       = useState('');
@@ -50,19 +40,12 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
     return () => { activo = false; };
   }, []);
 
-  // Filtros dinámicos derivados de los temas de los docentes
-  const filtrosTemas: string[] = ['Todos', ...Array.from(
-    new Set(docentes.flatMap(d => d.temas))
-  )];
-
   const filteredDocentes = docentes.filter(d => {
     const q = searchQuery.toLowerCase();
-    const matchesSearch =
+    return (
       d.nombre.toLowerCase().includes(q) ||
-      d.temas.some(t => t.toLowerCase().includes(q));
-    const matchesFilter =
-      selectedFilter === 'Todos' || d.temas.includes(selectedFilter);
-    return matchesSearch && matchesFilter;
+      d.temas.some(t => t.toLowerCase().includes(q))
+    );
   });
 
   // Suscribirse a un docente
@@ -122,7 +105,7 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
         {/* Buscador */}
         <div style={{
           position: 'relative', backgroundColor: '#F8F9FA',
-          borderRadius: '16px', border: '2px solid #E6D5F0', marginBottom: '16px',
+          borderRadius: '16px', border: '2px solid #E6D5F0',
         }}>
           <Search size={18} strokeWidth={2.5} style={{
             position: 'absolute', left: '14px', top: '50%',
@@ -140,25 +123,6 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
             }}
           />
         </div>
-
-        {/* Pills de filtro */}
-        {!cargando && filtrosTemas.length > 1 && (
-          <div style={pillsScrollStyle}>
-            {filtrosTemas.map(tema => (
-              <button key={tema} onClick={() => setSelectedFilter(tema)} style={{
-                padding: '8px 16px', borderRadius: '999px', whiteSpace: 'nowrap',
-                flexShrink: 0, cursor: 'pointer', fontFamily: 'Poppins, sans-serif',
-                fontWeight: 600, fontSize: '12px', transition: 'all 0.2s',
-                backgroundColor: selectedFilter === tema ? '#9B7EC7' : '#F3EBFF',
-                color:           selectedFilter === tema ? '#FFFFFF'  : '#7952B3',
-                border:          selectedFilter === tema ? 'none'     : '2px solid #E6D5F0',
-                boxShadow:       selectedFilter === tema ? '0 4px 12px rgba(155,126,199,0.3)' : 'none',
-              }}>
-                {tema}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* ── LISTA ──────────────────────────────────────────── */}
@@ -239,8 +203,9 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
                       {temasVisibles.map(t => (
                         <span key={t} style={{
                           backgroundColor: '#F3EBFF', color: '#7952B3',
-                          padding: '3px 8px', borderRadius: '999px',
+                          padding: '4px 8px', borderRadius: '6px',
                           fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '10px',
+                          lineHeight: '1.3',
                         }}>
                           {t}
                         </span>
@@ -248,9 +213,10 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
                       {!expandido && temasOcultos > 0 && (
                         <button onClick={() => toggleExpandir(docente.id_usuario)} style={{
                           backgroundColor: '#EDE4F8', color: '#9B7EC7',
-                          padding: '3px 8px', borderRadius: '999px', border: 'none',
+                          padding: '4px 8px', borderRadius: '6px', border: 'none',
                           fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '10px',
                           cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px',
+                          lineHeight: '1.3',
                         }}>
                           +{temasOcultos} <ChevronDown size={10} strokeWidth={2.5} />
                         </button>
@@ -258,9 +224,10 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
                       {expandido && temasOcultos > 0 && (
                         <button onClick={() => toggleExpandir(docente.id_usuario)} style={{
                           backgroundColor: '#EDE4F8', color: '#9B7EC7',
-                          padding: '3px 8px', borderRadius: '999px', border: 'none',
+                          padding: '4px 8px', borderRadius: '6px', border: 'none',
                           fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '10px',
                           cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px',
+                          lineHeight: '1.3',
                         }}>
                           Menos <ChevronUp size={10} strokeWidth={2.5} />
                         </button>
