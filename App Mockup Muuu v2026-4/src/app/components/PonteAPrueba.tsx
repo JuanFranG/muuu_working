@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, GraduationCap, BookOpen } from 'lucide-react';
 import { PonteAPruebaDocentes } from './PonteAPruebaDocentes';
 import { PonteAPruebaTema } from './PonteAPruebaTema';
 import { QuizScreen } from './QuizScreen';
@@ -242,7 +242,13 @@ export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
             transition: 'transform 0.2s ease',
           }}
         >
-          <div style={{ fontSize: '48px', lineHeight: '1' }}>👨‍🏫</div>
+          <div style={{
+            width: '64px', height: '64px', borderRadius: '50%',
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <GraduationCap size={32} color="#7952B3" strokeWidth={2} />
+          </div>
           <div style={{ textAlign: 'center' }}>
             <p style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '18px',
               color: '#FFFFFF', margin: '0 0 6px 0' }}>
@@ -273,7 +279,13 @@ export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
             transition: 'transform 0.2s ease',
           }}
         >
-          <div style={{ fontSize: '48px', lineHeight: '1' }}>📚</div>
+          <div style={{
+            width: '64px', height: '64px', borderRadius: '50%',
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <BookOpen size={32} color="#5B3F9A" strokeWidth={2} />
+          </div>
           <div style={{ textAlign: 'center' }}>
             <p style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '18px',
               color: '#FFFFFF', margin: '0 0 6px 0' }}>
