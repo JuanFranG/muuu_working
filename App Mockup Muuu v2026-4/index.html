@@ -1,16 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
 
-  <!DOCTYPE html>
-  <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>App Mockup Muuu v2026</title>
-      <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
-    </head>
+    <!-- ── Viewport: sin zoom, respeta safe-areas (notch/Dynamic Island) ── -->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-    <body>
-      <div id="root"></div>
-      <script type="module" src="/src/main.tsx"></script>
-    </body>
-  </html>
-  
+    <!-- ── Theme color: tiñe la barra del navegador en Android Chrome ──── -->
+    <meta name="theme-color" content="#F59E0B" />
+
+    <!-- ── iOS Safari: barra de estado transparente sobre el header ─────── -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <title>Muuu</title>
+
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        background-color: #F59E0B; /* mismo naranja: rellena el hueco del safe-area */
+      }
+      #root {
+        height: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
