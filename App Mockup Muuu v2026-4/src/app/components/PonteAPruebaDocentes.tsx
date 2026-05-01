@@ -1,5 +1,5 @@
 import { useState, useEffect, CSSProperties } from 'react';
-import { ArrowLeft, Search, Heart, Loader2, ChevronDown, ChevronUp, Users } from 'lucide-react';
+import { ArrowLeft, Search, Heart, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { listarDocentesAPI, suscribirseAPI, type DocenteAPI } from '../services/api';
 
 interface PonteAPruebaDocentesProps {
@@ -269,20 +269,11 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
                   </div>
                 )}
 
-                {/* Flashcards + suscriptores */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px',
-                    fontWeight: 600, color: '#9B7EC7' }}>
-                    {docente.totalFlashcards} Flashcards
-                  </span>
-                  {docente.totalSuscritos > 0 && (
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '3px',
-                      fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: '#7D7D7D' }}>
-                      <Users size={11} strokeWidth={2} color="#9B7EC7" />
-                      {docente.totalSuscritos}
-                    </span>
-                  )}
-                </div>
+                {/* Flashcards */}
+                <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px',
+                  fontWeight: 600, color: '#9B7EC7' }}>
+                  {docente.totalFlashcards} Flashcards
+                </span>
               </div>
 
               {/* Columna derecha: badge Suscrito + botón acción */}
