@@ -1,9 +1,9 @@
-================================================================
+==================================================================
   MUUU APP — Plataforma de Cálculo Integral
   Universidad del Magdalena · 2026-I
-  Equipo: Barrera, Russo, González
+  Equipo: Juan Gonzalez, Shania Russo, David Hasbum, Isabel Duran
   Docente: Johan Robles
-================================================================
+==================================================================
 
 REQUISITOS PREVIOS
 ------------------
