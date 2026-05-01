@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Bell, Edit3, ClipboardList, BarChart3, Archive, Tag, Home, User, Settings, HelpCircle, ChevronRight, Users, FileStack, Upload } from 'lucide-react';
-import { listarFlashcardsAPI, listarMaterialesAPI, listarTemasAPI } from '../services/api';
+import { listarFlashcardsAPI, listarMaterialesAPI, listarTemasAPI, contarSuscriptoresAPI } from '../services/api';
 
 interface TeacherHomeProps {
   userName?: string;
@@ -8,9 +8,10 @@ interface TeacherHomeProps {
 }
 
 export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps) {
-  const [totalFlashcards, setTotalFlashcards] = useState<number | null>(null);
-  const [totalDocumentos, setTotalDocumentos] = useState<number | null>(null);
-  const [totalCategorias, setTotalCategorias] = useState<number | null>(null);
+  const [totalFlashcards,  setTotalFlashcards]  = useState<number | null>(null);
+  const [totalDocumentos,  setTotalDocumentos]  = useState<number | null>(null);
+  const [totalCategorias,  setTotalCategorias]  = useState<number | null>(null);
+  const [totalEstudiantes, setTotalEstudiantes] = useState<number | null>(null);
 
   useEffect(() => {
     listarFlashcardsAPI()
@@ -22,10 +23,12 @@ export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps
     listarTemasAPI()
       .then(temas => setTotalCategorias(temas.length))
       .catch(() => setTotalCategorias(null));
+    contarSuscriptoresAPI()
+      .then(n => setTotalEstudiantes(n))
+      .catch(() => setTotalEstudiantes(null));
   }, []);
 
   const stats = {
-    students: 89,
     successRate: 89,
   };
 
@@ -169,7 +172,7 @@ export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps
                 color: '#78350F'
               }}
             >
-              {stats.students} estudiantes
+              {totalEstudiantes !== null ? totalEstudiantes : '…'} estudiantes
             </span>
           </div>
         </div>

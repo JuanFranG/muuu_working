@@ -256,6 +256,16 @@ export async function listarFlashcardsDocenteAPI(
   return data.flashcards;
 }
 
+/** Flashcards publicadas de un tema CON sus opciones (para el quiz por tema) */
+export async function listarFlashcardsPorTemaAPI(
+  idTema: number
+): Promise<FlashcardQuizAPI[]> {
+  const data = await peticion<{ ok: boolean; flashcards: FlashcardQuizAPI[] }>(
+    'GET', `/flashcards?tema=${idTema}`
+  );
+  return data.flashcards;
+}
+
 // ────────────────────────────────────────────────────────────
 //  DOCENTES (para Ponte a Prueba)
 // ────────────────────────────────────────────────────────────
@@ -266,6 +276,8 @@ export interface DocenteAPI {
   fotoPerfil:      string | null;
   totalFlashcards: number;
   temaPrincipal:   string | null;
+  totalSuscritos:  number;
+  esSuscrito:      boolean;
 }
 
 /** Lista de docentes que tienen flashcards publicadas */
@@ -440,6 +452,41 @@ export async function actualizarFlashcardAPI(
 // ────────────────────────────────────────────────────────────
 //  UPLOAD DE ARCHIVOS
 // ────────────────────────────────────────────────────────────
+
+// ────────────────────────────────────────────────────────────
+//  SUSCRIPCIONES
+// ────────────────────────────────────────────────────────────
+
+/**
+ * ESTUDIANTE: devuelve array de id_docente a los que está suscrito.
+ * DOCENTE: devuelve el conteo de suscriptores como { count: N }.
+ * Este helper es genérico — usa las funciones tipadas de abajo.
+ */
+async function _suscripcionesRaw(): Promise<{ ok: boolean; docentes?: number[]; count?: number }> {
+  return peticion<{ ok: boolean; docentes?: number[]; count?: number }>('GET', '/suscripciones');
+}
+
+/** Lista los id_docente a los que el estudiante autenticado está suscrito */
+export async function listarSuscripcionesAPI(): Promise<number[]> {
+  const data = await _suscripcionesRaw();
+  return data.docentes ?? [];
+}
+
+/** Suscribe al estudiante autenticado al docente indicado */
+export async function suscribirseAPI(id_docente: number): Promise<void> {
+  await peticion<{ ok: boolean }>('POST', '/suscripciones', { id_docente });
+}
+
+/** Desuscribe al estudiante autenticado del docente indicado */
+export async function desuscribirseAPI(id_docente: number): Promise<void> {
+  await peticion<{ ok: boolean }>('DELETE', `/suscripciones/${id_docente}`);
+}
+
+/** Retorna el número de estudiantes suscritos al docente autenticado */
+export async function contarSuscriptoresAPI(): Promise<number> {
+  const data = await peticion<{ ok: boolean; count: number }>('GET', '/suscripciones');
+  return data.count ?? 0;
+}
 
 /** Sube un archivo al servidor y devuelve la URL pública */
 export async function uploadArchivoAPI(archivo: File): Promise<string> {

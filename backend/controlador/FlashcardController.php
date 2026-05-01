@@ -59,6 +59,15 @@ class FlashcardController
     {
         session_start();
 
+        // ?tema=id  → Ponte a Prueba por Tema: flashcards publicadas de ese tema CON opciones
+        // No requiere sesión (flashcards publicadas son de acceso público)
+        if (isset($_GET['tema']) && (int)$_GET['tema'] > 0) {
+            $idTema     = (int) $_GET['tema'];
+            $flashcards = $this->modeloFlashcard->listarConOpcionesPorTema($idTema);
+            $this->responder(200, ['ok' => true, 'flashcards' => $flashcards]);
+            return;
+        }
+
         // ?docente=id  → Ponte a Prueba: flashcards publicadas de ese docente CON opciones
         // No requiere sesión (flashcards publicadas son de acceso público)
         if (isset($_GET['docente']) && (int)$_GET['docente'] > 0) {

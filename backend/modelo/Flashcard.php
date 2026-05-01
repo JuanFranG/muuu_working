@@ -265,6 +265,46 @@ class Flashcard
     }
 
     // ----------------------------------------------------------
+    // Listar flashcards publicadas de un tema CON sus opciones
+    // (usado en Ponte a Prueba por Tema)
+    // ----------------------------------------------------------
+    public function listarConOpcionesPorTema(int $idTema): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT f.id_flashcard,
+                    f.integral,
+                    f.respuestaCorrecta,
+                    t.nombre  AS tema,
+                    d.nombre  AS dificultad,
+                    u.nombre  AS docente
+             FROM   FLASHCARDS f
+             JOIN   TEMA       t ON t.id_tema       = f.id_tema
+             JOIN   DIFICULTAD d ON d.id_dificultad = f.id_dificultad
+             JOIN   USUARIO    u ON u.id_usuario    = f.id_usuario
+             WHERE  f.id_tema  = ?
+               AND  f.estado   = 'PUBLICADO'
+             ORDER  BY f.fechaCreacion DESC"
+        );
+        $stmt->execute([$idTema]);
+        $flashcards = $stmt->fetchAll();
+
+        // Cargar opciones para cada flashcard
+        $stmtOpc = $this->db->prepare(
+            'SELECT id_opcion, contenidoRespuesta, esCorrecta, retroalimentacion
+             FROM   OPCIONES_RESPUESTA
+             WHERE  id_flashcard = ?
+             ORDER  BY id_opcion'
+        );
+
+        foreach ($flashcards as &$fc) {
+            $stmtOpc->execute([$fc['id_flashcard']]);
+            $fc['opciones'] = $stmtOpc->fetchAll();
+        }
+
+        return $flashcards;
+    }
+
+    // ----------------------------------------------------------
     // Cambiar el estado de una flashcard
     // ----------------------------------------------------------
     public function actualizarEstado(int $id, string $estado): bool

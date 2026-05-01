@@ -99,6 +99,9 @@ $rutasEstaticas = [
     // Temas — estadísticas y creación
     'GET:temas-estadisticas' => ['TemaController',  'listarConEstadisticas'],
     'POST:temas'             => ['TemaController',  'crear'],
+    // Suscripciones
+    'GET:suscripciones'      => ['SuscripcionController', 'listar'],
+    'POST:suscripciones'     => ['SuscripcionController', 'suscribir'],
 ];
 
 if (isset($rutasEstaticas[$clave])) {
@@ -121,6 +124,8 @@ $rutasDinamicas = [
     '#^GET:materiales/(\d+)$#'              => ['MaterialController',  'obtener'],
     '#^PUT:materiales/(\d+)$#'              => ['MaterialController',  'actualizar'],
     '#^DELETE:materiales/(\d+)$#'           => ['MaterialController',  'eliminarMaterial'],
+    // Suscripciones — desuscribir por id_docente
+    '#^DELETE:suscripciones/(\d+)$#'        => ['SuscripcionController', 'desuscribir'],
 ];
 
 foreach ($rutasDinamicas as $patron => [$clase, $accion]) {

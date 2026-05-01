@@ -204,34 +204,91 @@ class MaterialController
     }
 
     // ── GET /api/docentes ─────────────────────────────────────
-    // Devuelve docentes que tienen flashcards publicadas
+    // Devuelve docentes que tienen flashcards publicadas,
+    // incluyendo totalSuscritos y esSuscrito (si hay sesión de estudiante).
     public function listarDocentes(): void
     {
+        session_start();
+
         $db = Conexion::obtener();
 
-        $stmt = $db->prepare(
-            "SELECT u.id_usuario,
-                    u.nombre,
-                    u.fotoPerfil,
-                    COUNT(f.id_flashcard) AS totalFlashcards,
-                    (SELECT t2.nombre
-                     FROM   FLASHCARDS f2
-                     JOIN   TEMA t2 ON t2.id_tema = f2.id_tema
-                     WHERE  f2.id_usuario = u.id_usuario
-                       AND  f2.estado = 'PUBLICADO'
-                     GROUP  BY f2.id_tema
-                     ORDER  BY COUNT(*) DESC
-                     LIMIT  1) AS temaPrincipal
-             FROM   USUARIO   u
-             JOIN   ROL       r  ON r.id_rol    = u.id_rol
-             JOIN   FLASHCARDS f ON f.id_usuario = u.id_usuario
-             WHERE  r.nombre = 'DOCENTE'
-               AND  f.estado = 'PUBLICADO'
-             GROUP  BY u.id_usuario, u.nombre, u.fotoPerfil
-             ORDER  BY totalFlashcards DESC"
-        );
+        // Detectar si hay un estudiante en sesión para personalizar esSuscrito
+        $idEstudiante = null;
+        if (
+            isset($_SESSION['id_usuario'], $_SESSION['rol']) &&
+            $_SESSION['rol'] === 'ESTUDIANTE'
+        ) {
+            $idEstudiante = (int) $_SESSION['id_usuario'];
+        }
+
+        if ($idEstudiante !== null) {
+            $stmt = $db->prepare(
+                "SELECT u.id_usuario,
+                        u.nombre,
+                        u.fotoPerfil,
+                        COUNT(f.id_flashcard) AS totalFlashcards,
+                        (SELECT t2.nombre
+                         FROM   FLASHCARDS f2
+                         JOIN   TEMA t2 ON t2.id_tema = f2.id_tema
+                         WHERE  f2.id_usuario = u.id_usuario
+                           AND  f2.estado = 'PUBLICADO'
+                         GROUP  BY f2.id_tema
+                         ORDER  BY COUNT(*) DESC
+                         LIMIT  1) AS temaPrincipal,
+                        (SELECT COUNT(*) FROM SUSCRIPCION
+                         WHERE id_docente = u.id_usuario) AS totalSuscritos,
+                        (SELECT COUNT(*) FROM SUSCRIPCION
+                         WHERE id_docente = u.id_usuario
+                           AND id_estudiante = :idEstudiante) AS esSuscrito
+                 FROM   USUARIO   u
+                 JOIN   ROL       r  ON r.id_rol    = u.id_rol
+                 JOIN   FLASHCARDS f ON f.id_usuario = u.id_usuario
+                 WHERE  r.nombre = 'DOCENTE'
+                   AND  f.estado = 'PUBLICADO'
+                 GROUP  BY u.id_usuario, u.nombre, u.fotoPerfil
+                 ORDER  BY totalFlashcards DESC"
+            );
+            $stmt->bindValue(':idEstudiante', $idEstudiante, PDO::PARAM_INT);
+        } else {
+            $stmt = $db->prepare(
+                "SELECT u.id_usuario,
+                        u.nombre,
+                        u.fotoPerfil,
+                        COUNT(f.id_flashcard) AS totalFlashcards,
+                        (SELECT t2.nombre
+                         FROM   FLASHCARDS f2
+                         JOIN   TEMA t2 ON t2.id_tema = f2.id_tema
+                         WHERE  f2.id_usuario = u.id_usuario
+                           AND  f2.estado = 'PUBLICADO'
+                         GROUP  BY f2.id_tema
+                         ORDER  BY COUNT(*) DESC
+                         LIMIT  1) AS temaPrincipal,
+                        (SELECT COUNT(*) FROM SUSCRIPCION
+                         WHERE id_docente = u.id_usuario) AS totalSuscritos,
+                        0 AS esSuscrito
+                 FROM   USUARIO   u
+                 JOIN   ROL       r  ON r.id_rol    = u.id_rol
+                 JOIN   FLASHCARDS f ON f.id_usuario = u.id_usuario
+                 WHERE  r.nombre = 'DOCENTE'
+                   AND  f.estado = 'PUBLICADO'
+                 GROUP  BY u.id_usuario, u.nombre, u.fotoPerfil
+                 ORDER  BY totalFlashcards DESC"
+            );
+        }
+
         $stmt->execute();
-        $docentes = $stmt->fetchAll();
+        $raw      = $stmt->fetchAll();
+        $docentes = array_map(function (array $d): array {
+            return [
+                'id_usuario'      => (int)  $d['id_usuario'],
+                'nombre'          =>        $d['nombre'],
+                'fotoPerfil'      =>        $d['fotoPerfil'],
+                'totalFlashcards' => (int)  $d['totalFlashcards'],
+                'temaPrincipal'   =>        $d['temaPrincipal'],
+                'totalSuscritos'  => (int)  $d['totalSuscritos'],
+                'esSuscrito'      => (bool) $d['esSuscrito'],
+            ];
+        }, $raw);
 
         echo json_encode([
             'ok'       => true,
