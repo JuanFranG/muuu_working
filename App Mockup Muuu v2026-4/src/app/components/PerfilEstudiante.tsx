@@ -1,29 +1,31 @@
+import { useState, useEffect } from 'react';
 import { ArrowLeft, GraduationCap, Mail, Calendar, BookOpen, Trophy, Target, Edit } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import muuuLogo from 'figma:asset/4de3de61f8e4df99b460b6420b603ae06ba0b967.png';
+import { meAPI, UsuarioAPI } from '../services/api';
 
 interface PerfilEstudianteProps {
   onBack: () => void;
+  onNavigate: (screen: string) => void;
   userName?: string;
 }
 
-export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEstudianteProps) {
-  const studentData = {
-    firstName: 'Juan',
-    lastName: 'Pérez',
-    code: '2019215047',
-    email: 'juan.perez@unimagdalena.edu.co',
-    registrationDate: '15 Enero 2025',
-    totalPoints: 1850,
-    completedFlashcards: 42,
-    studyStreak: 7,
-    level: 5
-  };
+export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' }: PerfilEstudianteProps) {
+  const [data, setData] = useState<UsuarioAPI | null>(null);
+
+  useEffect(() => {
+    meAPI().then(u => {
+      if (u) setData(u);
+    }).catch(() => {});
+  }, []);
+
+  const nombre = data?.nombre ?? userName;
+  const inicial = nombre.charAt(0).toUpperCase();
 
   return (
-    <div 
+    <div
       className="h-full w-full relative overflow-hidden"
-      style={{ 
+      style={{
         background: 'linear-gradient(180deg, #F3EBFF 0%, #FFFFFF 100%)',
         maxWidth: '375px',
         maxHeight: '812px',
@@ -32,9 +34,9 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
     >
       {/* Manchas de vaca decorativas */}
       <div className="absolute inset-0 pointer-events-none" style={{ opacity: 0.05 }}>
-        <div 
+        <div
           className="absolute"
-          style={{ 
+          style={{
             backgroundColor: '#F5F5F5',
             width: '120px',
             height: '100px',
@@ -47,9 +49,9 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
       </div>
 
       {/* Header */}
-      <div 
+      <div
         className="absolute top-0 left-0 right-0 z-20"
-        style={{ 
+        style={{
           height: '80px',
           backgroundColor: '#9B7EC7',
           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
@@ -65,8 +67,8 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
             <ArrowLeft size={28} strokeWidth={2.5} />
           </button>
 
-          <h1 
-            style={{ 
+          <h1
+            style={{
               fontFamily: 'Poppins, sans-serif',
               fontWeight: 700,
               fontSize: '24px',
@@ -81,7 +83,7 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
       </div>
 
       {/* Contenido scrolleable */}
-      <div 
+      <div
         className="absolute"
         style={{
           top: '80px',
@@ -94,22 +96,31 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
       >
         {/* Avatar y nombre */}
         <div className="flex flex-col items-center mb-6">
-          <div 
+          <div
             className="flex items-center justify-center mb-4"
             style={{
               width: '120px',
               height: '120px',
               borderRadius: '50%',
               border: '6px solid #9B7EC7',
-              backgroundColor: '#E6D5F0',
+              backgroundColor: data?.fotoPerfil ? 'transparent' : '#E6D5F0',
               fontFamily: 'Poppins, sans-serif',
               fontWeight: 700,
               fontSize: '48px',
               color: '#7952B3',
-              position: 'relative'
+              position: 'relative',
+              overflow: 'hidden'
             }}
           >
-            {studentData.firstName.charAt(0)}
+            {data?.fotoPerfil ? (
+              <img
+                src={data.fotoPerfil}
+                alt="Foto de perfil"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+              />
+            ) : (
+              inicial
+            )}
             <button
               className="absolute"
               style={{
@@ -125,12 +136,13 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
                 justifyContent: 'center',
                 cursor: 'pointer'
               }}
+              onClick={() => onNavigate('editarPerfil')}
             >
               <Edit size={18} color="#1A1A1A" strokeWidth={2.5} />
             </button>
           </div>
 
-          <h2 
+          <h2
             style={{
               fontFamily: 'Poppins, sans-serif',
               fontWeight: 700,
@@ -139,7 +151,7 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
               marginBottom: '4px'
             }}
           >
-            {studentData.firstName} {studentData.lastName}
+            {nombre}
           </h2>
 
           <div
@@ -153,7 +165,7 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
               fontSize: '14px'
             }}
           >
-            Nivel {studentData.level}
+            Nivel {data?.nivel ?? 0}
           </div>
         </div>
 
@@ -168,7 +180,7 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
             }}
           >
             <Trophy size={28} color="#FFD700" strokeWidth={2.5} />
-            <p 
+            <p
               style={{
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 800,
@@ -177,9 +189,9 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
                 marginTop: '8px'
               }}
             >
-              {studentData.totalPoints}
+              {data?.totalPuntos ?? 0}
             </p>
-            <p 
+            <p
               style={{
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 500,
@@ -200,7 +212,7 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
             }}
           >
             <BookOpen size={28} color="#9B7EC7" strokeWidth={2.5} />
-            <p 
+            <p
               style={{
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 800,
@@ -209,9 +221,9 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
                 marginTop: '8px'
               }}
             >
-              {studentData.completedFlashcards}
+              {data?.flashcardsEstudiadas ?? 0}
             </p>
-            <p 
+            <p
               style={{
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 500,
@@ -232,7 +244,7 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
             }}
           >
             <Target size={28} color="#10B981" strokeWidth={2.5} />
-            <p 
+            <p
               style={{
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 800,
@@ -241,9 +253,9 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
                 marginTop: '8px'
               }}
             >
-              {studentData.studyStreak}
+              {data?.rachaActual ?? 0}
             </p>
-            <p 
+            <p
               style={{
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 500,
@@ -265,7 +277,7 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
           }}
         >
-          <h3 
+          <h3
             style={{
               fontFamily: 'Poppins, sans-serif',
               fontWeight: 700,
@@ -278,7 +290,7 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
           </h3>
 
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-start gap-3">
               <div
                 style={{
                   width: '40px',
@@ -287,13 +299,15 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
                   backgroundColor: '#F3EBFF',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  marginTop: '2px'
                 }}
               >
                 <GraduationCap size={20} color="#9B7EC7" strokeWidth={2.5} />
               </div>
               <div className="flex-1">
-                <p 
+                <p
                   style={{
                     fontFamily: 'Poppins, sans-serif',
                     fontWeight: 500,
@@ -301,9 +315,9 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
                     color: '#64748B'
                   }}
                 >
-                  Código Estudiantil
+                  Identificación
                 </p>
-                <p 
+                <p
                   style={{
                     fontFamily: 'Poppins, sans-serif',
                     fontWeight: 600,
@@ -311,12 +325,12 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
                     color: '#1E293B'
                   }}
                 >
-                  {studentData.code}
+                  {data?.id_usuario ?? '—'}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-start gap-3">
               <div
                 style={{
                   width: '40px',
@@ -325,13 +339,15 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
                   backgroundColor: '#F3EBFF',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  marginTop: '2px'
                 }}
               >
                 <Mail size={20} color="#9B7EC7" strokeWidth={2.5} />
               </div>
               <div className="flex-1">
-                <p 
+                <p
                   style={{
                     fontFamily: 'Poppins, sans-serif',
                     fontWeight: 500,
@@ -341,7 +357,7 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
                 >
                   Correo Electrónico
                 </p>
-                <p 
+                <p
                   style={{
                     fontFamily: 'Poppins, sans-serif',
                     fontWeight: 600,
@@ -349,12 +365,23 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
                     color: '#1E293B'
                   }}
                 >
-                  {studentData.email}
+                  {(() => {
+                    const correo = data?.correo ?? '';
+                    const atIdx = correo.indexOf('@');
+                    if (atIdx < 0) return correo;
+                    return (
+                      <>
+                        {correo.slice(0, atIdx)}
+                        <br />
+                        {'@' + correo.slice(atIdx + 1)}
+                      </>
+                    );
+                  })()}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-start gap-3">
               <div
                 style={{
                   width: '40px',
@@ -363,13 +390,15 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
                   backgroundColor: '#F3EBFF',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  marginTop: '2px'
                 }}
               >
                 <Calendar size={20} color="#9B7EC7" strokeWidth={2.5} />
               </div>
               <div className="flex-1">
-                <p 
+                <p
                   style={{
                     fontFamily: 'Poppins, sans-serif',
                     fontWeight: 500,
@@ -377,9 +406,9 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
                     color: '#64748B'
                   }}
                 >
-                  Fecha de Registro
+                  Última Actividad
                 </p>
-                <p 
+                <p
                   style={{
                     fontFamily: 'Poppins, sans-serif',
                     fontWeight: 600,
@@ -387,7 +416,7 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
                     color: '#1E293B'
                   }}
                 >
-                  {studentData.registrationDate}
+                  {data?.fechaUltimaActividad ?? '—'}
                 </p>
               </div>
             </div>
@@ -397,6 +426,7 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
         {/* Botón Editar Perfil */}
         <button
           className="w-full p-4 rounded-xl transition-all hover:scale-[1.02] mb-6"
+          onClick={() => onNavigate('editarPerfil')}
           style={{
             backgroundColor: '#9B7EC7',
             color: '#FFFFFF',
@@ -413,11 +443,11 @@ export function PerfilEstudiante({ onBack, userName = 'Juan Pérez' }: PerfilEst
 
         {/* Logo Ada pequeño */}
         <div className="flex justify-center mb-4">
-          <ImageWithFallback 
-            src={muuuLogo} 
-            alt="Ada la Vaca" 
-            style={{ 
-              width: '80px', 
+          <ImageWithFallback
+            src={muuuLogo}
+            alt="Ada la Vaca"
+            style={{
+              width: '80px',
               height: '80px',
               objectFit: 'contain',
               opacity: 0.3

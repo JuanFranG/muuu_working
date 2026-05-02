@@ -142,6 +142,32 @@ export function rolAFrontend(rol: UsuarioAPI['rol']): 'student' | 'teacher' {
   return rol === 'DOCENTE' ? 'teacher' : 'student';
 }
 
+/** Actualiza nombre y/o contraseña del usuario en sesión */
+export async function actualizarPerfilAPI(params: {
+  nombre?: string;
+  contrasenaActual?: string;
+  nuevaContrasena?: string;
+}): Promise<void> {
+  await peticion<{ ok: boolean }>('PATCH', '/auth/perfil', params);
+}
+
+/** Sube una nueva foto de perfil y devuelve la URL */
+export async function subirFotoPerfilAPI(foto: File): Promise<string> {
+  const fd = new FormData();
+  fd.append('foto', foto);
+  const resp = await fetch('/api/auth/foto', {
+    method: 'POST',
+    credentials: 'include',
+    body: fd,
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error((err as any).mensaje ?? 'Error al subir la foto.');
+  }
+  const data = await resp.json() as { ok: boolean; url: string };
+  return data.url;
+}
+
 // ────────────────────────────────────────────────────────────
 //  CATÁLOGOS
 // ────────────────────────────────────────────────────────────

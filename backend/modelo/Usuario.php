@@ -99,4 +99,51 @@ class Usuario
 
         return $fila ?: null;
     }
+
+    // ----------------------------------------------------------
+    // Actualizar nombre y/o contraseña del perfil
+    // ----------------------------------------------------------
+    public function actualizarPerfil(int $id, ?string $nombre, ?string $nuevaContrasena): void
+    {
+        if ($nombre !== null && $nuevaContrasena !== null) {
+            $stmt = $this->db->prepare(
+                'UPDATE USUARIO SET nombre = ?, contrasena = ? WHERE id_usuario = ?'
+            );
+            $stmt->execute([$nombre, password_hash($nuevaContrasena, PASSWORD_BCRYPT), $id]);
+        } elseif ($nombre !== null) {
+            $stmt = $this->db->prepare(
+                'UPDATE USUARIO SET nombre = ? WHERE id_usuario = ?'
+            );
+            $stmt->execute([$nombre, $id]);
+        } elseif ($nuevaContrasena !== null) {
+            $stmt = $this->db->prepare(
+                'UPDATE USUARIO SET contrasena = ? WHERE id_usuario = ?'
+            );
+            $stmt->execute([password_hash($nuevaContrasena, PASSWORD_BCRYPT), $id]);
+        }
+    }
+
+    // ----------------------------------------------------------
+    // Actualizar foto de perfil
+    // ----------------------------------------------------------
+    public function actualizarFoto(int $id, string $url): void
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE USUARIO SET fotoPerfil = ? WHERE id_usuario = ?'
+        );
+        $stmt->execute([$url, $id]);
+    }
+
+    // ----------------------------------------------------------
+    // Obtener contraseña hash actual (para verificar antes de cambiar)
+    // ----------------------------------------------------------
+    public function obtenerContrasena(int $id): ?string
+    {
+        $stmt = $this->db->prepare(
+            'SELECT contrasena FROM USUARIO WHERE id_usuario = ? LIMIT 1'
+        );
+        $stmt->execute([$id]);
+        $fila = $stmt->fetch();
+        return $fila ? $fila['contrasena'] : null;
+    }
 }

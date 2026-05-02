@@ -1,28 +1,30 @@
-import { ArrowLeft, Edit2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, Edit2, Mail, Calendar, BadgeCheck } from 'lucide-react';
+import { meAPI, UsuarioAPI } from '../services/api';
 
 interface PerfilDocenteProps {
   onBack: () => void;
   userName?: string;
   onNavigateToMenu?: () => void;
+  onNavigate?: (screen: string) => void;
 }
 
-export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: PerfilDocenteProps) {
-  const teacherData = {
-    firstName: 'María',
-    lastName: 'García',
-    code: 'DOC-2024001',
-    email: 'maria.garcia@midominio.edu.co',
-    registrationDate: '10 Enero 2025',
-    totalStudents: 124,
-    flashcardsCreated: 87,
-    averageScore: 8.5,
-    department: 'Matemáticas'
-  };
+export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, onNavigate }: PerfilDocenteProps) {
+  const [data, setData] = useState<UsuarioAPI | null>(null);
+
+  useEffect(() => {
+    meAPI().then(u => {
+      if (u) setData(u);
+    }).catch(() => {});
+  }, []);
+
+  const nombre = data?.nombre ?? userName;
+  const inicial = nombre.charAt(0).toUpperCase();
 
   return (
-    <div 
+    <div
       className="h-full w-full relative overflow-y-auto"
-      style={{ 
+      style={{
         background: '#FFFFFF',
         maxWidth: '375px',
         maxHeight: '812px',
@@ -32,8 +34,8 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
       {/* Zona Superior Amarilla */}
       <div style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)' }}>
         {/* Header */}
-        <div 
-          style={{ 
+        <div
+          style={{
             padding: '16px 20px',
             display: 'flex',
             alignItems: 'center',
@@ -55,8 +57,8 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
             <ArrowLeft size={28} color="#78350F" strokeWidth={2.5} />
           </button>
 
-          <h1 
-            style={{ 
+          <h1
+            style={{
               fontFamily: 'Poppins, sans-serif',
               fontWeight: 700,
               fontSize: '20px',
@@ -71,26 +73,42 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
         {/* Avatar con icono de edición */}
         <div className="flex justify-center mb-4" style={{ paddingTop: '8px' }}>
           <div style={{ position: 'relative', display: 'inline-block' }}>
-            <div 
-              className="flex items-center justify-center"
-              style={{
-                width: '100px',
-                height: '100px',
-                borderRadius: '50%',
-                backgroundColor: '#FFFFFF',
-                border: '3px solid #F59E0B', // Borde igual al del botón de edición
-                fontFamily: 'Poppins, sans-serif',
-                fontWeight: 700,
-                fontSize: '40px',
-                color: '#F59E0B',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
-              }}
-            >
-              M
-            </div>
-            
-            {/* Botón de edición morado diagonal abajo-derecha */}
+            {data?.fotoPerfil ? (
+              <img
+                src={data.fotoPerfil}
+                alt="Foto de perfil"
+                style={{
+                  width: '100px',
+                  height: '100px',
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  border: '3px solid #F59E0B',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+                }}
+              />
+            ) : (
+              <div
+                className="flex items-center justify-center"
+                style={{
+                  width: '100px',
+                  height: '100px',
+                  borderRadius: '50%',
+                  backgroundColor: '#FFFFFF',
+                  border: '3px solid #F59E0B',
+                  fontFamily: 'Poppins, sans-serif',
+                  fontWeight: 700,
+                  fontSize: '40px',
+                  color: '#F59E0B',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+                }}
+              >
+                {inicial}
+              </div>
+            )}
+
+            {/* Botón de edición */}
             <button
+              onClick={() => onNavigate?.('editarPerfil')}
               style={{
                 position: 'absolute',
                 right: '-4px',
@@ -113,7 +131,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
         </div>
 
         {/* Nombre */}
-        <h2 
+        <h2
           className="text-center mb-2"
           style={{
             fontFamily: 'Poppins, sans-serif',
@@ -122,10 +140,10 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
             color: '#78350F'
           }}
         >
-          {teacherData.firstName} {teacherData.lastName}
+          {nombre}
         </h2>
 
-        {/* Badge negro de departamento */}
+        {/* Badge negro de rol */}
         <div className="flex justify-center mb-5">
           <div
             style={{
@@ -138,18 +156,18 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
               fontSize: '12px'
             }}
           >
-            {teacherData.department}
+            Docente
           </div>
         </div>
 
-        {/* Estadísticas - Una línea horizontal con separadores | */}
-        <div 
+        {/* Estadísticas */}
+        <div
           className="flex items-center justify-center gap-6 pb-6"
           style={{ padding: '0 12px 24px 12px' }}
         >
-          {/* Estudiantes */}
+          {/* Flashcards */}
           <div className="flex flex-col items-center">
-            <p 
+            <p
               style={{
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 800,
@@ -159,45 +177,9 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
                 marginBottom: '4px'
               }}
             >
-              {teacherData.totalStudents}
+              {data?.flashcardsEstudiadas ?? 0}
             </p>
-            <p 
-              style={{
-                fontFamily: 'Poppins, sans-serif',
-                fontWeight: 500,
-                fontSize: '11px',
-                color: '#92400E'
-              }}
-            >
-              Estudiantes
-            </p>
-          </div>
-
-          {/* Separador | */}
-          <div 
-            style={{
-              width: '1px',
-              height: '40px',
-              backgroundColor: '#92400E',
-              opacity: 0.3
-            }}
-          />
-
-          {/* Cards */}
-          <div className="flex flex-col items-center">
-            <p 
-              style={{
-                fontFamily: 'Poppins, sans-serif',
-                fontWeight: 800,
-                fontSize: '24px',
-                color: '#78350F',
-                lineHeight: '1',
-                marginBottom: '4px'
-              }}
-            >
-              {teacherData.flashcardsCreated}
-            </p>
-            <p 
+            <p
               style={{
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 500,
@@ -209,8 +191,8 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
             </p>
           </div>
 
-          {/* Separador | */}
-          <div 
+          {/* Separador */}
+          <div
             style={{
               width: '1px',
               height: '40px',
@@ -219,19 +201,75 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
             }}
           />
 
-          {/* Promedio */}
+          {/* Puntos */}
           <div className="flex flex-col items-center">
-            
-            
+            <p
+              style={{
+                fontFamily: 'Poppins, sans-serif',
+                fontWeight: 800,
+                fontSize: '24px',
+                color: '#78350F',
+                lineHeight: '1',
+                marginBottom: '4px'
+              }}
+            >
+              {data?.totalPuntos ?? 0}
+            </p>
+            <p
+              style={{
+                fontFamily: 'Poppins, sans-serif',
+                fontWeight: 500,
+                fontSize: '11px',
+                color: '#92400E'
+              }}
+            >
+              Puntos
+            </p>
+          </div>
+
+          {/* Separador */}
+          <div
+            style={{
+              width: '1px',
+              height: '40px',
+              backgroundColor: '#92400E',
+              opacity: 0.3
+            }}
+          />
+
+          {/* Nivel */}
+          <div className="flex flex-col items-center">
+            <p
+              style={{
+                fontFamily: 'Poppins, sans-serif',
+                fontWeight: 800,
+                fontSize: '24px',
+                color: '#78350F',
+                lineHeight: '1',
+                marginBottom: '4px'
+              }}
+            >
+              {data?.nivel ?? 0}
+            </p>
+            <p
+              style={{
+                fontFamily: 'Poppins, sans-serif',
+                fontWeight: 500,
+                fontSize: '11px',
+                color: '#92400E'
+              }}
+            >
+              Nivel
+            </p>
           </div>
         </div>
       </div>
 
       {/* Zona Inferior Blanca/Crema */}
       <div style={{ background: '#FFFBF0', padding: '24px 20px' }}>
-        {/* Información Personal - Card única con separadores */}
+        {/* Información Personal */}
         <div className="mb-6">
-          <h3 
+          <h3
             style={{
               fontFamily: 'Poppins, sans-serif',
               fontWeight: 700,
@@ -254,10 +292,24 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
           >
             {/* Nº de identificación */}
             <div style={{ padding: '16px 20px' }}>
-              <div className="flex items-center gap-3">
-                <span style={{ fontSize: '28px' }}>🪪</span>
+              <div className="flex items-start gap-3">
+                <div
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '10px',
+                    backgroundColor: '#FEF3C7',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: '2px'
+                  }}
+                >
+                  <BadgeCheck size={20} color="#F59E0B" strokeWidth={2.5} />
+                </div>
                 <div className="flex-1">
-                  <p 
+                  <p
                     style={{
                       fontFamily: 'Poppins, sans-serif',
                       fontWeight: 500,
@@ -268,7 +320,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
                   >
                     Nº de identificación
                   </p>
-                  <p 
+                  <p
                     style={{
                       fontFamily: 'Poppins, sans-serif',
                       fontWeight: 600,
@@ -276,7 +328,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
                       color: '#1F2937'
                     }}
                   >
-                    {teacherData.code}
+                    {data?.id_usuario ?? '—'}
                   </p>
                 </div>
               </div>
@@ -287,10 +339,24 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
 
             {/* Correo electrónico */}
             <div style={{ padding: '16px 20px' }}>
-              <div className="flex items-center gap-3">
-                <span style={{ fontSize: '28px' }}>📧</span>
+              <div className="flex items-start gap-3">
+                <div
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '10px',
+                    backgroundColor: '#FEF3C7',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: '2px'
+                  }}
+                >
+                  <Mail size={20} color="#F59E0B" strokeWidth={2.5} />
+                </div>
                 <div className="flex-1">
-                  <p 
+                  <p
                     style={{
                       fontFamily: 'Poppins, sans-serif',
                       fontWeight: 500,
@@ -301,7 +367,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
                   >
                     Correo electrónico
                   </p>
-                  <p 
+                  <p
                     style={{
                       fontFamily: 'Poppins, sans-serif',
                       fontWeight: 600,
@@ -309,7 +375,18 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
                       color: '#1F2937'
                     }}
                   >
-                    {teacherData.email}
+                    {(() => {
+                      const correo = data?.correo ?? '';
+                      const atIdx = correo.indexOf('@');
+                      if (atIdx < 0) return correo;
+                      return (
+                        <>
+                          {correo.slice(0, atIdx)}
+                          <br />
+                          {'@' + correo.slice(atIdx + 1)}
+                        </>
+                      );
+                    })()}
                   </p>
                 </div>
               </div>
@@ -318,12 +395,26 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
             {/* Separador */}
             <div style={{ height: '1px', backgroundColor: '#E5E7EB', margin: '0 20px' }} />
 
-            {/* Fecha de registro */}
+            {/* Última actividad */}
             <div style={{ padding: '16px 20px' }}>
-              <div className="flex items-center gap-3">
-                <span style={{ fontSize: '28px' }}>📅</span>
+              <div className="flex items-start gap-3">
+                <div
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '10px',
+                    backgroundColor: '#FEF3C7',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: '2px'
+                  }}
+                >
+                  <Calendar size={20} color="#F59E0B" strokeWidth={2.5} />
+                </div>
                 <div className="flex-1">
-                  <p 
+                  <p
                     style={{
                       fontFamily: 'Poppins, sans-serif',
                       fontWeight: 500,
@@ -332,9 +423,9 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
                       marginBottom: '2px'
                     }}
                   >
-                    Fecha de registro
+                    Última actividad
                   </p>
-                  <p 
+                  <p
                     style={{
                       fontFamily: 'Poppins, sans-serif',
                       fontWeight: 600,
@@ -342,7 +433,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
                       color: '#1F2937'
                     }}
                   >
-                    {teacherData.registrationDate}
+                    {data?.fechaUltimaActividad ?? '—'}
                   </p>
                 </div>
               </div>
@@ -350,9 +441,10 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu }: 
           </div>
         </div>
 
-        {/* Botón Editar Perfil - Ancho completo */}
+        {/* Botón Editar Perfil */}
         <button
           className="w-full transition-all hover:scale-[1.02]"
+          onClick={() => onNavigate?.('editarPerfil')}
           style={{
             background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)',
             color: '#78350F',

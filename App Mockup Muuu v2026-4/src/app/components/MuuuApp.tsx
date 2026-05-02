@@ -24,6 +24,7 @@ import { AgregarMaterial } from './AgregarMaterial';
 import { MisFlashcards } from './MisFlashcards';
 import { MisDocumentos } from './MisDocumentos';
 import { Categorias } from './Categorias';
+import { EditarPerfilMuuu } from './EditarPerfilMuuu';
 
 // Pantalla Home Estudiante
 function StudentHomeScreen({ userName = 'Estudiante', onNavigate }: { userName?: string; onNavigate: (screen: string) => void }) {
@@ -1076,7 +1077,7 @@ function RegisterScreen({ userType, onBack, onRegisterSuccess }: { userType: 'st
 }
 
 // Componente Principal
-type AppState = 'loading' | 'home' | 'login' | 'roleSelection' | 'register' | 'registroExitoso' | 'studentHome' | 'teacherHome' | 'aprendeUnPoco' | 'aprendeUnPocoMinimal' | 'disenarFlashcard' | 'editarFlashcard' | 'misFlashcards' | 'misDocumentos' | 'editarMaterial' | 'rankings' | 'perfilEstudiante' | 'perfilDocente' | 'configuraciones' | 'configuracionesDocente' | 'perfilMenu' | 'perfilMenuDocente' | 'ponteAPrueba' | 'desafiaAlguien' | 'salaDesafio' | 'miProgreso' | 'guiasEstudio' | 'agregarMaterial' | 'categorias';
+type AppState = 'loading' | 'home' | 'login' | 'roleSelection' | 'register' | 'registroExitoso' | 'studentHome' | 'teacherHome' | 'aprendeUnPoco' | 'aprendeUnPocoMinimal' | 'disenarFlashcard' | 'editarFlashcard' | 'misFlashcards' | 'misDocumentos' | 'editarMaterial' | 'rankings' | 'perfilEstudiante' | 'perfilDocente' | 'configuraciones' | 'configuracionesDocente' | 'perfilMenu' | 'perfilMenuDocente' | 'ponteAPrueba' | 'desafiaAlguien' | 'salaDesafio' | 'miProgreso' | 'guiasEstudio' | 'agregarMaterial' | 'categorias' | 'editarPerfil';
 
 export function MuuuApp() {
   const [appState, setAppState] = useState<AppState>('loading');
@@ -1084,6 +1085,7 @@ export function MuuuApp() {
   const [userName, setUserName] = useState('Martínez');
   const [flashcardEditarId, setFlashcardEditarId] = useState<number | undefined>(undefined);
   const [materialEditarId,  setMaterialEditarId]  = useState<number | undefined>(undefined);
+  const [prevPerfilScreen,  setPrevPerfilScreen]  = useState<AppState>('perfilEstudiante');
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -1362,7 +1364,13 @@ export function MuuuApp() {
 
   if (appState === 'perfilEstudiante') {
     return (
-      <PerfilEstudiante onBack={() => setAppState('perfilMenu')} />
+      <PerfilEstudiante
+        onBack={() => setAppState('perfilMenu')}
+        onNavigate={(screen) => {
+          setPrevPerfilScreen('perfilEstudiante');
+          setAppState(screen as AppState);
+        }}
+      />
     );
   }
 
@@ -1371,6 +1379,19 @@ export function MuuuApp() {
       <PerfilDocente
         onBack={() => setAppState('perfilMenuDocente')}
         onNavigateToMenu={() => setAppState('perfilMenuDocente')}
+        onNavigate={(screen) => {
+          setPrevPerfilScreen('perfilDocente');
+          setAppState(screen as AppState);
+        }}
+      />
+    );
+  }
+
+  if (appState === 'editarPerfil') {
+    return (
+      <EditarPerfilMuuu
+        onBack={() => setAppState(prevPerfilScreen)}
+        rol={userRole === 'teacher' ? 'DOCENTE' : 'ESTUDIANTE'}
       />
     );
   }

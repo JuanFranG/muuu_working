@@ -208,6 +208,113 @@ class UserController
         exit;
     }
 
+    /** PATCH /api/auth/perfil — actualizar nombre y/o contraseña */
+    public function actualizarPerfil(): void
+    {
+        session_start();
+
+        if (empty($_SESSION['id_usuario'])) {
+            $this->responderJson(401, ['ok' => false, 'mensaje' => 'No hay sesión activa.']);
+            return;
+        }
+
+        $id   = (int) $_SESSION['id_usuario'];
+        $body = $this->leerBody();
+
+        $nombre           = isset($body['nombre'])           ? trim($body['nombre'])           : null;
+        $contrasenaActual = isset($body['contrasenaActual']) ? $body['contrasenaActual']        : null;
+        $nuevaContrasena  = isset($body['nuevaContrasena'])  ? $body['nuevaContrasena']         : null;
+
+        // Si quieren cambiar contraseña, validar la actual primero
+        if ($nuevaContrasena !== null) {
+            if ($contrasenaActual === null) {
+                $this->responderJson(400, ['ok' => false, 'mensaje' => 'Debes ingresar tu contraseña actual.']);
+                return;
+            }
+            if (strlen($nuevaContrasena) < 6) {
+                $this->responderJson(400, ['ok' => false, 'mensaje' => 'La nueva contraseña debe tener al menos 6 caracteres.']);
+                return;
+            }
+            $hashActual = $this->modelo->obtenerContrasena($id);
+            if (!password_verify($contrasenaActual, $hashActual ?? '')) {
+                $this->responderJson(401, ['ok' => false, 'mensaje' => 'La contraseña actual no es correcta.']);
+                return;
+            }
+        }
+
+        // Nada que actualizar
+        if ($nombre === null && $nuevaContrasena === null) {
+            $this->responderJson(400, ['ok' => false, 'mensaje' => 'No hay cambios que guardar.']);
+            return;
+        }
+
+        // Validar nombre si viene
+        if ($nombre !== null && $nombre === '') {
+            $this->responderJson(400, ['ok' => false, 'mensaje' => 'El nombre no puede estar vacío.']);
+            return;
+        }
+
+        $this->modelo->actualizarPerfil($id, $nombre, $nuevaContrasena);
+
+        // Actualizar nombre en sesión si cambió
+        if ($nombre !== null) {
+            $_SESSION['nombre'] = $nombre;
+        }
+
+        $this->responderJson(200, ['ok' => true, 'mensaje' => 'Perfil actualizado correctamente.']);
+    }
+
+    /** POST /api/auth/foto — subir/cambiar foto de perfil */
+    public function subirFoto(): void
+    {
+        session_start();
+
+        if (empty($_SESSION['id_usuario'])) {
+            http_response_code(401);
+            echo json_encode(['ok' => false, 'mensaje' => 'No hay sesión activa.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        if (!isset($_FILES['foto']) || $_FILES['foto']['error'] === UPLOAD_ERR_NO_FILE) {
+            http_response_code(400);
+            echo json_encode(['ok' => false, 'mensaje' => 'No se recibió ninguna imagen.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        $archivo    = $_FILES['foto'];
+        $extension  = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
+        $permitidos = ['jpg', 'jpeg', 'png', 'webp'];
+
+        if (!in_array($extension, $permitidos, true)) {
+            http_response_code(415);
+            echo json_encode(['ok' => false, 'mensaje' => 'Solo se permiten imágenes JPG, PNG o WEBP.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        if ($archivo['size'] > 5242880) { // 5 MB
+            http_response_code(413);
+            echo json_encode(['ok' => false, 'mensaje' => 'La imagen no puede superar 5 MB.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        $dir = '/var/www/html/uploads/';
+        if (!is_dir($dir)) mkdir($dir, 0755, true);
+
+        $nombreArchivo = 'foto_' . (int) $_SESSION['id_usuario'] . '_' . time() . '.' . $extension;
+        $rutaDestino   = $dir . $nombreArchivo;
+
+        if (!move_uploaded_file($archivo['tmp_name'], $rutaDestino)) {
+            http_response_code(500);
+            echo json_encode(['ok' => false, 'mensaje' => 'No se pudo guardar la imagen.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        $url = '/uploads/' . $nombreArchivo;
+        $this->modelo->actualizarFoto((int) $_SESSION['id_usuario'], $url);
+
+        echo json_encode(['ok' => true, 'url' => $url], JSON_UNESCAPED_UNICODE);
+    }
+
     // =========================================================
     //  HELPERS PRIVADOS
     // =========================================================
