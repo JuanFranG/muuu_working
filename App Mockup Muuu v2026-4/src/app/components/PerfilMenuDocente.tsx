@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { ArrowLeft, UserCircle, Settings, HelpCircle } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import muuuLogo from 'figma:asset/4de3de61f8e4df99b460b6420b603ae06ba0b967.png';
+import { meAPI } from '../services/api';
 
 interface PerfilMenuDocenteProps {
   onBack: () => void;
@@ -9,6 +11,11 @@ interface PerfilMenuDocenteProps {
 }
 
 export function PerfilMenuDocente({ onBack, onNavigate, userName = 'García' }: PerfilMenuDocenteProps) {
+  const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
+
+  useEffect(() => {
+    meAPI().then(u => { if (u?.fotoPerfil) setFotoPerfil(u.fotoPerfil); }).catch(() => {});
+  }, []);
   const menuOptions = [
     {
       icon: UserCircle,
@@ -110,22 +117,24 @@ export function PerfilMenuDocente({ onBack, onNavigate, userName = 'García' }: 
       >
         {/* Avatar y nombre */}
         <div className="flex flex-col items-center mb-8">
-          <div 
+          <div
             className="flex items-center justify-center mb-4"
             style={{
-              width: '100px',
-              height: '100px',
-              borderRadius: '50%',
+              width: '100px', height: '100px', borderRadius: '50%',
               border: '4px solid #F59E0B',
-              backgroundColor: '#FFFFFF',
-              fontFamily: 'Poppins, sans-serif',
-              fontWeight: 700,
-              fontSize: '40px',
-              color: '#F59E0B',
-              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.2)'
+              backgroundColor: fotoPerfil ? 'transparent' : '#FFFFFF',
+              fontFamily: 'Poppins, sans-serif', fontWeight: 700,
+              fontSize: '40px', color: '#F59E0B',
+              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.2)',
+              overflow: 'hidden',
             }}
           >
-            {userName.charAt(0).toUpperCase()}
+            {fotoPerfil ? (
+              <img src={fotoPerfil} alt="Foto de perfil"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              userName.charAt(0).toUpperCase()
+            )}
           </div>
 
           <h2 

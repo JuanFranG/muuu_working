@@ -96,49 +96,40 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
       >
         {/* Avatar y nombre */}
         <div className="flex flex-col items-center mb-6">
-          <div
-            className="flex items-center justify-center mb-4"
-            style={{
-              width: '120px',
-              height: '120px',
-              borderRadius: '50%',
-              border: '6px solid #9B7EC7',
-              backgroundColor: data?.fotoPerfil ? 'transparent' : '#E6D5F0',
-              fontFamily: 'Poppins, sans-serif',
-              fontWeight: 700,
-              fontSize: '48px',
-              color: '#7952B3',
-              position: 'relative',
-              overflow: 'hidden'
-            }}
-          >
+          <div className="mb-4" style={{ position: 'relative', display: 'inline-block' }}>
             {data?.fotoPerfil ? (
               <img
                 src={data.fotoPerfil}
                 alt="Foto de perfil"
-                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                style={{
+                  width: '120px', height: '120px', borderRadius: '50%',
+                  objectFit: 'cover', border: '6px solid #9B7EC7', display: 'block',
+                }}
               />
             ) : (
-              inicial
+              <div
+                className="flex items-center justify-center"
+                style={{
+                  width: '120px', height: '120px', borderRadius: '50%',
+                  backgroundColor: '#E6D5F0', border: '6px solid #9B7EC7',
+                  fontFamily: 'Poppins, sans-serif', fontWeight: 700,
+                  fontSize: '48px', color: '#7952B3',
+                }}
+              >
+                {inicial}
+              </div>
             )}
             <button
-              className="absolute"
               style={{
-                bottom: '0',
-                right: '0',
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                backgroundColor: '#FFD700',
-                border: '3px solid #FFFFFF',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer'
+                position: 'absolute', bottom: '4px', right: '-4px',
+                width: '36px', height: '36px', borderRadius: '50%',
+                backgroundColor: '#9B7EC7', border: '3px solid #F3EBFF',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', boxShadow: '0 2px 8px rgba(155,126,199,0.5)',
               }}
               onClick={() => onNavigate('editarPerfil')}
             >
-              <Edit size={18} color="#1A1A1A" strokeWidth={2.5} />
+              <Edit size={18} color="#FFFFFF" strokeWidth={2.5} />
             </button>
           </div>
 

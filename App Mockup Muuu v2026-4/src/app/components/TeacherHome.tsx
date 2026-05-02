@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Bell, Edit3, ClipboardList, BarChart3, Archive, Tag, Home, User, Settings, HelpCircle, ChevronRight, Users, FileStack, Upload } from 'lucide-react';
-import { listarFlashcardsAPI, listarMaterialesAPI, listarTemasAPI, contarSuscriptoresAPI } from '../services/api';
+import { listarFlashcardsAPI, listarMaterialesAPI, listarTemasAPI, contarSuscriptoresAPI, meAPI } from '../services/api';
 
 interface TeacherHomeProps {
   userName?: string;
@@ -12,8 +12,10 @@ export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps
   const [totalDocumentos,  setTotalDocumentos]  = useState<number | null>(null);
   const [totalCategorias,  setTotalCategorias]  = useState<number | null>(null);
   const [totalEstudiantes, setTotalEstudiantes] = useState<number | null>(null);
+  const [fotoPerfil,       setFotoPerfil]       = useState<string | null>(null);
 
   useEffect(() => {
+    meAPI().then(u => { if (u?.fotoPerfil) setFotoPerfil(u.fotoPerfil); }).catch(() => {});
     listarFlashcardsAPI()
       .then(fcs => setTotalFlashcards(fcs.length))
       .catch(() => setTotalFlashcards(null));
@@ -66,22 +68,24 @@ export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps
             }}
           >
             {/* Avatar */}
-            <div 
+            <div
               className="flex items-center justify-center"
               style={{
-                width: '56px',
-                height: '56px',
-                borderRadius: '50%',
-                backgroundColor: '#FFFFFF',
+                width: '56px', height: '56px', borderRadius: '50%',
+                backgroundColor: fotoPerfil ? 'transparent' : '#FFFFFF',
                 border: '2px solid rgba(255, 255, 255, 0.5)',
-                fontFamily: 'Poppins, sans-serif',
-                fontWeight: 700,
-                fontSize: '24px',
-                color: '#F59E0B',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                fontFamily: 'Poppins, sans-serif', fontWeight: 700,
+                fontSize: '24px', color: '#F59E0B',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                overflow: 'hidden',
               }}
             >
-              R
+              {fotoPerfil ? (
+                <img src={fotoPerfil} alt="Foto de perfil"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                userName.charAt(0).toUpperCase()
+              )}
             </div>
             
             <div style={{ textAlign: 'left' }}>
