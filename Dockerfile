@@ -52,7 +52,7 @@ RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" && \
     echo "post_max_size = 55M"               >> "$PHP_INI_DIR/php.ini" && \
     echo "max_execution_time = 120"          >> "$PHP_INI_DIR/php.ini" && \
     echo "memory_limit = 256M"               >> "$PHP_INI_DIR/php.ini" && \
-    echo "session.cookie_secure = 0"         >> "$PHP_INI_DIR/php.ini" && \
+    echo "session.cookie_secure = 1"         >> "$PHP_INI_DIR/php.ini" && \
     echo "session.cookie_httponly = 1"       >> "$PHP_INI_DIR/php.ini" && \
     echo "session.cookie_samesite = Lax"     >> "$PHP_INI_DIR/php.ini"
 
