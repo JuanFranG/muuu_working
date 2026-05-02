@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { Bell, Lightbulb, Swords, Trophy, BookOpen, BarChart3 } from 'lucide-react';
+import { Bell, Lightbulb, Swords, Trophy, BookOpen, BarChart3, Flame } from 'lucide-react';
 import muuuLogo from 'figma:asset/15c96d9f13a3f65cf154aaca4e2380bdb312d1a5.png';
 
 interface StudentHomeProps {
@@ -116,13 +116,13 @@ export function StudentHome({ userName = 'Martínez', onNavigate }: StudentHomeP
           <div className="flex items-center gap-3">
             {/* Racha */}
             <div className="flex items-center gap-1">
-              <span style={{ fontSize: '20px' }}>🔥</span>
+              <Flame size={20} color="#9B2355" strokeWidth={2} fill="#9B2355" />
               <span
                 style={{
                   fontFamily: 'Poppins, sans-serif',
                   fontWeight: 700,
                   fontSize: '16px',
-                  color: '#F59E0B'
+                  color: '#9B2355'
                 }}
               >
                 {streak}

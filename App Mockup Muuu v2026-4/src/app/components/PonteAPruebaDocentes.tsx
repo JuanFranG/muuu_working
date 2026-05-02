@@ -148,7 +148,7 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
 
         {!cargando && !errorMsg && filteredDocentes.length === 0 && (
           <div style={{ textAlign: 'center', paddingTop: '48px', fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: '#7D7D7D' }}>
-            {searchQuery || selectedFilter !== 'Todos'
+            {searchQuery
               ? 'No se encontraron docentes con ese criterio.'
               : 'Ningún docente ha publicado flashcards todavía.'}
           </div>

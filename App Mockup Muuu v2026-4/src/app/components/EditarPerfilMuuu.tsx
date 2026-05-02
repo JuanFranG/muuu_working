@@ -132,7 +132,7 @@ export function EditarPerfilMuuu({ onBack, rol }: EditarPerfilMuuuProps) {
       <div style={{ padding: '28px 20px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {/* Avatar */}
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <div style={{ position: 'relative', display: 'inline-block' }}>
+          <div style={{ position: 'relative', width: '100px', height: '100px' }}>
             {fotoPerfil ? (
               <img src={fotoPerfil} alt="Foto de perfil" style={{
                 width: '100px', height: '100px', borderRadius: '50%',
@@ -152,7 +152,7 @@ export function EditarPerfilMuuu({ onBack, rol }: EditarPerfilMuuuProps) {
               onClick={() => fileRef.current?.click()}
               disabled={subiendoFoto}
               style={{
-                position: 'absolute', bottom: '2px', right: '-2px',
+                position: 'absolute', bottom: '4px', right: '0px',
                 width: '34px', height: '34px', borderRadius: '50%',
                 backgroundColor: primary, border: '3px solid #FFFFFF',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
