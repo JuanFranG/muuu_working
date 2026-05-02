@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Bell, Edit3, ClipboardList, BarChart3, Archive, Tag, Home, User, Settings, HelpCircle, ChevronRight, Users, FileStack, Upload } from 'lucide-react';
-import { listarFlashcardsAPI, listarMaterialesAPI, listarTemasAPI, contarSuscriptoresAPI, meAPI } from '../services/api';
+import { listarFlashcardsAPI, listarMaterialesAPI, listarTemasAPI, contarSuscriptoresAPI, meAPI, contarNoLeidasAPI } from '../services/api';
 
 interface TeacherHomeProps {
   userName?: string;
@@ -13,9 +13,11 @@ export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps
   const [totalCategorias,  setTotalCategorias]  = useState<number | null>(null);
   const [totalEstudiantes, setTotalEstudiantes] = useState<number | null>(null);
   const [fotoPerfil,       setFotoPerfil]       = useState<string | null>(null);
+  const [noLeidas,         setNoLeidas]         = useState(0);
 
   useEffect(() => {
     meAPI().then(u => { if (u?.fotoPerfil) setFotoPerfil(u.fotoPerfil); }).catch(() => {});
+    contarNoLeidasAPI().then(setNoLeidas).catch(() => {});
     listarFlashcardsAPI()
       .then(fcs => setTotalFlashcards(fcs.length))
       .catch(() => setTotalFlashcards(null));
@@ -132,19 +134,22 @@ export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps
             }}
           >
             <Bell size={24} color="#78350F" strokeWidth={2.5} />
-            {/* Punto rojo */}
-            <div 
-              style={{
-                position: 'absolute',
-                top: '6px',
-                right: '6px',
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: '#EF4444',
-                border: '2px solid #F59E0B'
-              }}
-            />
+            {noLeidas > 0 && (
+              <div style={{
+                position: 'absolute', top: '4px', right: '4px',
+                minWidth: '17px', height: '17px', borderRadius: '999px',
+                backgroundColor: '#EF4444', border: '2px solid #F59E0B',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                padding: '0 3px',
+              }}>
+                <span style={{
+                  fontFamily: 'Poppins, sans-serif', fontWeight: 700,
+                  fontSize: '9px', color: '#FFFFFF', lineHeight: 1,
+                }}>
+                  {noLeidas > 99 ? '99+' : noLeidas}
+                </span>
+              </div>
+            )}
           </button>
         </div>
 

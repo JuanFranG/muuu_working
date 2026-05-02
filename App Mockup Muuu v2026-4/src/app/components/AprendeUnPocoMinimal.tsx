@@ -3,6 +3,8 @@ import { ArrowLeft, Search, Sparkles, Video, Loader2, Download, ExternalLink, Bo
 import {
   listarDocentesMaterialesAPI,
   listarMaterialesPorDocenteAPI,
+  registrarAccesoAPI,
+  registrarDescargaAPI,
   type MaterialAPI,
   type DocenteMaterialesAPI,
 } from '../services/api';
@@ -133,13 +135,14 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
     url.startsWith('https://') ||
     url.startsWith('/uploads/');
 
-  // Abre el contenido en una nueva pestaña
+  // Abre el contenido en una nueva pestaña y registra el acceso
   const abrirContenido = (task: Task) => {
     if (!esUrlValida(task.url)) return;
     window.open(task.url, '_blank', 'noopener,noreferrer');
+    registrarAccesoAPI(task.id);
   };
 
-  // Descarga el contenido (para PDFs, imágenes, documentos)
+  // Descarga el contenido y registra la descarga
   const descargarContenido = (task: Task, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!esUrlValida(task.url)) return;
@@ -151,6 +154,7 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    registrarDescargaAPI(task.id);
   };
 
   const getDifficultyColor = (difficulty: string) => {

@@ -9,6 +9,7 @@
 
 require_once __DIR__ . '/../modelo/Material.php';
 require_once __DIR__ . '/../modelo/Conexion.php';
+require_once __DIR__ . '/../modelo/Notificacion.php';
 
 class MaterialController
 {
@@ -195,12 +196,93 @@ class MaterialController
             (int) $_SESSION['id_usuario']
         );
 
+        // ── Notificar a estudiantes suscritos ────────────────
+        try {
+            $modeloNotif = new Notificacion();
+            $nombreDoc   = $_SESSION['nombre'] ?? 'El docente';
+            $suscritos   = $modeloNotif->listarSuscritosPorDocente((int) $_SESSION['id_usuario']);
+            foreach ($suscritos as $est) {
+                $modeloNotif->insertar(
+                    (int) $est['id_estudiante'],
+                    'nuevo_material',
+                    'Nuevo material disponible',
+                    "{$nombreDoc} subió nuevo material: {$titulo}"
+                );
+            }
+        } catch (Throwable) { /* silencioso */ }
+
         http_response_code(201);
         echo json_encode([
             'ok'         => true,
             'id_material' => $idMaterial,
             'mensaje'    => 'Material creado exitosamente.',
         ], JSON_UNESCAPED_UNICODE);
+    }
+
+    // ── POST /api/materiales/{id}/acceso ─────────────────────
+    public function registrarAcceso(int $id): void
+    {
+        session_start();
+        if (empty($_SESSION['id_usuario'])) {
+            http_response_code(401);
+            echo json_encode(['ok' => false]);
+            return;
+        }
+
+        $model    = new Material();
+        $material = $model->buscarPorId($id);
+        if (!$material) {
+            http_response_code(404);
+            echo json_encode(['ok' => false]);
+            return;
+        }
+
+        try {
+            $nombreEst = $_SESSION['nombre'] ?? 'Un estudiante';
+            $idDocente = (int) $material['id_usuario'];
+            (new Notificacion())->insertar(
+                $idDocente,
+                'acceso_material',
+                'Material consultado',
+                "{$nombreEst} accedió al material \"{$material['titulo']}\""
+            );
+        } catch (Throwable) { /* silencioso */ }
+
+        http_response_code(200);
+        echo json_encode(['ok' => true], JSON_UNESCAPED_UNICODE);
+    }
+
+    // ── POST /api/materiales/{id}/descarga ────────────────────
+    public function registrarDescarga(int $id): void
+    {
+        session_start();
+        if (empty($_SESSION['id_usuario'])) {
+            http_response_code(401);
+            echo json_encode(['ok' => false]);
+            return;
+        }
+
+        $model    = new Material();
+        $material = $model->buscarPorId($id);
+        if (!$material) {
+            http_response_code(404);
+            echo json_encode(['ok' => false]);
+            return;
+        }
+
+        try {
+            $nombreEst = $_SESSION['nombre'] ?? 'Un estudiante';
+            $idDocente = (int) $material['id_usuario'];
+            (new Notificacion())->insertar(
+                $idDocente,
+                'descarga_material',
+                'Material descargado',
+                "{$nombreEst} descargó el material \"{$material['titulo']}\""
+            );
+        } catch (Throwable) { /* silencioso */ }
+
+        http_response_code(200);
+        echo json_encode(['ok' => true], JSON_UNESCAPED_UNICODE);
     }
 
     // ── GET /api/docentes ─────────────────────────────────────

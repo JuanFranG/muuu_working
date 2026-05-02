@@ -9,6 +9,7 @@
 // ============================================================
 
 require_once __DIR__ . '/../modelo/Suscripcion.php';
+require_once __DIR__ . '/../modelo/Notificacion.php';
 
 class SuscripcionController
 {
@@ -73,6 +74,17 @@ class SuscripcionController
         }
 
         $this->modelo->suscribir((int) $_SESSION['id_usuario'], $idDocente);
+
+        // ── Notificar al docente ─────────────────────────────
+        try {
+            $nombreEst = $_SESSION['nombre'] ?? 'Un estudiante';
+            (new Notificacion())->insertar(
+                $idDocente,
+                'nueva_suscripcion',
+                'Nuevo suscriptor',
+                "{$nombreEst} se suscribió a tu perfil"
+            );
+        } catch (Throwable) { /* no bloquear la respuesta si falla */ }
 
         $this->responder(200, ['ok' => true, 'mensaje' => 'Suscripción registrada.']);
     }

@@ -104,6 +104,10 @@ $rutasEstaticas = [
     // Suscripciones
     'GET:suscripciones'      => ['SuscripcionController', 'listar'],
     'POST:suscripciones'     => ['SuscripcionController', 'suscribir'],
+    // Notificaciones
+    'GET:notificaciones'              => ['NotificacionController', 'listar'],
+    'GET:notificaciones/no-leidas'    => ['NotificacionController', 'contarNoLeidas'],
+    'PATCH:notificaciones/leer-todas' => ['NotificacionController', 'marcarTodasLeidas'],
 ];
 
 if (isset($rutasEstaticas[$clave])) {
@@ -127,7 +131,13 @@ $rutasDinamicas = [
     '#^PUT:materiales/(\d+)$#'              => ['MaterialController',  'actualizar'],
     '#^DELETE:materiales/(\d+)$#'           => ['MaterialController',  'eliminarMaterial'],
     // Suscripciones — desuscribir por id_docente
-    '#^DELETE:suscripciones/(\d+)$#'        => ['SuscripcionController', 'desuscribir'],
+    '#^DELETE:suscripciones/(\d+)$#'             => ['SuscripcionController',    'desuscribir'],
+    // Notificaciones por id
+    '#^DELETE:notificaciones/(\d+)$#'            => ['NotificacionController',   'eliminar'],
+    '#^PATCH:notificaciones/(\d+)/leer$#'        => ['NotificacionController',   'marcarLeida'],
+    // Materiales — acceso y descarga
+    '#^POST:materiales/(\d+)/acceso$#'           => ['MaterialController',       'registrarAcceso'],
+    '#^POST:materiales/(\d+)/descarga$#'         => ['MaterialController',       'registrarDescarga'],
 ];
 
 foreach ($rutasDinamicas as $patron => [$clase, $accion]) {

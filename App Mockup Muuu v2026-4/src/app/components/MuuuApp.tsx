@@ -25,6 +25,7 @@ import { MisFlashcards } from './MisFlashcards';
 import { MisDocumentos } from './MisDocumentos';
 import { Categorias } from './Categorias';
 import { EditarPerfilMuuu } from './EditarPerfilMuuu';
+import { Notificaciones } from './Notificaciones';
 
 // Pantalla Home Estudiante
 function StudentHomeScreen({ userName = 'Estudiante', onNavigate }: { userName?: string; onNavigate: (screen: string) => void }) {
@@ -1077,7 +1078,7 @@ function RegisterScreen({ userType, onBack, onRegisterSuccess }: { userType: 'st
 }
 
 // Componente Principal
-type AppState = 'loading' | 'home' | 'login' | 'roleSelection' | 'register' | 'registroExitoso' | 'studentHome' | 'teacherHome' | 'aprendeUnPoco' | 'aprendeUnPocoMinimal' | 'disenarFlashcard' | 'editarFlashcard' | 'misFlashcards' | 'misDocumentos' | 'editarMaterial' | 'rankings' | 'perfilEstudiante' | 'perfilDocente' | 'configuraciones' | 'configuracionesDocente' | 'perfilMenu' | 'perfilMenuDocente' | 'ponteAPrueba' | 'desafiaAlguien' | 'salaDesafio' | 'miProgreso' | 'guiasEstudio' | 'agregarMaterial' | 'categorias' | 'editarPerfil';
+type AppState = 'loading' | 'home' | 'login' | 'roleSelection' | 'register' | 'registroExitoso' | 'studentHome' | 'teacherHome' | 'aprendeUnPoco' | 'aprendeUnPocoMinimal' | 'disenarFlashcard' | 'editarFlashcard' | 'misFlashcards' | 'misDocumentos' | 'editarMaterial' | 'rankings' | 'perfilEstudiante' | 'perfilDocente' | 'configuraciones' | 'configuracionesDocente' | 'perfilMenu' | 'perfilMenuDocente' | 'ponteAPrueba' | 'desafiaAlguien' | 'salaDesafio' | 'miProgreso' | 'guiasEstudio' | 'agregarMaterial' | 'categorias' | 'editarPerfil' | 'notificaciones';
 
 export function MuuuApp() {
   const [appState, setAppState] = useState<AppState>('loading');
@@ -1410,6 +1411,15 @@ export function MuuuApp() {
       <ConfiguracionesDocente
         onBack={() => setAppState('teacherHome')}
         onLogout={() => setAppState('login')}
+      />
+    );
+  }
+
+  if (appState === 'notificaciones') {
+    return (
+      <Notificaciones
+        onBack={() => setAppState(userRole === 'teacher' ? 'teacherHome' : 'studentHome')}
+        rol={userRole === 'teacher' ? 'DOCENTE' : 'ESTUDIANTE'}
       />
     );
   }

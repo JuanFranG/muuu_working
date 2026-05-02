@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Bell, Lightbulb, Swords, Trophy, BookOpen, BarChart3, Flame } from 'lucide-react';
 import muuuLogo from 'figma:asset/15c96d9f13a3f65cf154aaca4e2380bdb312d1a5.png';
-import { meAPI } from '../services/api';
+import { meAPI, contarNoLeidasAPI } from '../services/api';
 
 interface StudentHomeProps {
   userName?: string;
@@ -13,9 +13,11 @@ export function StudentHome({ userName = 'Martínez', onNavigate }: StudentHomeP
   const [progress] = useState(65);
   const [streak] = useState(5);
   const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
+  const [noLeidas,   setNoLeidas]   = useState(0);
 
   useEffect(() => {
     meAPI().then(u => { if (u?.fotoPerfil) setFotoPerfil(u.fotoPerfil); }).catch(() => {});
+    contarNoLeidasAPI().then(setNoLeidas).catch(() => {});
   }, []);
 
   return (
@@ -143,24 +145,31 @@ export function StudentHome({ userName = 'Martínez', onNavigate }: StudentHomeP
             </div>
 
             {/* C. Icono Notificaciones */}
-            <button 
+            <button
               className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
-              onClick={() => console.log('Notificaciones')}
+              onClick={() => onNavigate('notificaciones')}
               style={{ width: '40px', height: '40px' }}
             >
               <Bell size={24} style={{ color: '#9B7EC7' }} strokeWidth={2} />
-              {/* Badge rojo opcional */}
-              <div 
-                className="absolute"
-                style={{ 
-                  top: '6px',
-                  right: '6px',
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  backgroundColor: '#EF4444'
-                }}
-              ></div>
+              {noLeidas > 0 && (
+                <div
+                  className="absolute"
+                  style={{
+                    top: '4px', right: '4px',
+                    minWidth: '17px', height: '17px', borderRadius: '999px',
+                    backgroundColor: '#EF4444', border: '2px solid #FFFFFF',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: '0 3px',
+                  }}
+                >
+                  <span style={{
+                    fontFamily: 'Poppins, sans-serif', fontWeight: 700,
+                    fontSize: '9px', color: '#FFFFFF', lineHeight: 1,
+                  }}>
+                    {noLeidas > 99 ? '99+' : noLeidas}
+                  </span>
+                </div>
+              )}
             </button>
           </div>
         </div>

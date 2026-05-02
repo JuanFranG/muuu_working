@@ -535,3 +535,65 @@ export async function uploadArchivoAPI(archivo: File): Promise<string> {
   if (!data.ok) throw new Error(data.mensaje ?? 'Error al subir el archivo.');
   return data.url;
 }
+
+// ────────────────────────────────────────────────────────────
+//  NOTIFICACIONES
+// ────────────────────────────────────────────────────────────
+
+export interface NotificacionAPI {
+  id_notificacion: number;
+  tipo:            string;   // 'nueva_suscripcion' | 'nueva_flashcard' | 'nuevo_material' | 'acceso_material' | 'descarga_material'
+  titulo:          string;
+  mensaje:         string;
+  leida:           boolean;
+  fechaCreacion:   string;   // ISO datetime string
+}
+
+/** Lista todas las notificaciones del usuario autenticado */
+export async function listarNotificacionesAPI(): Promise<NotificacionAPI[]> {
+  const data = await peticion<{ ok: boolean; notificaciones: NotificacionAPI[] }>('GET', '/notificaciones');
+  return data.notificaciones ?? [];
+}
+
+/** Devuelve el número de notificaciones no leídas (para badge en campana) */
+export async function contarNoLeidasAPI(): Promise<number> {
+  try {
+    const data = await peticion<{ ok: boolean; count: number }>('GET', '/notificaciones/no-leidas');
+    return data.count ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
+/** Elimina una notificación por ID */
+export async function eliminarNotificacionAPI(id: number): Promise<void> {
+  await peticion<{ ok: boolean }>('DELETE', `/notificaciones/${id}`);
+}
+
+/** Marca una notificación como leída */
+export async function marcarLeidaAPI(id: number): Promise<void> {
+  await peticion<{ ok: boolean }>('PATCH', `/notificaciones/${id}/leer`);
+}
+
+/** Marca todas las notificaciones del usuario como leídas */
+export async function marcarTodasLeidasAPI(): Promise<void> {
+  await peticion<{ ok: boolean }>('PATCH', '/notificaciones/leer-todas');
+}
+
+// ────────────────────────────────────────────────────────────
+//  TRACKING DE MATERIALES
+// ────────────────────────────────────────────────────────────
+
+/** Registra que el estudiante abrió un material (notifica al docente) */
+export async function registrarAccesoAPI(idMaterial: number): Promise<void> {
+  try {
+    await peticion<{ ok: boolean }>('POST', `/materiales/${idMaterial}/acceso`);
+  } catch { /* silencioso — no bloquear UX */ }
+}
+
+/** Registra que el estudiante descargó un material (notifica al docente) */
+export async function registrarDescargaAPI(idMaterial: number): Promise<void> {
+  try {
+    await peticion<{ ok: boolean }>('POST', `/materiales/${idMaterial}/descarga`);
+  } catch { /* silencioso — no bloquear UX */ }
+}

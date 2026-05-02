@@ -15,6 +15,7 @@
 require_once __DIR__ . '/../modelo/Flashcard.php';
 require_once __DIR__ . '/../modelo/Tema.php';
 require_once __DIR__ . '/../modelo/Dificultad.php';
+require_once __DIR__ . '/../modelo/Notificacion.php';
 
 class FlashcardController
 {
@@ -184,6 +185,17 @@ class FlashcardController
             ? 'Flashcard publicada exitosamente.'
             : 'Flashcard guardada como borrador.';
 
+        // ── Si se publicó directamente, notificar a suscriptores ──
+        if ($estado === 'PUBLICADO') {
+            try {
+                $this->notificarNuevaFlashcard(
+                    (int) $_SESSION['id_usuario'],
+                    $idTema,
+                    $_SESSION['nombre'] ?? 'El docente'
+                );
+            } catch (Throwable) { /* silencioso */ }
+        }
+
         $this->responder(201, [
             'ok'           => true,
             'mensaje'      => $mensaje,
@@ -325,7 +337,38 @@ class FlashcardController
     // =========================================================
     public function publicar(int $id): void
     {
-        $this->cambiarEstado($id, 'PUBLICADO', 'Flashcard publicada exitosamente.');
+        session_start();
+        if (empty($_SESSION['id_usuario'])) {
+            $this->responder(401, ['ok' => false, 'mensaje' => 'No hay sesión activa.']);
+            return;
+        }
+        if (!$this->modeloFlashcard->perteneceA($id, (int) $_SESSION['id_usuario'])) {
+            $this->responder(403, ['ok' => false, 'mensaje' => 'No tienes permiso para modificar esta flashcard.']);
+            return;
+        }
+
+        // Comprobar estado previo (solo notificar si estaba en BORRADOR)
+        $flashcard = $this->modeloFlashcard->buscarPorId($id);
+        $eraPublicada = $flashcard && ($flashcard['estado'] ?? '') === 'PUBLICADO';
+
+        $ok = $this->modeloFlashcard->actualizarEstado($id, 'PUBLICADO');
+        if (!$ok) {
+            $this->responder(404, ['ok' => false, 'mensaje' => 'Flashcard no encontrada.']);
+            return;
+        }
+
+        // Notificar solo al pasar de BORRADOR → PUBLICADO
+        if (!$eraPublicada && $flashcard) {
+            try {
+                $this->notificarNuevaFlashcard(
+                    (int) $_SESSION['id_usuario'],
+                    (int) $flashcard['id_tema'],
+                    $_SESSION['nombre'] ?? 'El docente'
+                );
+            } catch (Throwable) { /* silencioso */ }
+        }
+
+        $this->responder(200, ['ok' => true, 'mensaje' => 'Flashcard publicada exitosamente.', 'estado' => 'PUBLICADO']);
     }
 
     // =========================================================
@@ -339,6 +382,31 @@ class FlashcardController
     // =========================================================
     //  HELPERS PRIVADOS
     // =========================================================
+
+    private function notificarNuevaFlashcard(int $idDocente, int $idTema, string $nombreDocente): void
+    {
+        $modeloNotif = new Notificacion();
+
+        // Obtener nombre del tema
+        $temas      = $this->modeloTema->listar();
+        $nombreTema = 'un tema';
+        foreach ($temas as $t) {
+            if ((int) $t['id_tema'] === $idTema) {
+                $nombreTema = $t['nombre'];
+                break;
+            }
+        }
+
+        $suscritos = $modeloNotif->listarSuscritosPorDocente($idDocente);
+        foreach ($suscritos as $est) {
+            $modeloNotif->insertar(
+                (int) $est['id_estudiante'],
+                'nueva_flashcard',
+                'Nueva flashcard publicada',
+                "{$nombreDocente} publicó una nueva flashcard sobre {$nombreTema}"
+            );
+        }
+    }
 
     private function cambiarEstado(int $id, string $nuevoEstado, string $mensajeOk): void
     {
