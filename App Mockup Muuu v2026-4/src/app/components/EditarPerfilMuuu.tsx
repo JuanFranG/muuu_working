@@ -132,27 +132,29 @@ export function EditarPerfilMuuu({ onBack, rol }: EditarPerfilMuuuProps) {
       <div style={{ padding: '28px 20px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {/* Avatar */}
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <div style={{ position: 'relative', width: '100px', height: '100px' }}>
+          {/* El botón de cámara va DENTRO del div del avatar para que overflow:hidden lo recorte en forma circular */}
+          <div style={{
+            position: 'relative',
+            width: '100px', height: '100px', borderRadius: '50%',
+            border: `4px solid ${primary}`,
+            overflow: 'hidden',
+            backgroundColor: fotoPerfil ? 'transparent' : '#FFFFFF',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '40px', color: primary,
+          }}>
             {fotoPerfil ? (
-              <img src={fotoPerfil} alt="Foto de perfil" style={{
-                width: '100px', height: '100px', borderRadius: '50%',
-                objectFit: 'cover', border: `4px solid ${primary}`,
-              }} />
+              <img src={fotoPerfil} alt="Foto de perfil"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
-              <div style={{
-                width: '100px', height: '100px', borderRadius: '50%',
-                backgroundColor: '#FFFFFF', border: `4px solid ${primary}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '40px', color: primary,
-              }}>
-                {subiendoFoto ? <Loader2 size={32} className="animate-spin" color={primary} /> : inicial}
-              </div>
+              subiendoFoto
+                ? <Loader2 size={32} className="animate-spin" color={primary} />
+                : inicial
             )}
             <button
               onClick={() => fileRef.current?.click()}
               disabled={subiendoFoto}
               style={{
-                position: 'absolute', bottom: '4px', right: '0px',
+                position: 'absolute', bottom: '0', right: '0',
                 width: '34px', height: '34px', borderRadius: '50%',
                 backgroundColor: primary, border: '3px solid #FFFFFF',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',

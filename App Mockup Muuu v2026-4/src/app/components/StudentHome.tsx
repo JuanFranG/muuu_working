@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Bell, Lightbulb, Swords, Trophy, BookOpen, BarChart3, Flame } from 'lucide-react';
 import muuuLogo from 'figma:asset/15c96d9f13a3f65cf154aaca4e2380bdb312d1a5.png';
+import { meAPI } from '../services/api';
 
 interface StudentHomeProps {
   userName?: string;
@@ -9,8 +10,13 @@ interface StudentHomeProps {
 }
 
 export function StudentHome({ userName = 'Martínez', onNavigate }: StudentHomeProps) {
-  const [progress] = useState(65); // Progreso del estudiante en %
-  const [streak] = useState(5); // Racha actual
+  const [progress] = useState(65);
+  const [streak] = useState(5);
+  const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
+
+  useEffect(() => {
+    meAPI().then(u => { if (u?.fotoPerfil) setFotoPerfil(u.fotoPerfil); }).catch(() => {});
+  }, []);
 
   return (
     <div
@@ -80,19 +86,26 @@ export function StudentHome({ userName = 'Martínez', onNavigate }: StudentHomeP
             <button
               onClick={() => onNavigate('perfilMenu')}
               className="flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-              style={{ 
+              style={{
                 width: '48px',
                 height: '48px',
                 borderRadius: '50%',
                 border: '3px solid #9B7EC7',
-                backgroundColor: '#E6D5F0',
+                backgroundColor: fotoPerfil ? 'transparent' : '#E6D5F0',
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 700,
                 fontSize: '20px',
-                color: '#7952B3'
+                color: '#7952B3',
+                overflow: 'hidden',
+                padding: 0,
               }}
             >
-              {userName.charAt(0).toUpperCase()}
+              {fotoPerfil ? (
+                <img src={fotoPerfil} alt="Foto de perfil"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                userName.charAt(0).toUpperCase()
+              )}
             </button>
             
             {/* B. Información Usuario */}

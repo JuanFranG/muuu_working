@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { ArrowLeft, UserCircle, Settings, LogOut } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import muuuLogo from 'figma:asset/4de3de61f8e4df99b460b6420b603ae06ba0b967.png';
+import { meAPI } from '../services/api';
 
 interface PerfilMenuProps {
   onBack: () => void;
@@ -9,6 +11,11 @@ interface PerfilMenuProps {
 }
 
 export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenuProps) {
+  const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
+
+  useEffect(() => {
+    meAPI().then(u => { if (u?.fotoPerfil) setFotoPerfil(u.fotoPerfil); }).catch(() => {});
+  }, []);
   const menuOptions = [
     {
       icon: UserCircle,
@@ -102,21 +109,27 @@ export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenu
       >
         {/* Avatar y nombre */}
         <div className="flex flex-col items-center mb-8">
-          <div 
+          <div
             className="flex items-center justify-center mb-4"
             style={{
               width: '100px',
               height: '100px',
               borderRadius: '50%',
               border: '5px solid #9B7EC7',
-              backgroundColor: '#E6D5F0',
+              backgroundColor: fotoPerfil ? 'transparent' : '#E6D5F0',
               fontFamily: 'Poppins, sans-serif',
               fontWeight: 700,
               fontSize: '40px',
-              color: '#7952B3'
+              color: '#7952B3',
+              overflow: 'hidden',
             }}
           >
-            {userName.charAt(0).toUpperCase()}
+            {fotoPerfil ? (
+              <img src={fotoPerfil} alt="Foto de perfil"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              userName.charAt(0).toUpperCase()
+            )}
           </div>
 
           <h2 
