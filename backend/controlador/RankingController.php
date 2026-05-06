@@ -60,14 +60,20 @@ class RankingController
         $idUsuario = (int) $_SESSION['id_usuario'];
 
         // Persistir historial por flashcard
+        $historialGuardado = 0;
+        $erroresHistorial  = [];
         if (!empty($flashcards)) {
             $historial = new HistorialFlashcard();
             foreach ($flashcards as $fc) {
-                if (!empty($fc['id_flashcard'])) {
+                $fcId = (int)($fc['id_flashcard'] ?? 0);
+                if ($fcId > 0) {
                     $res = ($fc['resultado'] ?? '') === 'correcta' ? 'correcta' : 'incorrecta';
                     try {
-                        $historial->insertar($idUsuario, (int) $fc['id_flashcard'], $res);
-                    } catch (Throwable) { /* ignora si la flashcard ya no existe */ }
+                        $historial->insertar($idUsuario, $fcId, $res);
+                        $historialGuardado++;
+                    } catch (Throwable $e) {
+                        $erroresHistorial[] = "fc#{$fcId}: " . $e->getMessage();
+                    }
                 }
             }
         }
@@ -112,7 +118,13 @@ class RankingController
             }
         } catch (Throwable) { /* no bloquear si falla la racha */ }
 
-        echo json_encode(['ok' => true, 'puntosGanados' => $puntosGanados]);
+        echo json_encode([
+            'ok'               => true,
+            'puntosGanados'    => $puntosGanados,
+            'historialGuardado'=> $historialGuardado,
+            'flashcardsEnviadas'=> count($flashcards),
+            'errores'          => $erroresHistorial,
+        ]);
     }
 
     // ── GET /api/estadisticas/estudiante ─────────────────────

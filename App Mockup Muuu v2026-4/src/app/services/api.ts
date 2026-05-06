@@ -637,14 +637,24 @@ export async function guardarResultadoQuizAPI(params: {
   correctas:   number;
   incorrectas: number;
   tiempo:      number;
-}): Promise<{ puntosGanados: number }> {
+}): Promise<{ puntosGanados: number; historialGuardado: number; flashcardsEnviadas: number; errores: string[] }> {
   try {
-    const data = await peticion<{ ok: boolean; puntosGanados: number }>(
-      'POST', '/quiz/resultado', params
-    );
-    return { puntosGanados: data.puntosGanados ?? 0 };
-  } catch {
-    return { puntosGanados: 0 };
+    const data = await peticion<{
+      ok: boolean;
+      puntosGanados: number;
+      historialGuardado: number;
+      flashcardsEnviadas: number;
+      errores: string[];
+    }>('POST', '/quiz/resultado', params);
+    return {
+      puntosGanados:      data.puntosGanados      ?? 0,
+      historialGuardado:  data.historialGuardado   ?? 0,
+      flashcardsEnviadas: data.flashcardsEnviadas  ?? 0,
+      errores:            data.errores             ?? [],
+    };
+  } catch (err) {
+    console.error('[Quiz] guardarResultadoQuizAPI falló:', err);
+    return { puntosGanados: 0, historialGuardado: 0, flashcardsEnviadas: 0, errores: ['fetch_failed'] };
   }
 }
 

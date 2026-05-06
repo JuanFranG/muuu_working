@@ -57,12 +57,21 @@ export function QuizScreen({
   useEffect(() => {
     if ((!quizEnded && !quizCompleted) || resultadoGuardadoRef.current) return;
     resultadoGuardadoRef.current = true;
-    guardarResultadoQuizAPI({
+
+    const payload = {
       flashcards:  flashcardResultsRef.current,
       correctas:   correctAnswers,
       incorrectas: incorrectAnswers,
       tiempo:      timeElapsed,
-    }).then(r => setPuntosGanados(r.puntosGanados)).catch(() => {});
+    };
+    console.log('[Quiz] → Enviando resultado al servidor:', JSON.stringify(payload));
+
+    guardarResultadoQuizAPI(payload).then(r => {
+      console.log('[Quiz] ← Respuesta del servidor:', JSON.stringify(r));
+      setPuntosGanados(r.puntosGanados);
+    }).catch((err) => {
+      console.error('[Quiz] ✗ Error inesperado:', err);
+    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quizEnded, quizCompleted]);
 
