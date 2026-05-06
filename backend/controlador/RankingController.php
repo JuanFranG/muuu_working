@@ -46,6 +46,7 @@ class RankingController
     // ── POST /api/quiz/resultado ─────────────────────────────
     public function guardarResultado(): void
     {
+        session_start();
         if (empty($_SESSION['id_usuario'])) {
             http_response_code(401);
             echo json_encode(['ok' => false, 'error' => 'No autenticado']);
@@ -84,6 +85,7 @@ class RankingController
     // ── GET /api/estadisticas/estudiante ─────────────────────
     public function estadisticasEstudiante(): void
     {
+        session_start();
         if (empty($_SESSION['id_usuario'])) {
             http_response_code(401);
             echo json_encode(['ok' => false, 'error' => 'No autenticado']);
@@ -113,6 +115,7 @@ class RankingController
     // ── GET /api/estadisticas/docente ────────────────────────
     public function estadisticasDocente(): void
     {
+        session_start();
         if (empty($_SESSION['id_usuario'])) {
             http_response_code(401);
             echo json_encode(['ok' => false, 'error' => 'No autenticado']);
