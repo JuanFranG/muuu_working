@@ -8,11 +8,12 @@ interface EstadisticasDocenteProps {
 
 const INICIAL: EstadisticasDocenteAPI = {
   flashcardsPublicadas: 0,
-  suscriptores: 0,
-  materiales: 0,
-  accesos: 0,
-  descargas: 0,
-  topFlashcards: [],
+  suscriptores:         0,
+  materiales:           0,
+  accesos:              0,
+  descargas:            0,
+  tasaAciertos:         0,
+  topFlashcards:        [],
 };
 
 export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
@@ -25,24 +26,30 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
       .finally(() => setCargando(false));
   }, []);
 
-  const primary  = '#F59E0B';
-  const dark     = '#78350F';
-  const bg       = '#F8F4EC';
-  const cardBg   = '#FFFFFF';
+  const primary = '#F59E0B';
+  const dark    = '#78350F';
+  const bg      = '#F8F4EC';
+  const cardBg  = '#FFFFFF';
+
+  const getAciertosColor = (pct: number) => {
+    if (pct >= 70) return '#10B981';
+    if (pct >= 40) return '#F59E0B';
+    return '#EF4444';
+  };
 
   return (
     <div
       className="h-full w-full relative overflow-y-auto"
       style={{ background: bg, maxWidth: '375px', margin: '0 auto', paddingBottom: '40px' }}
     >
-      {/* HEADER */}
+      {/* ── HEADER ───────────────────────────────────────────── */}
       <div style={{
         background: `linear-gradient(135deg, ${primary} 0%, #FBBF24 100%)`,
-        padding: '24px 20px 20px 20px',
-        borderRadius: '0 0 24px 24px',
-        boxShadow: `0 4px 12px rgba(245,158,11,0.25)`,
+        padding: '24px 20px 28px 20px',
+        borderRadius: '0 0 28px 28px',
+        boxShadow: '0 4px 12px rgba(245,158,11,0.25)',
       }}>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3" style={{ marginBottom: '20px' }}>
           <button
             onClick={onBack}
             style={{
@@ -58,26 +65,73 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
               Mis Estadísticas
             </h1>
             <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '12px', color: dark, opacity: 0.7, margin: 0 }}>
-              Resumen de tu actividad
+              Rendimiento de tus flashcards
             </p>
+          </div>
+        </div>
+
+        {/* ── HERO: Tasa de aciertos global ────────────────── */}
+        <div style={{
+          backgroundColor: 'rgba(255,255,255,0.95)',
+          borderRadius: '20px',
+          padding: '20px 24px',
+          display: 'flex', alignItems: 'center', gap: '16px',
+        }}>
+          {/* Círculo de progreso visual */}
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            <svg width="80" height="80" viewBox="0 0 80 80">
+              {/* Fondo */}
+              <circle cx="40" cy="40" r="32" fill="none" stroke="#FDE68A" strokeWidth="8" />
+              {/* Progreso */}
+              <circle
+                cx="40" cy="40" r="32"
+                fill="none"
+                stroke={getAciertosColor(cargando ? 0 : stats.tasaAciertos)}
+                strokeWidth="8"
+                strokeLinecap="round"
+                strokeDasharray={`${2 * Math.PI * 32}`}
+                strokeDashoffset={`${2 * Math.PI * 32 * (1 - (cargando ? 0 : stats.tasaAciertos) / 100)}`}
+                transform="rotate(-90 40 40)"
+                style={{ transition: 'stroke-dashoffset 0.6s ease' }}
+              />
+            </svg>
+            <div style={{
+              position: 'absolute', inset: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '16px', color: dark }}>
+                {cargando ? '…' : `${stats.tasaAciertos}%`}
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <p style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '16px', color: dark, margin: '0 0 4px 0' }}>
+              Tasa de aciertos global
+            </p>
+            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '12px', color: '#92400E', margin: 0, lineHeight: '1.4' }}>
+              Porcentaje de respuestas correctas de los estudiantes en tus flashcards
+            </p>
+            {!cargando && stats.tasaAciertos === 0 && (
+              <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: '#B45309', margin: '6px 0 0 0', fontStyle: 'italic' }}>
+                Aún no hay datos de quizzes
+              </p>
+            )}
           </div>
         </div>
       </div>
 
       <div style={{ padding: '20px' }}>
 
-        {/* GRID DE MÉTRICAS PRINCIPALES */}
+        {/* ── GRID DE MÉTRICAS ─────────────────────────────── */}
         <div className="grid grid-cols-2 gap-3" style={{ marginBottom: '20px' }}>
 
-          {/* Flashcards Publicadas */}
+          {/* Flashcards publicadas */}
           <div style={{
             backgroundColor: cardBg, borderRadius: '16px', padding: '18px',
             boxShadow: '0 2px 8px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column', gap: '8px',
           }}>
-            <div style={{
-              width: '40px', height: '40px', borderRadius: '10px',
-              backgroundColor: '#FEF9C3', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#FEF9C3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <BookOpen size={20} color="#D97706" strokeWidth={2.5} />
             </div>
             <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '28px', color: dark, lineHeight: 1 }}>
@@ -92,13 +146,9 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
           <div style={{
             background: `linear-gradient(135deg, ${primary} 0%, #FBBF24 100%)`,
             borderRadius: '16px', padding: '18px',
-            boxShadow: `0 4px 12px rgba(245,158,11,0.25)`, display: 'flex', flexDirection: 'column', gap: '8px',
+            boxShadow: '0 4px 12px rgba(245,158,11,0.25)', display: 'flex', flexDirection: 'column', gap: '8px',
           }}>
-            <div style={{
-              width: '40px', height: '40px', borderRadius: '10px',
-              backgroundColor: 'rgba(255,255,255,0.3)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Users size={20} color={dark} strokeWidth={2.5} />
             </div>
             <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '28px', color: dark, lineHeight: 1 }}>
@@ -114,10 +164,7 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
             backgroundColor: cardBg, borderRadius: '16px', padding: '18px',
             boxShadow: '0 2px 8px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column', gap: '8px',
           }}>
-            <div style={{
-              width: '40px', height: '40px', borderRadius: '10px',
-              backgroundColor: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <FileText size={20} color="#3B82F6" strokeWidth={2.5} />
             </div>
             <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '28px', color: dark, lineHeight: 1 }}>
@@ -128,15 +175,12 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
             </div>
           </div>
 
-          {/* Interacciones */}
+          {/* Total interacciones */}
           <div style={{
             backgroundColor: cardBg, borderRadius: '16px', padding: '18px',
             boxShadow: '0 2px 8px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column', gap: '8px',
           }}>
-            <div style={{
-              width: '40px', height: '40px', borderRadius: '10px',
-              backgroundColor: '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
+            <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <BarChart3 size={20} color="#10B981" strokeWidth={2.5} />
             </div>
             <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '28px', color: dark, lineHeight: 1 }}>
@@ -148,7 +192,7 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
           </div>
         </div>
 
-        {/* ACCESOS Y DESCARGAS */}
+        {/* ── ACCESOS Y DESCARGAS ───────────────────────────── */}
         <div style={{
           backgroundColor: cardBg, borderRadius: '16px', padding: '18px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: '20px',
@@ -159,53 +203,33 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
           }}>
             Actividad en Materiales
           </h3>
-
           <div style={{ display: 'flex', gap: '12px' }}>
-            {/* Accesos */}
-            <div style={{
-              flex: 1, backgroundColor: '#EFF6FF', borderRadius: '12px', padding: '14px',
-              display: 'flex', alignItems: 'center', gap: '10px',
-            }}>
-              <div style={{
-                width: '36px', height: '36px', borderRadius: '50%',
-                backgroundColor: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              }}>
+            <div style={{ flex: 1, backgroundColor: '#EFF6FF', borderRadius: '12px', padding: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Eye size={18} color="#3B82F6" strokeWidth={2.5} />
               </div>
               <div>
                 <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '22px', color: '#1E40AF', lineHeight: 1 }}>
                   {cargando ? '…' : stats.accesos}
                 </div>
-                <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', color: '#3B82F6', marginTop: '2px' }}>
-                  Accesos
-                </div>
+                <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', color: '#3B82F6', marginTop: '2px' }}>Accesos</div>
               </div>
             </div>
-
-            {/* Descargas */}
-            <div style={{
-              flex: 1, backgroundColor: '#F0FDF4', borderRadius: '12px', padding: '14px',
-              display: 'flex', alignItems: 'center', gap: '10px',
-            }}>
-              <div style={{
-                width: '36px', height: '36px', borderRadius: '50%',
-                backgroundColor: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              }}>
+            <div style={{ flex: 1, backgroundColor: '#F0FDF4', borderRadius: '12px', padding: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Download size={18} color="#10B981" strokeWidth={2.5} />
               </div>
               <div>
                 <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '22px', color: '#065F46', lineHeight: 1 }}>
                   {cargando ? '…' : stats.descargas}
                 </div>
-                <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', color: '#10B981', marginTop: '2px' }}>
-                  Descargas
-                </div>
+                <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', color: '#10B981', marginTop: '2px' }}>Descargas</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* TOP FLASHCARDS MÁS ESTUDIADAS */}
+        {/* ── TOP FLASHCARDS CON TASA DE ACIERTOS ─────────── */}
         <div style={{
           backgroundColor: cardBg, borderRadius: '16px', padding: '18px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
@@ -214,7 +238,7 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
             fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '13px',
             color: '#1E293B', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px',
           }}>
-            Flashcards Más Estudiadas
+            Flashcards Más Practicadas
           </h3>
 
           {cargando ? (
@@ -227,42 +251,62 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
               </p>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {stats.topFlashcards.map((fc, i) => (
                 <div key={i} style={{
-                  display: 'flex', alignItems: 'center', gap: '12px',
-                  padding: '12px', backgroundColor: i === 0 ? '#FFFBEB' : '#F9FAFB',
+                  padding: '14px',
+                  backgroundColor: i === 0 ? '#FFFBEB' : '#F9FAFB',
                   borderRadius: '12px',
                   border: i === 0 ? '2px solid #FDE68A' : '1px solid #F3F4F6',
                 }}>
-                  <div style={{
-                    width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
-                    background: i === 0 ? 'linear-gradient(135deg, #FFD700, #FFA500)' : '#E5E7EB',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '14px',
-                    color: i === 0 ? '#78350F' : '#6B7280',
-                  }}>
-                    {i + 1}
+                  {/* Fila superior: posición + integral + veces */}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '10px' }}>
+                    <div style={{
+                      width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
+                      background: i === 0 ? 'linear-gradient(135deg, #FFD700, #FFA500)' : '#E5E7EB',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '12px',
+                      color: i === 0 ? '#78350F' : '#6B7280',
+                    }}>
+                      {i + 1}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p
+                        style={{
+                          fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '12px',
+                          color: '#1E293B', margin: '0 0 2px 0',
+                          overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
+                        }}
+                        dangerouslySetInnerHTML={{ __html: fc.integral }}
+                      />
+                      <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', color: '#9CA3AF', margin: 0 }}>
+                        {fc.tema} · {fc.vecesEstudiada} {fc.vecesEstudiada === 1 ? 'vez' : 'veces'}
+                      </p>
+                    </div>
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{
-                      fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '12px',
-                      color: '#1E293B', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
-                      margin: 0,
-                    }}
-                      dangerouslySetInnerHTML={{ __html: fc.integral }}
-                    />
-                    <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', color: '#9CA3AF', margin: '2px 0 0 0' }}>
-                      {fc.tema}
-                    </p>
-                  </div>
-                  <div style={{
-                    backgroundColor: primary + '22',
-                    borderRadius: '8px', padding: '4px 8px', flexShrink: 0,
-                  }}>
-                    <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '12px', color: dark }}>
-                      {fc.vecesEstudiada}×
-                    </span>
+
+                  {/* Barra de tasa de aciertos */}
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                      <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', color: '#6B7280' }}>
+                        Tasa de aciertos
+                      </span>
+                      <span style={{
+                        fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '11px',
+                        color: getAciertosColor(fc.tasaAciertos),
+                      }}>
+                        {fc.tasaAciertos}%
+                      </span>
+                    </div>
+                    <div style={{ height: '6px', backgroundColor: '#E5E7EB', borderRadius: '3px', overflow: 'hidden' }}>
+                      <div style={{
+                        width: `${fc.tasaAciertos}%`,
+                        height: '100%',
+                        backgroundColor: getAciertosColor(fc.tasaAciertos),
+                        borderRadius: '3px',
+                        transition: 'width 0.5s ease',
+                      }} />
+                    </div>
                   </div>
                 </div>
               ))}

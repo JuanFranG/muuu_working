@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Bell, Edit3, ClipboardList, BarChart3, Archive, Tag, Home, User, Settings, HelpCircle, ChevronRight, Users, FileStack, Upload } from 'lucide-react';
-import { listarFlashcardsAPI, listarMaterialesAPI, listarTemasAPI, contarSuscriptoresAPI, meAPI, contarNoLeidasAPI } from '../services/api';
+import { listarFlashcardsAPI, listarMaterialesAPI, listarTemasAPI, contarSuscriptoresAPI, meAPI, contarNoLeidasAPI, obtenerEstadisticasDocenteAPI } from '../services/api';
 
 interface TeacherHomeProps {
   userName?: string;
@@ -14,6 +14,7 @@ export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps
   const [totalEstudiantes, setTotalEstudiantes] = useState<number | null>(null);
   const [fotoPerfil,       setFotoPerfil]       = useState<string | null>(null);
   const [noLeidas,         setNoLeidas]         = useState(0);
+  const [tasaAciertos,     setTasaAciertos]     = useState<number | null>(null);
 
   useEffect(() => {
     meAPI().then(u => { if (u?.fotoPerfil) setFotoPerfil(u.fotoPerfil); }).catch(() => {});
@@ -30,11 +31,10 @@ export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps
     contarSuscriptoresAPI()
       .then(n => setTotalEstudiantes(n))
       .catch(() => setTotalEstudiantes(null));
+    obtenerEstadisticasDocenteAPI()
+      .then(s => setTasaAciertos(s.tasaAciertos))
+      .catch(() => setTasaAciertos(null));
   }, []);
-
-  const stats = {
-    successRate: 89,
-  };
 
   return (
     <div
@@ -359,10 +359,10 @@ export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps
             onClick={() => onNavigate('estadisticasDocente')}
             className="transition-all hover:scale-[1.02]"
             style={{
-              backgroundColor: '#FFFFFF',
+              background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)',
               borderRadius: '16px',
               padding: '20px',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
+              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.25)',
               border: 'none',
               cursor: 'pointer',
               display: 'flex',
@@ -372,25 +372,33 @@ export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps
               gap: '8px'
             }}
           >
-            <span style={{ fontSize: '40px' }}>📊</span>
-            <p 
+            <div style={{
+              width: '48px', height: '48px', borderRadius: '50%',
+              backgroundColor: 'rgba(255,255,255,0.9)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <BarChart3 size={24} color="#F59E0B" strokeWidth={2.5} />
+            </div>
+            <p
               style={{
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 800,
-                fontSize: '32px',
+                fontSize: '28px',
                 color: '#78350F',
-                lineHeight: '1'
+                lineHeight: '1',
+                margin: 0,
               }}
             >
-              {stats.successRate}%
+              {tasaAciertos !== null ? `${tasaAciertos}%` : '…'}
             </p>
-            <p 
+            <p
               style={{
                 fontFamily: 'Poppins, sans-serif',
-                fontWeight: 500,
+                fontWeight: 600,
                 fontSize: '12px',
-                color: '#6B7280',
-                textAlign: 'center'
+                color: '#78350F',
+                textAlign: 'center',
+                margin: 0,
               }}
             >
               Tasa de aciertos

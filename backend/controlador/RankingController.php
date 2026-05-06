@@ -150,13 +150,32 @@ class RankingController
             $descargas = (int) $stmt->fetchColumn();
         } catch (Throwable) { /* NOTIFICACION puede no existir aún */ }
 
-        // Top 5 flashcards más estudiadas del docente
+        // Tasa de aciertos global: % de respuestas correctas de estudiantes
+        // sobre TODAS las flashcards de este docente
+        $tasaAciertos = 0;
+        try {
+            $stmt = $db->prepare(
+                'SELECT COUNT(*)                          AS total,
+                        COALESCE(SUM(h.resultado = "correcta"), 0) AS correctas
+                 FROM   HISTORIAL_FLASHCARD h
+                 JOIN   FLASHCARDS f ON f.id_flashcard = h.id_flashcard
+                 WHERE  f.id_usuario = ?'
+            );
+            $stmt->execute([$idDocente]);
+            $fila = $stmt->fetch();
+            $total     = (int) $fila['total'];
+            $correctas = (int) $fila['correctas'];
+            $tasaAciertos = $total > 0 ? (int) round(($correctas / $total) * 100) : 0;
+        } catch (Throwable) {}
+
+        // Top 5 flashcards más estudiadas del docente (con tasa de aciertos por flashcard)
         $topFlashcards = [];
         try {
             $stmt = $db->prepare(
                 'SELECT f.integral,
-                        t.nombre AS tema,
-                        COUNT(*)  AS veces
+                        t.nombre                                    AS tema,
+                        COUNT(*)                                    AS veces,
+                        COALESCE(SUM(h.resultado = "correcta"), 0) AS correctas_fc
                  FROM   HISTORIAL_FLASHCARD h
                  JOIN   FLASHCARDS f ON f.id_flashcard = h.id_flashcard
                  JOIN   TEMA       t ON t.id_tema      = f.id_tema
@@ -167,10 +186,13 @@ class RankingController
             );
             $stmt->execute([$idDocente]);
             foreach ($stmt->fetchAll() as $r) {
+                $v = (int) $r['veces'];
+                $c = (int) $r['correctas_fc'];
                 $topFlashcards[] = [
                     'integral'       => $r['integral'],
                     'tema'           => $r['tema'],
-                    'vecesEstudiada' => (int) $r['veces'],
+                    'vecesEstudiada' => $v,
+                    'tasaAciertos'   => $v > 0 ? (int) round(($c / $v) * 100) : 0,
                 ];
             }
         } catch (Throwable) {}
@@ -183,6 +205,7 @@ class RankingController
                 'materiales'           => $materiales,
                 'accesos'              => $accesos,
                 'descargas'            => $descargas,
+                'tasaAciertos'         => $tasaAciertos,
                 'topFlashcards'        => $topFlashcards,
             ],
         ]);

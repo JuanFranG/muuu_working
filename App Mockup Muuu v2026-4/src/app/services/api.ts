@@ -679,6 +679,7 @@ export interface TopFlashcardDocenteAPI {
   integral:        string;
   tema:            string;
   vecesEstudiada:  number;
+  tasaAciertos:    number;   // 0-100
 }
 
 export interface EstadisticasDocenteAPI {
@@ -687,6 +688,7 @@ export interface EstadisticasDocenteAPI {
   materiales:           number;
   accesos:              number;
   descargas:            number;
+  tasaAciertos:         number;   // % global de aciertos en las flashcards del docente
   topFlashcards:        TopFlashcardDocenteAPI[];
 }
 
@@ -698,12 +700,12 @@ export async function obtenerEstadisticasDocenteAPI(): Promise<EstadisticasDocen
     );
     return data.data ?? {
       flashcardsPublicadas: 0, suscriptores: 0, materiales: 0,
-      accesos: 0, descargas: 0, topFlashcards: [],
+      accesos: 0, descargas: 0, tasaAciertos: 0, topFlashcards: [],
     };
   } catch {
     return {
       flashcardsPublicadas: 0, suscriptores: 0, materiales: 0,
-      accesos: 0, descargas: 0, topFlashcards: [],
+      accesos: 0, descargas: 0, tasaAciertos: 0, topFlashcards: [],
     };
   }
 }
