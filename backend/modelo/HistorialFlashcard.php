@@ -36,15 +36,15 @@ class HistorialFlashcard
     public function estadisticasPorTema(int $idUsuario): array
     {
         $stmt = $this->db->prepare(
-            'SELECT t.nombre                        AS tema,
-                    COUNT(*)                        AS total,
-                    SUM(h.resultado = "correcta")   AS correctas
+            "SELECT t.nombre                                       AS tema,
+                    COUNT(*)                                       AS total,
+                    COALESCE(SUM(h.resultado = 'correcta'), 0)    AS correctas
              FROM   HISTORIAL_FLASHCARD h
              JOIN   FLASHCARDS f ON f.id_flashcard = h.id_flashcard
              JOIN   TEMA       t ON t.id_tema      = f.id_tema
              WHERE  h.id_usuario = ?
              GROUP  BY t.id_tema, t.nombre
-             ORDER  BY total DESC'
+             ORDER  BY total DESC"
         );
         $stmt->execute([$idUsuario]);
         return $stmt->fetchAll();

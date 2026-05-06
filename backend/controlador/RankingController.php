@@ -79,6 +79,39 @@ class RankingController
             $ranking->sumarPuntos($idUsuario, $puntosGanados);
         }
 
+        // ── Actualizar racha de actividad diaria ─────────────
+        try {
+            $db   = Conexion::obtener();
+            $stmt = $db->prepare(
+                'SELECT rachaActual, fechaUltimaActividad FROM USUARIO WHERE id_usuario = ?'
+            );
+            $stmt->execute([$idUsuario]);
+            $u = $stmt->fetch();
+
+            $hoy   = date('Y-m-d');
+            $ayer  = date('Y-m-d', strtotime('-1 day'));
+            $ultima = $u ? ($u['fechaUltimaActividad'] ?? null) : null;
+            $racha  = $u ? max(0, (int)($u['rachaActual'] ?? 0)) : 0;
+
+            if ($ultima === null || $ultima < $ayer) {
+                // Primera vez o racha rota (más de un día sin actividad)
+                $nuevaRacha = 1;
+            } elseif ($ultima === $ayer) {
+                // Hizo quiz ayer → incrementar
+                $nuevaRacha = $racha + 1;
+            } else {
+                // Ya hizo quiz hoy → mantener racha actual
+                $nuevaRacha = $racha;
+            }
+
+            // Solo escribir si cambió la fecha o la racha
+            if ($ultima !== $hoy || $nuevaRacha !== $racha) {
+                $db->prepare(
+                    'UPDATE USUARIO SET rachaActual = ?, fechaUltimaActividad = ? WHERE id_usuario = ?'
+                )->execute([$nuevaRacha, $hoy, $idUsuario]);
+            }
+        } catch (Throwable) { /* no bloquear si falla la racha */ }
+
         echo json_encode(['ok' => true, 'puntosGanados' => $puntosGanados]);
     }
 
@@ -94,7 +127,11 @@ class RankingController
 
         $idUsuario = (int) $_SESSION['id_usuario'];
         $historial = new HistorialFlashcard();
-        $porTema   = $historial->estadisticasPorTema($idUsuario);
+        try {
+            $porTema = $historial->estadisticasPorTema($idUsuario);
+        } catch (Throwable) {
+            $porTema = [];
+        }
 
         $temasData = [];
         foreach ($porTema as $t) {
@@ -158,11 +195,11 @@ class RankingController
         $tasaAciertos = 0;
         try {
             $stmt = $db->prepare(
-                'SELECT COUNT(*)                          AS total,
-                        COALESCE(SUM(h.resultado = "correcta"), 0) AS correctas
+                "SELECT COUNT(*)                                    AS total,
+                        COALESCE(SUM(h.resultado = 'correcta'), 0) AS correctas
                  FROM   HISTORIAL_FLASHCARD h
                  JOIN   FLASHCARDS f ON f.id_flashcard = h.id_flashcard
-                 WHERE  f.id_usuario = ?'
+                 WHERE  f.id_usuario = ?"
             );
             $stmt->execute([$idDocente]);
             $fila = $stmt->fetch();
@@ -175,17 +212,17 @@ class RankingController
         $topFlashcards = [];
         try {
             $stmt = $db->prepare(
-                'SELECT f.integral,
+                "SELECT f.integral,
                         t.nombre                                    AS tema,
                         COUNT(*)                                    AS veces,
-                        COALESCE(SUM(h.resultado = "correcta"), 0) AS correctas_fc
+                        COALESCE(SUM(h.resultado = 'correcta'), 0) AS correctas_fc
                  FROM   HISTORIAL_FLASHCARD h
                  JOIN   FLASHCARDS f ON f.id_flashcard = h.id_flashcard
                  JOIN   TEMA       t ON t.id_tema      = f.id_tema
                  WHERE  f.id_usuario = ?
                  GROUP  BY f.id_flashcard
                  ORDER  BY veces DESC
-                 LIMIT  5'
+                 LIMIT  5"
             );
             $stmt->execute([$idDocente]);
             foreach ($stmt->fetchAll() as $r) {
