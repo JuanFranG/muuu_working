@@ -26,6 +26,7 @@ import { MisDocumentos } from './MisDocumentos';
 import { Categorias } from './Categorias';
 import { EditarPerfilMuuu } from './EditarPerfilMuuu';
 import { Notificaciones } from './Notificaciones';
+import { EstadisticasDocente } from './EstadisticasDocente';
 
 // Pantalla Home Estudiante
 function StudentHomeScreen({ userName = 'Estudiante', onNavigate }: { userName?: string; onNavigate: (screen: string) => void }) {
@@ -1078,7 +1079,7 @@ function RegisterScreen({ userType, onBack, onRegisterSuccess }: { userType: 'st
 }
 
 // Componente Principal
-type AppState = 'loading' | 'home' | 'login' | 'roleSelection' | 'register' | 'registroExitoso' | 'studentHome' | 'teacherHome' | 'aprendeUnPoco' | 'aprendeUnPocoMinimal' | 'disenarFlashcard' | 'editarFlashcard' | 'misFlashcards' | 'misDocumentos' | 'editarMaterial' | 'rankings' | 'perfilEstudiante' | 'perfilDocente' | 'configuraciones' | 'configuracionesDocente' | 'perfilMenu' | 'perfilMenuDocente' | 'ponteAPrueba' | 'desafiaAlguien' | 'salaDesafio' | 'miProgreso' | 'guiasEstudio' | 'agregarMaterial' | 'categorias' | 'editarPerfil' | 'notificaciones';
+type AppState = 'loading' | 'home' | 'login' | 'roleSelection' | 'register' | 'registroExitoso' | 'studentHome' | 'teacherHome' | 'aprendeUnPoco' | 'aprendeUnPocoMinimal' | 'disenarFlashcard' | 'editarFlashcard' | 'misFlashcards' | 'misDocumentos' | 'editarMaterial' | 'rankings' | 'perfilEstudiante' | 'perfilDocente' | 'configuraciones' | 'configuracionesDocente' | 'perfilMenu' | 'perfilMenuDocente' | 'ponteAPrueba' | 'desafiaAlguien' | 'salaDesafio' | 'miProgreso' | 'guiasEstudio' | 'agregarMaterial' | 'categorias' | 'editarPerfil' | 'notificaciones' | 'estadisticasDocente';
 
 export function MuuuApp() {
   const [appState, setAppState] = useState<AppState>('loading');
@@ -1360,6 +1361,12 @@ export function MuuuApp() {
   if (appState === 'rankings') {
     return (
       <Rankings onBack={() => setAppState('studentHome')} />
+    );
+  }
+
+  if (appState === 'estadisticasDocente') {
+    return (
+      <EstadisticasDocente onBack={() => setAppState('teacherHome')} />
     );
   }
 

@@ -108,6 +108,11 @@ $rutasEstaticas = [
     'GET:notificaciones'              => ['NotificacionController', 'listar'],
     'GET:notificaciones/no-leidas'    => ['NotificacionController', 'contarNoLeidas'],
     'PATCH:notificaciones/leer-todas' => ['NotificacionController', 'marcarTodasLeidas'],
+    // Ranking y estadísticas
+    'GET:ranking'                        => ['RankingController', 'listar'],
+    'POST:quiz/resultado'                => ['RankingController', 'guardarResultado'],
+    'GET:estadisticas/estudiante'        => ['RankingController', 'estadisticasEstudiante'],
+    'GET:estadisticas/docente'           => ['RankingController', 'estadisticasDocente'],
 ];
 
 if (isset($rutasEstaticas[$clave])) {

@@ -1,46 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Flame } from 'lucide-react';
+import { meAPI, obtenerEstadisticasEstudianteAPI, type ProgresoTemaAPI } from '../services/api';
 
 interface MiProgresoProps {
   onBack: () => void;
 }
 
-interface TopicProgress {
-  name: string;
-  progress: number;
-  color: string;
-}
-
-interface Achievement {
-  id: number;
-  icon: string;
-  label: string;
-  count: number;
-  color: string;
-}
-
 export function MiProgreso({ onBack }: MiProgresoProps) {
-  const [totalPoints] = useState(1980);
-  const [pointsByCategory] = useState({
-    dominas: 47,
-    conoces: 312,
-    streak: 5,
-    ranking: 4
-  });
+  const [totalPoints,    setTotalPoints]    = useState<number | null>(null);
+  const [rachaActual,    setRachaActual]    = useState<number>(0);
+  const [posicion,       setPosicion]       = useState<number | null>(null);
+  const [flashcardsTotales, setFlashcardsTotales] = useState<number>(0);
+  const [porTema,        setPorTema]        = useState<ProgresoTemaAPI[]>([]);
+  const [cargando,       setCargando]       = useState(true);
 
-  const topicsProgress: TopicProgress[] = [
-    { name: 'Integrales Inmediatas', progress: 90, color: '#10B981' },
-    { name: 'Integración por Partes', progress: 65, color: '#F59E0B' },
-    { name: 'Fracciones Parciales', progress: 40, color: '#EF4444' },
-    { name: 'Sust. Trigonométrica', progress: 20, color: '#EF4444' }
-  ];
+  useEffect(() => {
+    Promise.all([meAPI(), obtenerEstadisticasEstudianteAPI()]).then(([me, stats]) => {
+      if (me) {
+        setTotalPoints(me.totalPuntos ?? 0);
+        setRachaActual(me.rachaActual ?? 0);
+        setPosicion(me.posicion ?? null);
+        setFlashcardsTotales(me.flashcardsEstudiadas ?? 0);
+      }
+      setPorTema(stats.porTema ?? []);
+    }).finally(() => setCargando(false));
+  }, []);
 
-  const achievements: Achievement[] = [
-    { id: 1, icon: '🔥', label: '5 días', count: 5, color: '#F59E0B' },
-    { id: 2, icon: '⚡', label: '10 racha', count: 10, color: '#FFD700' },
-    { id: 3, icon: '🏆', label: 'Top 3', count: 3, color: '#9B7EC7' },
-    { id: 4, icon: '💯', label: '100', count: 100, color: '#10B981' }
-  ];
+  // Contar flashcards con progreso >= 80% ("dominas") y el resto ("conoces")
+  const dominas = porTema.filter(t => t.progreso >= 80).length;
+  const conoces = porTema.filter(t => t.progreso > 0 && t.progreso < 80).length;
 
   const getProgressBarColor = (progress: number) => {
     if (progress >= 80) return '#10B981';
@@ -54,75 +42,41 @@ export function MiProgreso({ onBack }: MiProgresoProps) {
       style={{
         background: 'linear-gradient(135deg, #9B7EC7 0%, #7952B3 100%)',
         maxWidth: '375px',
-        margin: '0 auto'
+        margin: '0 auto',
       }}
     >
       {/* HEADER */}
-      <div
-        className="flex items-center justify-between"
-        style={{
-          padding: '20px',
-          paddingTop: '24px'
-        }}
-      >
+      <div className="flex items-center justify-between" style={{ padding: '20px', paddingTop: '24px' }}>
         <button
           onClick={onBack}
           className="flex items-center justify-center rounded-full transition-colors"
-          style={{
-            width: '36px',
-            height: '36px',
-            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-            color: '#FFFFFF'
-          }}
+          style={{ width: '36px', height: '36px', backgroundColor: 'rgba(255,255,255,0.2)', color: '#FFFFFF' }}
         >
           <ArrowLeft size={20} strokeWidth={2.5} />
         </button>
-
-        <h1
-          style={{
-            fontFamily: 'Poppins, sans-serif',
-            fontWeight: 700,
-            fontSize: '18px',
-            color: '#FFFFFF'
-          }}
-        >
+        <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '18px', color: '#FFFFFF' }}>
           Mi Progreso
         </h1>
-
-        <div style={{ width: '36px' }}></div>
+        <div style={{ width: '36px' }} />
       </div>
 
       {/* PUNTOS TOTALES - HERO */}
-      <div
-        className="flex flex-col items-center justify-center"
-        style={{
-          padding: '24px 20px',
-          marginTop: '8px'
-        }}
-      >
-        <div
-          style={{
-            fontFamily: 'Poppins, sans-serif',
-            fontWeight: 900,
-            fontSize: '72px',
-            color: '#FFFFFF',
-            lineHeight: '1',
-            marginBottom: '8px',
-            textShadow: '0 4px 16px rgba(0, 0, 0, 0.2)'
-          }}
-        >
-          {totalPoints}
-        </div>
-        <div
-          style={{
-            fontFamily: 'Poppins, sans-serif',
-            fontWeight: 600,
-            fontSize: '14px',
-            color: 'rgba(255, 255, 255, 0.9)',
-            textTransform: 'uppercase',
-            letterSpacing: '1px'
-          }}
-        >
+      <div className="flex flex-col items-center justify-center" style={{ padding: '24px 20px', marginTop: '8px' }}>
+        {cargando ? (
+          <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '32px', color: 'rgba(255,255,255,0.6)' }}>…</div>
+        ) : (
+          <div style={{
+            fontFamily: 'Poppins, sans-serif', fontWeight: 900, fontSize: '72px',
+            color: '#FFFFFF', lineHeight: '1', marginBottom: '8px',
+            textShadow: '0 4px 16px rgba(0,0,0,0.2)',
+          }}>
+            {totalPoints ?? 0}
+          </div>
+        )}
+        <div style={{
+          fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '14px',
+          color: 'rgba(255,255,255,0.9)', textTransform: 'uppercase', letterSpacing: '1px',
+        }}>
           Puntos Totales
         </div>
       </div>
@@ -135,102 +89,44 @@ export function MiProgreso({ onBack }: MiProgresoProps) {
           borderTopLeftRadius: '32px',
           borderTopRightRadius: '32px',
           padding: '24px 20px',
-          marginTop: '16px'
+          marginTop: '16px',
         }}
       >
         {/* MÉTRICAS RÁPIDAS */}
-        <div
-          className="grid grid-cols-4 gap-2"
-          style={{
-            marginBottom: '28px'
-          }}
-        >
+        <div className="grid grid-cols-4 gap-2" style={{ marginBottom: '28px' }}>
           {/* Dominas */}
-          <div
-            className="flex flex-col items-center"
-            style={{
-              padding: '12px 8px',
-              backgroundColor: '#F0FDF4',
-              borderRadius: '12px',
-              border: '2px solid #D1FAE5'
-            }}
-          >
-            <div
-              style={{
-                fontFamily: 'Poppins, sans-serif',
-                fontWeight: 800,
-                fontSize: '20px',
-                color: '#10B981',
-                marginBottom: '4px'
-              }}
-            >
-              {pointsByCategory.dominas}
+          <div className="flex flex-col items-center" style={{
+            padding: '12px 8px', backgroundColor: '#F0FDF4',
+            borderRadius: '12px', border: '2px solid #D1FAE5',
+          }}>
+            <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '20px', color: '#10B981', marginBottom: '4px' }}>
+              {cargando ? '…' : dominas}
             </div>
-            <div
-              style={{
-                fontFamily: 'Poppins, sans-serif',
-                fontSize: '9px',
-                color: '#059669',
-                textAlign: 'center'
-              }}
-            >
+            <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '9px', color: '#059669', textAlign: 'center' }}>
               Dominas
             </div>
           </div>
 
           {/* Conoces */}
-          <div
-            className="flex flex-col items-center"
-            style={{
-              padding: '12px 8px',
-              backgroundColor: '#F3EBFF',
-              borderRadius: '12px',
-              border: '2px solid #E6D5F0'
-            }}
-          >
-            <div
-              style={{
-                fontFamily: 'Poppins, sans-serif',
-                fontWeight: 800,
-                fontSize: '20px',
-                color: '#9B7EC7',
-                marginBottom: '4px'
-              }}
-            >
-              {pointsByCategory.conoces}
+          <div className="flex flex-col items-center" style={{
+            padding: '12px 8px', backgroundColor: '#F3EBFF',
+            borderRadius: '12px', border: '2px solid #E6D5F0',
+          }}>
+            <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '20px', color: '#9B7EC7', marginBottom: '4px' }}>
+              {cargando ? '…' : conoces}
             </div>
-            <div
-              style={{
-                fontFamily: 'Poppins, sans-serif',
-                fontSize: '9px',
-                color: '#7952B3',
-                textAlign: 'center'
-              }}
-            >
+            <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '9px', color: '#7952B3', textAlign: 'center' }}>
               Conoces
             </div>
           </div>
 
           {/* Racha */}
-          <div
-            className="flex flex-col items-center"
-            style={{
-              padding: '12px 8px',
-              backgroundColor: '#F9F0F5',
-              borderRadius: '12px',
-              border: '2px solid #E8C8D8'
-            }}
-          >
-            <div
-              style={{
-                fontFamily: 'Poppins, sans-serif',
-                fontWeight: 800,
-                fontSize: '20px',
-                color: '#9B2355',
-                marginBottom: '4px'
-              }}
-            >
-              {pointsByCategory.streak}
+          <div className="flex flex-col items-center" style={{
+            padding: '12px 8px', backgroundColor: '#F9F0F5',
+            borderRadius: '12px', border: '2px solid #E8C8D8',
+          }}>
+            <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '20px', color: '#9B2355', marginBottom: '4px' }}>
+              {cargando ? '…' : rachaActual}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Flame size={16} color="#9B2355" strokeWidth={2} />
@@ -238,34 +134,14 @@ export function MiProgreso({ onBack }: MiProgresoProps) {
           </div>
 
           {/* Ranking */}
-          <div
-            className="flex flex-col items-center"
-            style={{
-              padding: '12px 8px',
-              backgroundColor: '#FFF7ED',
-              borderRadius: '12px',
-              border: '2px solid #FFEDD5'
-            }}
-          >
-            <div
-              style={{
-                fontFamily: 'Poppins, sans-serif',
-                fontWeight: 800,
-                fontSize: '20px',
-                color: '#F97316',
-                marginBottom: '4px'
-              }}
-            >
-              #{pointsByCategory.ranking}
+          <div className="flex flex-col items-center" style={{
+            padding: '12px 8px', backgroundColor: '#FFF7ED',
+            borderRadius: '12px', border: '2px solid #FFEDD5',
+          }}>
+            <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '20px', color: '#F97316', marginBottom: '4px' }}>
+              {cargando ? '…' : posicion ? `#${posicion}` : '–'}
             </div>
-            <div
-              style={{
-                fontFamily: 'Poppins, sans-serif',
-                fontSize: '9px',
-                color: '#EA580C',
-                textAlign: 'center'
-              }}
-            >
+            <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '9px', color: '#EA580C', textAlign: 'center' }}>
               Ranking
             </div>
           </div>
@@ -273,129 +149,93 @@ export function MiProgreso({ onBack }: MiProgresoProps) {
 
         {/* PROGRESO POR TEMA */}
         <div style={{ marginBottom: '28px' }}>
-          <h3
-            style={{
-              fontFamily: 'Poppins, sans-serif',
-              fontWeight: 700,
-              fontSize: '13px',
-              color: '#1E293B',
-              marginBottom: '16px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}
-          >
+          <h3 style={{
+            fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '13px',
+            color: '#1E293B', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px',
+          }}>
             Progreso por Tema
           </h3>
 
-          <div className="space-y-4">
-            {topicsProgress.map((topic, index) => (
-              <div key={index}>
-                <div className="flex items-center justify-between mb-2">
-                  <span
-                    style={{
-                      fontFamily: 'Poppins, sans-serif',
-                      fontWeight: 600,
-                      fontSize: '13px',
-                      color: '#1E293B'
-                    }}
-                  >
-                    {topic.name}
-                  </span>
-                  <span
-                    style={{
-                      fontFamily: 'Poppins, sans-serif',
-                      fontWeight: 700,
-                      fontSize: '13px',
-                      color: getProgressBarColor(topic.progress)
-                    }}
-                  >
-                    {topic.progress}%
-                  </span>
+          {cargando ? (
+            <p style={{ fontFamily: 'Poppins, sans-serif', color: '#9CA3AF', fontSize: '13px' }}>Cargando…</p>
+          ) : porTema.length === 0 ? (
+            <div style={{
+              backgroundColor: '#F9FAFB', borderRadius: '12px',
+              padding: '20px', textAlign: 'center',
+            }}>
+              <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '13px', color: '#9CA3AF' }}>
+                Aún no has respondido ningún quiz
+              </p>
+              <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '12px', color: '#C4B5FD', marginTop: '4px' }}>
+                Completa quizzes para ver tu progreso aquí
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {porTema.map((topic, index) => (
+                <div key={index}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '13px', color: '#1E293B' }}>
+                      {topic.tema}
+                    </span>
+                    <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '13px', color: getProgressBarColor(topic.progreso) }}>
+                      {topic.progreso}%
+                    </span>
+                  </div>
+                  <div style={{ width: '100%', height: '8px', backgroundColor: '#F3F4F6', borderRadius: '4px', overflow: 'hidden' }}>
+                    <div
+                      className="h-full transition-all duration-500"
+                      style={{
+                        width: `${topic.progreso}%`,
+                        backgroundColor: getProgressBarColor(topic.progreso),
+                        borderRadius: '4px',
+                      }}
+                    />
+                  </div>
+                  <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', color: '#9CA3AF', marginTop: '4px' }}>
+                    {topic.correctas} de {topic.total} correctas
+                  </div>
                 </div>
-                <div
-                  className="overflow-hidden"
-                  style={{
-                    width: '100%',
-                    height: '8px',
-                    backgroundColor: '#F3F4F6',
-                    borderRadius: '4px'
-                  }}
-                >
-                  <div
-                    className="h-full transition-all duration-500"
-                    style={{
-                      width: `${topic.progress}%`,
-                      backgroundColor: getProgressBarColor(topic.progress),
-                      borderRadius: '4px'
-                    }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* LOGROS */}
+        {/* RESUMEN DE ACTIVIDAD */}
         <div>
-          <h3
-            style={{
-              fontFamily: 'Poppins, sans-serif',
-              fontWeight: 700,
-              fontSize: '13px',
-              color: '#1E293B',
-              marginBottom: '16px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}
-          >
-            Logros
+          <h3 style={{
+            fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '13px',
+            color: '#1E293B', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px',
+          }}>
+            Resumen
           </h3>
 
-          <div
-            className="grid grid-cols-4 gap-3"
-            style={{
-              marginBottom: '20px'
-            }}
-          >
-            {achievements.map((achievement) => {
-              // Los logros 3 (Top 3) y 4 (100) no están desbloqueados
-              const isLocked = achievement.id === 3 || achievement.id === 4;
-              
-              return (
-                <div
-                  key={achievement.id}
-                  className="flex flex-col items-center"
-                  style={{
-                    padding: '16px 8px',
-                    backgroundColor: isLocked ? '#F3F4F6' : '#F9FAFB',
-                    borderRadius: '12px',
-                    border: `2px solid ${isLocked ? '#D1D5DB' : '#E5E7EB'}`,
-                    opacity: isLocked ? 0.4 : 1,
-                    filter: isLocked ? 'grayscale(100%)' : 'none'
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: '32px',
-                      marginBottom: '8px'
-                    }}
-                  >
-                    {achievement.icon}
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: 'Poppins, sans-serif',
-                      fontWeight: 700,
-                      fontSize: '10px',
-                      color: isLocked ? '#6B7280' : achievement.color,
-                      textAlign: 'center'
-                    }}
-                  >
-                    {achievement.label}
-                  </div>
-                </div>
-              );
-            })}
+          <div className="grid grid-cols-2 gap-3" style={{ marginBottom: '20px' }}>
+            {/* Flashcards estudiadas */}
+            <div style={{
+              padding: '16px', backgroundColor: '#F3EBFF',
+              borderRadius: '12px', border: '2px solid #E6D5F0',
+            }}>
+              <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '28px', color: '#7952B3' }}>
+                {cargando ? '…' : flashcardsTotales}
+              </div>
+              <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: '#9B7EC7', marginTop: '4px' }}>
+                Flashcards estudiadas
+              </div>
+            </div>
+
+            {/* Puntos totales */}
+            <div style={{
+              padding: '16px', backgroundColor: '#FFF7ED',
+              borderRadius: '12px', border: '2px solid #FFEDD5',
+            }}>
+              <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '28px', color: '#F97316' }}>
+                {cargando ? '…' : (totalPoints ?? 0)}
+              </div>
+              <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: '#FB923C', marginTop: '4px' }}>
+                Puntos ganados
+              </div>
+            </div>
           </div>
         </div>
       </div>

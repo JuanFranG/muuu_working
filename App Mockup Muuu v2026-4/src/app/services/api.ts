@@ -597,3 +597,113 @@ export async function registrarDescargaAPI(idMaterial: number): Promise<void> {
     await peticion<{ ok: boolean }>('POST', `/materiales/${idMaterial}/descarga`);
   } catch { /* silencioso — no bloquear UX */ }
 }
+
+// ────────────────────────────────────────────────────────────
+//  RANKING
+// ────────────────────────────────────────────────────────────
+
+export interface RankingItemAPI {
+  id:          number;
+  nombre:      string;
+  fotoPerfil:  string | null;
+  puntos:      number;
+  nivel:       number;
+  posicion:    number;
+  medalla:     'oro' | 'plata' | 'bronce' | null;
+}
+
+/** Lista los top 20 estudiantes por puntos */
+export async function obtenerRankingAPI(): Promise<RankingItemAPI[]> {
+  try {
+    const data = await peticion<{ ok: boolean; estudiantes: RankingItemAPI[] }>('GET', '/ranking');
+    return data.estudiantes ?? [];
+  } catch {
+    return [];
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+//  QUIZ — guardar resultado
+// ────────────────────────────────────────────────────────────
+
+export interface ResultadoQuizItem {
+  id_flashcard: number;
+  resultado:    'correcta' | 'incorrecta';
+}
+
+/** Guarda el resultado del quiz: persiste historial y otorga puntos */
+export async function guardarResultadoQuizAPI(params: {
+  flashcards:  ResultadoQuizItem[];
+  correctas:   number;
+  incorrectas: number;
+  tiempo:      number;
+}): Promise<{ puntosGanados: number }> {
+  try {
+    const data = await peticion<{ ok: boolean; puntosGanados: number }>(
+      'POST', '/quiz/resultado', params
+    );
+    return { puntosGanados: data.puntosGanados ?? 0 };
+  } catch {
+    return { puntosGanados: 0 };
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+//  ESTADÍSTICAS
+// ────────────────────────────────────────────────────────────
+
+export interface ProgresoTemaAPI {
+  tema:      string;
+  total:     number;
+  correctas: number;
+  progreso:  number;   // 0-100
+}
+
+export interface EstadisticasEstudianteAPI {
+  porTema: ProgresoTemaAPI[];
+}
+
+/** Estadísticas de progreso por tema del estudiante autenticado */
+export async function obtenerEstadisticasEstudianteAPI(): Promise<EstadisticasEstudianteAPI> {
+  try {
+    const data = await peticion<{ ok: boolean; data: EstadisticasEstudianteAPI }>(
+      'GET', '/estadisticas/estudiante'
+    );
+    return data.data ?? { porTema: [] };
+  } catch {
+    return { porTema: [] };
+  }
+}
+
+export interface TopFlashcardDocenteAPI {
+  integral:        string;
+  tema:            string;
+  vecesEstudiada:  number;
+}
+
+export interface EstadisticasDocenteAPI {
+  flashcardsPublicadas: number;
+  suscriptores:         number;
+  materiales:           number;
+  accesos:              number;
+  descargas:            number;
+  topFlashcards:        TopFlashcardDocenteAPI[];
+}
+
+/** Estadísticas del docente autenticado */
+export async function obtenerEstadisticasDocenteAPI(): Promise<EstadisticasDocenteAPI> {
+  try {
+    const data = await peticion<{ ok: boolean; data: EstadisticasDocenteAPI }>(
+      'GET', '/estadisticas/docente'
+    );
+    return data.data ?? {
+      flashcardsPublicadas: 0, suscriptores: 0, materiales: 0,
+      accesos: 0, descargas: 0, topFlashcards: [],
+    };
+  } catch {
+    return {
+      flashcardsPublicadas: 0, suscriptores: 0, materiales: 0,
+      accesos: 0, descargas: 0, topFlashcards: [],
+    };
+  }
+}

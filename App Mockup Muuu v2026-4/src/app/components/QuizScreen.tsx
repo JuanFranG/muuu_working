@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Heart, Check, X, Flame, Clock, Home } from 'lucide-react';
 import { FlashcardNemotecnia } from './FlashcardNemotecnia';
-import { type FlashcardQuizAPI } from '../services/api';
+import { guardarResultadoQuizAPI, type ResultadoQuizItem, type FlashcardQuizAPI } from '../services/api';
 
 // ─────────────────────────────────────────────────────────────
 //  QuizScreen — componente exportable del quiz de flashcards
@@ -35,6 +35,11 @@ export function QuizScreen({
   const [quizCompleted, setQuizCompleted]         = useState(false);
   const [showExitModal, setShowExitModal]         = useState(false);
   const [showNemotecnia, setShowNemotecnia]       = useState(false);
+  const [puntosGanados, setPuntosGanados]         = useState(0);
+
+  // Registro de resultados por flashcard (ref para evitar stale closures)
+  const flashcardResultsRef = useRef<ResultadoQuizItem[]>([]);
+  const resultadoGuardadoRef = useRef(false);
 
   const fc            = flashcards[currentIdx];
   const opciones      = fc?.opciones ?? [];
@@ -46,6 +51,19 @@ export function QuizScreen({
       const timer = setInterval(() => setTimeElapsed(prev => prev + 1), 1000);
       return () => clearInterval(timer);
     }
+  }, [quizEnded, quizCompleted]);
+
+  // Guardar resultado al terminar el quiz (completado o por 3 fallos)
+  useEffect(() => {
+    if ((!quizEnded && !quizCompleted) || resultadoGuardadoRef.current) return;
+    resultadoGuardadoRef.current = true;
+    guardarResultadoQuizAPI({
+      flashcards:  flashcardResultsRef.current,
+      correctas:   correctAnswers,
+      incorrectas: incorrectAnswers,
+      tiempo:      timeElapsed,
+    }).then(r => setPuntosGanados(r.puntosGanados)).catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quizEnded, quizCompleted]);
 
   const options = opciones.map((o, idx) => ({
@@ -68,7 +86,17 @@ export function QuizScreen({
   const handleVerify = () => {
     if (selectedOption === null) return;
     setIsVerified(true);
-    if (selectedOption === correctAnswer) {
+    const isCorrect = selectedOption === correctAnswer;
+
+    // Registrar resultado de esta flashcard
+    if (fc?.id_flashcard) {
+      flashcardResultsRef.current.push({
+        id_flashcard: fc.id_flashcard,
+        resultado: isCorrect ? 'correcta' : 'incorrecta',
+      });
+    }
+
+    if (isCorrect) {
       setCorrectAnswers(prev => prev + 1);
       setConsecutiveCorrect(prev => prev + 1);
     } else {
@@ -137,6 +165,9 @@ export function QuizScreen({
     setIsVerified(false);
     setQuizEnded(false);
     setQuizCompleted(false);
+    setPuntosGanados(0);
+    flashcardResultsRef.current    = [];
+    resultadoGuardadoRef.current   = false;
   };
 
   // ── Pantalla: quiz terminado por 3 fallos ─────────────────
@@ -216,7 +247,7 @@ export function QuizScreen({
             marginBottom: '24px', lineHeight: '1.5' }}>
             Has completado la prueba con éxito
           </p>
-          <div style={{ backgroundColor: '#F3F4F6', borderRadius: '12px', padding: '20px', marginBottom: '24px' }}>
+          <div style={{ backgroundColor: '#F3F4F6', borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
             <div style={{ fontSize: '36px', fontFamily: 'Poppins, sans-serif', fontWeight: 700,
               color: '#10B981', marginBottom: '8px' }}>
               {accuracy}%
@@ -237,6 +268,19 @@ export function QuizScreen({
               <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '13px', fontWeight: 600, color: '#1E293B' }}>{formatTime(timeElapsed)}</span>
             </div>
           </div>
+          {puntosGanados > 0 && (
+            <div style={{
+              backgroundColor: '#FEF9C3', border: '2px solid #FDE047',
+              borderRadius: '12px', padding: '12px 16px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+              marginBottom: '16px',
+            }}>
+              <span style={{ fontSize: '20px' }}>⭐</span>
+              <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px', color: '#92400E' }}>
+                +{puntosGanados} puntos ganados
+              </span>
+            </div>
+          )}
           <button onClick={onBack} className="w-full flex items-center justify-center gap-2" style={{
             height: '48px', backgroundColor: '#10B981', color: '#FFFFFF', border: 'none',
             borderRadius: '12px', fontFamily: 'Poppins, sans-serif', fontWeight: 700,

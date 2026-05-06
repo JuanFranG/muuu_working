@@ -356,7 +356,7 @@ export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps
 
           {/* Tarjeta 2: Tasa de aciertos */}
           <button
-            onClick={() => onNavigate('estadisticas')}
+            onClick={() => onNavigate('estadisticasDocente')}
             className="transition-all hover:scale-[1.02]"
             style={{
               backgroundColor: '#FFFFFF',
