@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Heart, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
-import { listarDocentesAPI, suscribirseAPI, type DocenteAPI } from '../services/api';
+import { listarDocentesAPI, suscribirseAPI, desuscribirseAPI, type DocenteAPI } from '../services/api';
 
 interface PonteAPruebaDocentesProps {
   onBack:           () => void;
@@ -14,8 +14,10 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
   const [docentes,       setDocentes]       = useState<DocenteAPI[]>([]);
   const [cargando,       setCargando]       = useState(true);
   const [errorMsg,       setErrorMsg]       = useState('');
-  const [suscribiendo,   setSuscribiendo]   = useState<number | null>(null);
-  const [expandidos,     setExpandidos]     = useState<Set<number>>(new Set());
+  const [suscribiendo,        setSuscribiendo]        = useState<number | null>(null);
+  const [desuscribiendo,      setDesuscribiendo]      = useState<number | null>(null);
+  const [confirmarDocente,    setConfirmarDocente]    = useState<DocenteAPI | null>(null);
+  const [expandidos,          setExpandidos]          = useState<Set<number>>(new Set());
 
   const toggleExpandir = (id: number) =>
     setExpandidos(prev => {
@@ -65,6 +67,26 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
     }
   };
 
+  // Confirmar y ejecutar desuscripción
+  const confirmarDesuscripcion = async () => {
+    if (!confirmarDocente) return;
+    const id = confirmarDocente.id_usuario;
+    setConfirmarDocente(null);
+    setDesuscribiendo(id);
+    try {
+      await desuscribirseAPI(id);
+      setDocentes(prev => prev.map(d =>
+        d.id_usuario === id
+          ? { ...d, esSuscrito: false, totalSuscritos: Math.max(0, d.totalSuscritos - 1) }
+          : d
+      ));
+    } catch {
+      // silencioso
+    } finally {
+      setDesuscribiendo(null);
+    }
+  };
+
   return (
     <div style={{
       height:        '100%',
@@ -74,6 +96,79 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
       background:    'linear-gradient(180deg, #F3EBFF 0%, #FFFFFF 100%)',
       overflow:      'hidden',
     }}>
+
+      {/* ── MODAL DE CONFIRMACIÓN ──────────────────────────── */}
+      {confirmarDocente && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 100,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '20px',
+          }}
+          onClick={() => setConfirmarDocente(null)}
+        >
+          <div
+            style={{
+              backgroundColor: '#FFFFFF', borderRadius: '24px', padding: '28px 24px',
+              maxWidth: '320px', width: '100%',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.25)',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Icono */}
+            <div style={{ textAlign: 'center', marginBottom: '16px', fontSize: '48px' }}>
+              💔
+            </div>
+
+            {/* Título */}
+            <h3 style={{
+              fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '18px',
+              color: '#1E293B', textAlign: 'center', margin: '0 0 10px 0',
+            }}>
+              ¿Cancelar suscripción?
+            </h3>
+
+            {/* Mensaje */}
+            <p style={{
+              fontFamily: 'Poppins, sans-serif', fontSize: '13px', color: '#6B7280',
+              textAlign: 'center', lineHeight: '1.5', margin: '0 0 24px 0',
+            }}>
+              Dejarás de recibir notificaciones de nuevas flashcards y materiales de{' '}
+              <span style={{ fontWeight: 700, color: '#1E293B' }}>
+                {confirmarDocente.nombre}
+              </span>.
+            </p>
+
+            {/* Botones */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button
+                onClick={confirmarDesuscripcion}
+                style={{
+                  width: '100%', height: '48px', border: 'none', borderRadius: '12px',
+                  backgroundColor: '#EF4444', color: '#FFFFFF',
+                  fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px',
+                  cursor: 'pointer', boxShadow: '0 4px 12px rgba(239,68,68,0.3)',
+                }}
+              >
+                Sí, desuscribirme
+              </button>
+              <button
+                onClick={() => setConfirmarDocente(null)}
+                style={{
+                  width: '100%', height: '48px', border: '2px solid #E6D5F0',
+                  borderRadius: '12px', backgroundColor: '#FFFFFF', color: '#7952B3',
+                  fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '14px',
+                  cursor: 'pointer',
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── HEADER ─────────────────────────────────────────── */}
       <div style={{
         backgroundColor: '#FFFFFF',
@@ -246,16 +341,33 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
               {/* Columna derecha: badge Suscrito + botón acción */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',
                 gap: '6px', flexShrink: 0 }}>
-                {/* Badge Suscrito (siempre ocupa espacio para mantener alineación) */}
+                {/* Badge Suscrito — clickable para desuscribirse */}
                 <div style={{ height: '20px', display: 'flex', alignItems: 'center' }}>
                   {docente.esSuscrito && (
-                    <span style={{
-                      backgroundColor: '#D1FAE5', color: '#10B981', padding: '2px 8px',
-                      borderRadius: '999px', fontFamily: 'Poppins, sans-serif',
-                      fontWeight: 600, fontSize: '10px', whiteSpace: 'nowrap',
-                    }}>
-                      ✓ Suscrito
-                    </span>
+                    desuscribiendo === docente.id_usuario ? (
+                      <span style={{
+                        backgroundColor: '#FEE2E2', color: '#EF4444', padding: '2px 8px',
+                        borderRadius: '999px', fontFamily: 'Poppins, sans-serif',
+                        fontWeight: 600, fontSize: '10px', whiteSpace: 'nowrap',
+                        display: 'flex', alignItems: 'center', gap: '4px',
+                      }}>
+                        <Loader2 size={10} className="animate-spin" /> Saliendo…
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmarDocente(docente)}
+                        title="Toca para desuscribirte"
+                        style={{
+                          backgroundColor: '#D1FAE5', color: '#10B981', padding: '2px 8px',
+                          borderRadius: '999px', border: 'none',
+                          fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '10px',
+                          whiteSpace: 'nowrap', cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', gap: '3px',
+                        }}
+                      >
+                        ✓ Suscrito ×
+                      </button>
+                    )
                   )}
                 </div>
 
