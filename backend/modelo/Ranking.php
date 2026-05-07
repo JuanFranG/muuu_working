@@ -44,9 +44,10 @@ class Ranking
     // ----------------------------------------------------------
     public function sumarPuntos(int $idUsuario, int $puntos): void
     {
+        // posicion = 0 como placeholder; el UPDATE de abajo la recalcula al instante
         $stmt = $this->db->prepare(
-            'INSERT INTO RANKING (id_usuario, puntos)
-             VALUES (?, ?)
+            'INSERT INTO RANKING (id_usuario, puntos, posicion)
+             VALUES (?, ?, 0)
              ON DUPLICATE KEY UPDATE puntos = puntos + VALUES(puntos)'
         );
         $stmt->execute([$idUsuario, $puntos]);

@@ -35,11 +35,13 @@ export default defineConfig({
       '/api': {
         target:       'http://localhost:8080',
         changeOrigin: true,
+        secure:       false,
       },
       // Archivos subidos por docentes — pasan por el mismo backend
       '/uploads': {
         target:       'http://localhost:8080',
         changeOrigin: true,
+        secure:       false,
       },
     },
   },
