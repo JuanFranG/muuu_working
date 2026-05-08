@@ -448,21 +448,21 @@ html, body {
 [data-theme="dark"] [style*="background-color: #FFFFFF"],
 [data-theme="dark"] [style*="background-color: #ffffff"],
 [data-theme="dark"] .bg-white {
-  background-color: #1C1826 !important;
+  background-color: #1E1E1E !important;
 }
 
 /* Fondos secundarios claros */
 [data-theme="dark"] [style*="#FAFAFA"],
 [data-theme="dark"] [style*="#F5F5F5"],
 [data-theme="dark"] [style*="#FEF3C7"] {
-  background-color: #241F30 !important;
+  background-color: #2A2A2A !important;
 }
 
 /* ── 2. TARJETAS Y CONTENEDORES ──────────────────────────── */
 
 /* Border morado pálido */
 [data-theme="dark"] [style*="#E6D5F0"] {
-  border-color: #3D3550 !important;
+  border-color: #374151 !important;
 }
 
 /* Border amarillo */
@@ -475,13 +475,13 @@ html, body {
 /* Texto primario oscuro → claro */
 [data-theme="dark"] [style*="color: #1E293B"],
 [data-theme="dark"] [style*="color: rgb(30, 41, 59)"] {
-  color: #E8E4F0 !important;
+  color: #F3F4F6 !important;
 }
 
 /* Texto secundario */
 [data-theme="dark"] [style*="color: #475569"],
 [data-theme="dark"] [style*="color: rgb(71, 85, 105)"] {
-  color: #B0A8C0 !important;
+  color: #9CA3AF !important;
 }
 
 /* Texto terciario / muted */
@@ -490,52 +490,52 @@ html, body {
 [data-theme="dark"] [style*="color: #94A3B8"],
 [data-theme="dark"] [style*="color: #9CA3AF"],
 [data-theme="dark"] [style*="color: #7D7D7D"] {
-  color: #8A8098 !important;
+  color: #6B7280 !important;
 }
 
 /* Texto negro → claro */
 [data-theme="dark"] [style*="color: #1A1A1A"] {
-  color: #E8E4F0 !important;
+  color: #F3F4F6 !important;
 }
 
 /* Texto docente header */
 [data-theme="dark"] [style*="color: #78350F"] {
-  color: #E8E4F0 !important;
+  color: #F3F4F6 !important;
 }
 
 /* ── 4. INPUTS Y FORMULARIOS ─────────────────────────────── */
 [data-theme="dark"] input,
 [data-theme="dark"] textarea,
 [data-theme="dark"] select {
-  background-color: #251F32 !important;
-  color: #E8E4F0 !important;
-  border-color: #3D3550 !important;
+  background-color: #374151 !important;
+  color: #F3F4F6 !important;
+  border-color: #4B5563 !important;
 }
 
 [data-theme="dark"] input::placeholder,
 [data-theme="dark"] textarea::placeholder {
-  color: #6D6580 !important;
+  color: #9CA3AF !important;
 }
 
 /* ── 5. BOTONES CON FONDO BLANCO ─────────────────────────── */
 [data-theme="dark"] button[style*="background-color: #FFFFFF"],
 [data-theme="dark"] button[style*="background-color: rgb(255, 255, 255)"] {
-  background-color: #1C1826 !important;
+  background-color: #1E1E1E !important;
 }
 
 [data-theme="dark"] .hover\:bg-gray-50:hover,
 [data-theme="dark"] .hover\:bg-gray-100:hover {
-  background-color: #2A2438 !important;
+  background-color: #374151 !important;
 }
 
 /* ── 6. MARCO iPHONE (Desktop) ───────────────────────────── */
 [data-theme="dark"] .bg-gray-100 {
-  background-color: #0A0810 !important;
+  background-color: #000000 !important;
 }
 
 [data-theme="dark"] .rounded-\[50px\].bg-white,
 [data-theme="dark"] [class*="rounded-"][class*="bg-white"] {
-  background-color: #0D0B14 !important;
+  background-color: #121212 !important;
 }
 
 /* ── 7. COMPONENTES ESPECÍFICOS ──────────────────────────── */
@@ -543,7 +543,7 @@ html, body {
 /* Fondos de íconos student */
 [data-theme="dark"] [style*="background-color: #F3EBFF"],
 [data-theme="dark"] [style*="backgroundColor: #F3EBFF"] {
-  background-color: #2A2438 !important;
+  background-color: #374151 !important;
 }
 
 /* Fondos de íconos teacher */
@@ -557,12 +557,12 @@ html, body {
 
 /* Fondos rosa claro */
 [data-theme="dark"] [style*="#F4E4F4"] {
-  background-color: #2E2038 !important;
+  background-color: #374151 !important;
 }
 
 /* Separadores */
 [data-theme="dark"] [style*="#E2D9F3"] {
-  background-color: #3D3550 !important;
+  background-color: #4B5563 !important;
 }
 
 /* Error backgrounds */
@@ -572,17 +572,17 @@ html, body {
 
 /* Nav border top */
 [data-theme="dark"] [style*="borderTop"] {
-  border-color: #3D3550 !important;
+  border-color: #4B5563 !important;
 }
 
 /* Bordes de input morado */
 [data-theme="dark"] [style*="#B8A4D9"] {
-  border-color: #4D3F68 !important;
+  border-color: #4B5563 !important;
 }
 
 /* Toggle CBD5E1 */
 [data-theme="dark"] [style*="#CBD5E1"] {
-  background-color: #3D3550 !important;
+  background-color: #4B5563 !important;
 }
 
 /* ── TRANSICIONES SUAVES ─────────────────────────────────── */
