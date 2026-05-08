@@ -555,9 +555,6 @@ function LoginScreen({ onBack, onRegister, onLoginSuccess, onGoogleNuevo }: {
   const [passwordError, setPasswordError] = useState('');
   const [isLoading, setIsLoading]     = useState(false);
 
-  // Saber si Google está disponible (VITE_GOOGLE_CLIENT_ID configurado en el build)
-  const googleEnabled = Boolean(import.meta.env.VITE_GOOGLE_CLIENT_ID);
-
   const handleLogin = async () => {
     setEmailError('');
     setPasswordError('');
@@ -688,7 +685,7 @@ function LoginScreen({ onBack, onRegister, onLoginSuccess, onGoogleNuevo }: {
             )}
           </div>
 
-          {/* Botón Login */}
+        {/* Botón Login */}
           <button
             onClick={handleLogin}
             disabled={isLoading}
@@ -707,14 +704,6 @@ function LoginScreen({ onBack, onRegister, onLoginSuccess, onGoogleNuevo }: {
           </button>
         </div>
 
-        {/* Botón Google — solo si VITE_GOOGLE_CLIENT_ID está configurado en el build */}
-        {googleEnabled && (
-          <GoogleLoginButton
-            onLoginSuccess={onLoginSuccess}
-            onGoogleNuevo={onGoogleNuevo}
-          />
-        )}
-
         {/* Link a registro */}
         <div className="text-center">
           <p className="text-sm mb-2" style={{ color: '#475569', fontFamily: 'Montserrat, sans-serif' }}>
@@ -728,6 +717,12 @@ function LoginScreen({ onBack, onRegister, onLoginSuccess, onGoogleNuevo }: {
             Regístrate gratis aquí
           </button>
         </div>
+
+        {/* Botón Google — siempre visible debajo de registrarse */}
+        <GoogleLoginButton
+          onLoginSuccess={onLoginSuccess}
+          onGoogleNuevo={onGoogleNuevo}
+        />
       </div>
     </div>
   );
