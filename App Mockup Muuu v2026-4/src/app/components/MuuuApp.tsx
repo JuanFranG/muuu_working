@@ -1172,7 +1172,7 @@ function RegisterScreen({ userType, onBack, onRegisterSuccess }: { userType: 'st
   );
 }
 
-// Pantalla de selecci\u00f3n de rol para nuevos usuarios que entran con Google
+// Pantalla de selección de rol para nuevos usuarios que entran con Google
 function GoogleRoleSelectionScreen({
   nombre,
   onRoleSelected,
@@ -1196,7 +1196,7 @@ function GoogleRoleSelectionScreen({
     <div className="h-full flex flex-col relative" style={{
       background: 'linear-gradient(180deg, #F3EBFF 0%, #FFFFFF 100%)'
     }}>
-      {/* Bot\u00f3n volver */}
+      {/* Botón volver */}
       <button
         onClick={onBack}
         className="absolute top-6 left-6 z-10 p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -1219,7 +1219,7 @@ function GoogleRoleSelectionScreen({
         {/* Saludo con nombre de Google */}
         <div className="text-center mb-2">
           <p className="text-sm" style={{ color: '#7D7D7D', fontFamily: 'Montserrat, sans-serif' }}>
-            \u00a1Hola, <strong style={{ color: '#7952B3' }}>{nombre.split(' ')[0]}</strong>!
+            ¡Hola, <strong style={{ color: '#7952B3' }}>{nombre.split(' ')[0]}</strong>!
           </p>
         </div>
 
@@ -1229,7 +1229,7 @@ function GoogleRoleSelectionScreen({
           fontFamily: 'Montserrat, sans-serif',
           fontWeight: 700
         }}>
-          \u00bfC\u00f3mo quieres usar Muuu?
+          ¿Cómo quieres usar Muuu?
         </h2>
 
         {/* Tarjetas de rol */}
@@ -1296,7 +1296,7 @@ function GoogleRoleSelectionScreen({
                   Soy Docente
                 </p>
                 <p className="text-sm" style={{ color: '#F59E0B', fontFamily: 'Montserrat, sans-serif' }}>
-                  Quiero ense\u00f1ar
+                  Quiero enseñar
                 </p>
               </div>
             </div>
@@ -1306,7 +1306,7 @@ function GoogleRoleSelectionScreen({
 
         {/* Nota */}
         <p className="text-xs text-center mt-6 px-4" style={{ color: '#9CA3AF', fontFamily: 'Montserrat, sans-serif' }}>
-          Tu cuenta de Google se vincular\u00e1 autom\u00e1ticamente.
+          Tu cuenta de Google se vinculará automáticamente.
         </p>
       </div>
 
