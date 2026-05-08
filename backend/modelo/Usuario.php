@@ -146,4 +146,61 @@ class Usuario
         $fila = $stmt->fetch();
         return $fila ? $fila['contrasena'] : null;
     }
+
+    // ----------------------------------------------------------
+    // Buscar usuario existente por googleId O por correo (solo lectura)
+    // Devuelve el usuario completo o null si no existe.
+    // ----------------------------------------------------------
+    public function buscarPorGoogleOCorreo(string $correo, string $googleId): ?array
+    {
+        // 1. Buscar por googleId
+        $stmt = $this->db->prepare(
+            'SELECT id_usuario FROM USUARIO WHERE googleId = ? LIMIT 1'
+        );
+        $stmt->execute([$googleId]);
+        $fila = $stmt->fetch();
+        if ($fila) {
+            return $this->buscarPorId((int) $fila['id_usuario']);
+        }
+
+        // 2. Buscar por correo (cuenta tradicional sin googleId)
+        $stmt = $this->db->prepare(
+            'SELECT id_usuario FROM USUARIO WHERE correo = ? LIMIT 1'
+        );
+        $stmt->execute([$correo]);
+        $fila = $stmt->fetch();
+        if ($fila) {
+            return $this->buscarPorId((int) $fila['id_usuario']);
+        }
+
+        return null;
+    }
+
+    // ----------------------------------------------------------
+    // Vincular googleId a una cuenta existente (ya buscada por correo)
+    // ----------------------------------------------------------
+    public function vincularGoogle(int $id, string $googleId): void
+    {
+        $this->db->prepare(
+            'UPDATE USUARIO SET googleId = ? WHERE id_usuario = ? AND googleId IS NULL'
+        )->execute([$googleId, $id]);
+    }
+
+    // ----------------------------------------------------------
+    // Crear nuevo usuario via Google con rol elegido por el usuario
+    // ----------------------------------------------------------
+    public function crearConGoogle(
+        string  $correo,
+        string  $nombre,
+        string  $googleId,
+        ?string $fotoPerfil,
+        int     $idRol
+    ): ?array {
+        $stmt = $this->db->prepare(
+            'INSERT INTO USUARIO (nombre, correo, contrasena, fotoPerfil, googleId, id_rol)
+             VALUES (?, ?, NULL, ?, ?, ?)'
+        );
+        $stmt->execute([$nombre, $correo, $fotoPerfil, $googleId, $idRol]);
+        return $this->buscarPorId((int) $this->db->lastInsertId());
+    }
 }

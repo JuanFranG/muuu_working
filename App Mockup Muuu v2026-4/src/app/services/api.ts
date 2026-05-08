@@ -125,6 +125,38 @@ export async function logoutAPI(): Promise<void> {
   await peticion<{ ok: boolean }>('POST', '/auth/logout');
 }
 
+/** Inicia sesión con una cuenta de Google.
+ *
+ * Sin `rol`: el backend verifica el token.
+ *   - Si el usuario existe  → devuelve { esNuevo: false, usuario }
+ *   - Si el usuario es nuevo → devuelve { esNuevo: true, nombre }
+ *
+ * Con `rol`: crea el usuario nuevo con el rol elegido y devuelve { esNuevo: false, usuario }
+ */
+export type GoogleLoginResult =
+  | { esNuevo: true;  nombre: string }
+  | { esNuevo: false; usuario: UsuarioAPI };
+
+export async function loginGoogleAPI(
+  accessToken: string,
+  rol?: 'ESTUDIANTE' | 'DOCENTE'
+): Promise<GoogleLoginResult> {
+  const body: Record<string, string> = { accessToken };
+  if (rol) body.rol = rol;
+
+  const data = await peticion<{
+    ok:       boolean;
+    esNuevo:  boolean;
+    usuario?: UsuarioAPI;
+    nombre?:  string;
+  }>('POST', '/auth/google', body);
+
+  if (data.esNuevo) {
+    return { esNuevo: true, nombre: data.nombre ?? '' };
+  }
+  return { esNuevo: false, usuario: data.usuario! };
+}
+
 /** Devuelve el usuario de la sesión activa, o null si no hay sesión */
 export async function meAPI(): Promise<UsuarioAPI | null> {
   try {

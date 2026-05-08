@@ -79,6 +79,7 @@ require_once __DIR__ . '/modelo/Conexion.php';
 $rutasEstaticas = [
     // Auth
     'POST:auth/login'    => ['UserController',      'login'],
+    'POST:auth/google'   => ['UserController',      'loginGoogle'],
     'POST:auth/register' => ['UserController',      'register'],
     'POST:auth/logout'   => ['UserController',      'logout'],
     'GET:auth/me'        => ['UserController',      'me'],

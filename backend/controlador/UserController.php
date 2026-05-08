@@ -3,13 +3,14 @@
 //  MUUU APP · Controlador — UserController
 //  Gestiona todo lo relacionado a la entidad USUARIO:
 //
-//  ── Métodos API (responden JSON) ─────────────────────────
+//  ── Métodos API (responden JSON) ────────────────────────────
 //    login()             POST /api/auth/login
+//    loginGoogle()       POST /api/auth/google
 //    register()          POST /api/auth/register
 //    logout()            POST /api/auth/logout
 //    me()                GET  /api/auth/me
 //
-//  ── Métodos Vista clásica (renderizan PHP/HTML) ──────────
+//  ── Métodos Vista clásica (renderizan PHP/HTML) ──────────────
 //    mostrarLogin()      GET  ?action=login
 //    mostrarRegistro()   GET  ?action=registro
 //    mostrarBienvenida() GET  ?action=bienvenida
@@ -70,6 +71,118 @@ class UserController
         unset($usuario['contrasena']);
 
         $this->responderJson(200, ['ok' => true, 'usuario' => $usuario]);
+    }
+
+    /** POST /api/auth/google
+     *
+     *  Flujo de dos pasos para usuarios nuevos:
+     *
+     *  Paso 1 — sin 'rol' en el body:
+     *    · Verifica token con Google
+     *    · Si el usuario YA EXISTE  → inicia sesión, devuelve { ok, esNuevo:false, usuario }
+     *    · Si el usuario ES NUEVO   → devuelve { ok, esNuevo:true, nombre } (sin sesión)
+     *      El frontend muestra la pantalla de selección de rol.
+     *
+     *  Paso 2 — con 'rol' en el body ('ESTUDIANTE' | 'DOCENTE'):
+     *    · Verifica token otra vez (el access_token sigue válido)
+     *    · Crea el usuario con el rol elegido
+     *    · Inicia sesión y devuelve { ok, esNuevo:false, usuario }
+     */
+    public function loginGoogle(): void
+    {
+        $body        = $this->leerBody();
+        $accessToken = trim($body['accessToken'] ?? '');
+        $rolElegido  = strtoupper(trim($body['rol'] ?? ''));
+
+        if ($accessToken === '') {
+            $this->responderJson(400, ['ok' => false, 'mensaje' => 'Token de Google no proporcionado.']);
+            return;
+        }
+
+        // ── 1. Verificar token con Google userinfo ───────────────────────
+        $context    = stream_context_create([
+            'http' => [
+                'timeout' => 5,
+                'header'  => "Authorization: Bearer {$accessToken}\r\n",
+            ],
+        ]);
+        $respGoogle = @file_get_contents(
+            'https://www.googleapis.com/oauth2/v3/userinfo',
+            false,
+            $context
+        );
+
+        if ($respGoogle === false) {
+            $this->responderJson(502, ['ok' => false, 'mensaje' => 'No se pudo verificar el token con Google. Intenta de nuevo.']);
+            return;
+        }
+
+        $payload = json_decode($respGoogle, true);
+
+        if (!$payload || empty($payload['sub']) || empty($payload['email'])) {
+            $this->responderJson(401, ['ok' => false, 'mensaje' => 'Token de Google inválido.']);
+            return;
+        }
+
+        if (($payload['email_verified'] ?? false) !== true) {
+            $this->responderJson(401, ['ok' => false, 'mensaje' => 'El correo de Google no está verificado.']);
+            return;
+        }
+
+        $correo   = $payload['email'];
+        $nombre   = $payload['name']    ?? $correo;
+        $googleId = $payload['sub'];
+        $foto     = $payload['picture'] ?? null;
+
+        // ── 2. Buscar usuario existente ──────────────────────────────────
+        $usuarioExistente = $this->modelo->buscarPorGoogleOCorreo($correo, $googleId);
+
+        // ── 3a. Usuario existente → vincular googleId si falta y loguear ─
+        if ($usuarioExistente !== null) {
+            // Vincular googleId si la cuenta era tradicional (sin googleId)
+            if (empty($usuarioExistente['googleId'] ?? '')) {
+                $this->modelo->vincularGoogle((int) $usuarioExistente['id_usuario'], $googleId);
+            }
+
+            if (!(bool) $usuarioExistente['esActivo']) {
+                $this->responderJson(403, ['ok' => false, 'mensaje' => 'Cuenta desactivada. Contacta a tu docente.']);
+                return;
+            }
+
+            session_start();
+            $_SESSION['id_usuario'] = $usuarioExistente['id_usuario'];
+            $_SESSION['rol']        = $usuarioExistente['rol'];
+            $_SESSION['nombre']     = $usuarioExistente['nombre'];
+
+            $this->responderJson(200, ['ok' => true, 'esNuevo' => false, 'usuario' => $usuarioExistente]);
+            return;
+        }
+
+        // ── 3b. Usuario nuevo y aún no eligió rol → pedir selección ─────
+        if ($rolElegido === '') {
+            $this->responderJson(200, [
+                'ok'      => true,
+                'esNuevo' => true,
+                'nombre'  => $nombre,
+            ]);
+            return;
+        }
+
+        // ── 3c. Usuario nuevo con rol elegido → crear cuenta ─────────────
+        $idRol   = $rolElegido === 'DOCENTE' ? 2 : 1;
+        $usuario = $this->modelo->crearConGoogle($correo, $nombre, $googleId, $foto, $idRol);
+
+        if ($usuario === null) {
+            $this->responderJson(500, ['ok' => false, 'mensaje' => 'Error al crear tu cuenta. Intenta de nuevo.']);
+            return;
+        }
+
+        session_start();
+        $_SESSION['id_usuario'] = $usuario['id_usuario'];
+        $_SESSION['rol']        = $usuario['rol'];
+        $_SESSION['nombre']     = $usuario['nombre'];
+
+        $this->responderJson(200, ['ok' => true, 'esNuevo' => false, 'usuario' => $usuario]);
     }
 
     /** POST /api/auth/register */

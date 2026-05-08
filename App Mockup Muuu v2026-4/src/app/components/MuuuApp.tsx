@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useGoogleLogin } from '@react-oauth/google';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Mail, Lock, Eye, EyeOff, User, GraduationCap, ArrowLeft, BookOpen, Lightbulb, Swords, Trophy, UserCircle, Settings, Bell, Loader2 } from 'lucide-react';
-import { loginAPI, meAPI, logoutAPI, rolAFrontend, registrarAPI } from '../services/api';
+import { loginAPI, meAPI, logoutAPI, rolAFrontend, registrarAPI, loginGoogleAPI } from '../services/api';
 import muuuLogo from 'figma:asset/4de3de61f8e4df99b460b6420b603ae06ba0b967.png';
 import { AprendeUnPoco } from './AprendeUnPoco';
 import { AprendeUnPocoMinimal } from './AprendeUnPocoMinimal';
@@ -459,13 +460,20 @@ function HomeScreen({ onLoginClick, onRegisterClick }: { onLoginClick: () => voi
 }
 
 // Pantalla de Login
-function LoginScreen({ onBack, onRegister, onLoginSuccess }: { onBack: () => void; onRegister: () => void; onLoginSuccess: (role: 'student' | 'teacher', lastName: string) => void }) {
+function LoginScreen({ onBack, onRegister, onLoginSuccess, onGoogleNuevo }: {
+  onBack:        () => void;
+  onRegister:    () => void;
+  onLoginSuccess: (role: 'student' | 'teacher', lastName: string) => void;
+  onGoogleNuevo:  (accessToken: string, nombre: string) => void;
+}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [googleError, setGoogleError] = useState('');
 
   const handleLogin = async () => {
     setEmailError('');
@@ -484,7 +492,7 @@ function LoginScreen({ onBack, onRegister, onLoginSuccess }: { onBack: () => voi
     try {
       const usuario = await loginAPI(email.trim(), password);
       const rol     = rolAFrontend(usuario.rol);
-      const nombre  = usuario.nombre.split(' ')[0]; // primer nombre
+      const nombre  = usuario.nombre.split(' ')[0];
       onLoginSuccess(rol, nombre);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al iniciar sesión.';
@@ -497,6 +505,31 @@ function LoginScreen({ onBack, onRegister, onLoginSuccess }: { onBack: () => voi
       setIsLoading(false);
     }
   };
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setIsGoogleLoading(true);
+      setGoogleError('');
+      try {
+        const resultado = await loginGoogleAPI(tokenResponse.access_token);
+        if (resultado.esNuevo) {
+          // Usuario nuevo → el padre maneja la selección de rol
+          onGoogleNuevo(tokenResponse.access_token, resultado.nombre);
+        } else {
+          const rol    = rolAFrontend(resultado.usuario.rol);
+          const nombre = resultado.usuario.nombre.split(' ')[0];
+          onLoginSuccess(rol, nombre);
+        }
+      } catch (err: unknown) {
+        setGoogleError(err instanceof Error ? err.message : 'Error al ingresar con Google.');
+      } finally {
+        setIsGoogleLoading(false);
+      }
+    },
+    onError: () => {
+      setGoogleError('No se pudo abrir Google. Intenta de nuevo.');
+    },
+  });
 
   return (
     <div className="h-full flex flex-col relative" style={{ 
@@ -530,7 +563,7 @@ function LoginScreen({ onBack, onRegister, onLoginSuccess }: { onBack: () => voi
         </div>
 
         {/* Formulario */}
-        <div className="space-y-4 mb-6">
+        <div className="space-y-4 mb-4">
           {/* Email */}
           <div>
             <div className="relative">
@@ -614,6 +647,51 @@ function LoginScreen({ onBack, onRegister, onLoginSuccess }: { onBack: () => voi
             {isLoading && <Loader2 size={18} className="animate-spin" />}
             {isLoading ? 'Ingresando...' : 'Iniciar sesión'}
           </button>
+        </div>
+
+        {/* Separador */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-1 h-px" style={{ backgroundColor: '#E2D9F3' }} />
+          <span className="text-xs" style={{ color: '#9CA3AF', fontFamily: 'Montserrat, sans-serif' }}>o</span>
+          <div className="flex-1 h-px" style={{ backgroundColor: '#E2D9F3' }} />
+        </div>
+
+        {/* Botón Google */}
+        <div className="mb-4">
+          <button
+            id="btn-google-login"
+            onClick={() => { setGoogleError(''); googleLogin(); }}
+            disabled={isGoogleLoading}
+            className="w-full p-4 rounded-xl border-2 transition-all hover:scale-[1.02] flex items-center justify-center gap-3"
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderColor: '#B8A4D9',
+              boxShadow: '0 2px 8px rgba(184, 164, 217, 0.2)',
+              fontFamily: 'Montserrat, sans-serif',
+              fontWeight: 600,
+              color: '#1E293B',
+              cursor: isGoogleLoading ? 'not-allowed' : 'pointer',
+              opacity: isGoogleLoading ? 0.7 : 1,
+            }}
+          >
+            {isGoogleLoading ? (
+              <Loader2 size={20} className="animate-spin" style={{ color: '#9B7EC7' }} />
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+            )}
+            {isGoogleLoading ? 'Conectando con Google...' : 'Continuar con Google'}
+          </button>
+
+          {googleError && (
+            <p className="text-xs mt-2 text-center" style={{ color: '#EF4444', fontFamily: 'Montserrat, sans-serif' }}>
+              {googleError}
+            </p>
+          )}
         </div>
 
         {/* Link a registro */}
@@ -1078,8 +1156,156 @@ function RegisterScreen({ userType, onBack, onRegisterSuccess }: { userType: 'st
   );
 }
 
+// Pantalla de selecci\u00f3n de rol para nuevos usuarios que entran con Google
+function GoogleRoleSelectionScreen({
+  nombre,
+  onRoleSelected,
+  onBack,
+}: {
+  nombre:        string;
+  onRoleSelected: (role: 'student' | 'teacher') => void;
+  onBack:        () => void;
+}) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [rolElegido, setRolElegido] = useState<'student' | 'teacher' | null>(null);
+
+  const handleSelect = async (role: 'student' | 'teacher') => {
+    setRolElegido(role);
+    setIsLoading(true);
+    await onRoleSelected(role);
+    setIsLoading(false);
+  };
+
+  return (
+    <div className="h-full flex flex-col relative" style={{
+      background: 'linear-gradient(180deg, #F3EBFF 0%, #FFFFFF 100%)'
+    }}>
+      {/* Bot\u00f3n volver */}
+      <button
+        onClick={onBack}
+        className="absolute top-6 left-6 z-10 p-2 rounded-full hover:bg-gray-100 transition-colors"
+        style={{ color: '#7952B3' }}
+      >
+        <ArrowLeft size={28} strokeWidth={2.5} />
+      </button>
+
+      <div className="flex-1 flex flex-col items-center justify-center px-6">
+        {/* Logo */}
+        <div className="mb-6">
+          <ImageWithFallback
+            src={muuuLogo}
+            alt="Muuu Logo"
+            style={{ width: '140px', height: 'auto' }}
+            className="object-contain"
+          />
+        </div>
+
+        {/* Saludo con nombre de Google */}
+        <div className="text-center mb-2">
+          <p className="text-sm" style={{ color: '#7D7D7D', fontFamily: 'Montserrat, sans-serif' }}>
+            \u00a1Hola, <strong style={{ color: '#7952B3' }}>{nombre.split(' ')[0]}</strong>!
+          </p>
+        </div>
+
+        {/* Pregunta */}
+        <h2 className="text-xl mb-8 text-center" style={{
+          color: '#1E293B',
+          fontFamily: 'Montserrat, sans-serif',
+          fontWeight: 700
+        }}>
+          \u00bfC\u00f3mo quieres usar Muuu?
+        </h2>
+
+        {/* Tarjetas de rol */}
+        <div className="w-full max-w-sm space-y-4">
+
+          {/* Estudiante */}
+          <button
+            onClick={() => handleSelect('student')}
+            disabled={isLoading}
+            className="w-full p-5 rounded-2xl transition-all hover:scale-[1.02] flex items-center justify-between"
+            style={{
+              backgroundColor: '#F3EBFF',
+              border: `3px solid ${rolElegido === 'student' ? '#7952B3' : '#9B7EC7'}`,
+              opacity: isLoading && rolElegido !== 'student' ? 0.5 : 1,
+            }}
+          >
+            <div className="flex items-center gap-4">
+              <div
+                className="w-14 h-14 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: '#9B7EC7' }}
+              >
+                {rolElegido === 'student' && isLoading ? (
+                  <Loader2 size={28} color="#FFFFFF" className="animate-spin" />
+                ) : (
+                  <GraduationCap size={28} color="#FFFFFF" strokeWidth={2.5} />
+                )}
+              </div>
+              <div className="text-left">
+                <p className="text-lg" style={{ color: '#9B7EC7', fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
+                  Soy Estudiante
+                </p>
+                <p className="text-sm" style={{ color: '#7952B3', fontFamily: 'Montserrat, sans-serif' }}>
+                  Quiero aprender
+                </p>
+              </div>
+            </div>
+            <ArrowLeft size={24} style={{ color: '#9B7EC7', transform: 'rotate(180deg)' }} />
+          </button>
+
+          {/* Docente */}
+          <button
+            onClick={() => handleSelect('teacher')}
+            disabled={isLoading}
+            className="w-full p-5 rounded-2xl transition-all hover:scale-[1.02] flex items-center justify-between"
+            style={{
+              backgroundColor: '#FFFDE7',
+              border: `3px solid ${rolElegido === 'teacher' ? '#F59E0B' : '#FFD700'}`,
+              opacity: isLoading && rolElegido !== 'teacher' ? 0.5 : 1,
+            }}
+          >
+            <div className="flex items-center gap-4">
+              <div
+                className="w-14 h-14 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: '#FFD700' }}
+              >
+                {rolElegido === 'teacher' && isLoading ? (
+                  <Loader2 size={28} color="#1A1A1A" className="animate-spin" />
+                ) : (
+                  <BookOpen size={28} color="#1A1A1A" strokeWidth={2.5} />
+                )}
+              </div>
+              <div className="text-left">
+                <p className="text-lg" style={{ color: '#FFC107', fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
+                  Soy Docente
+                </p>
+                <p className="text-sm" style={{ color: '#F59E0B', fontFamily: 'Montserrat, sans-serif' }}>
+                  Quiero ense\u00f1ar
+                </p>
+              </div>
+            </div>
+            <ArrowLeft size={24} style={{ color: '#FFD700', transform: 'rotate(180deg)' }} />
+          </button>
+        </div>
+
+        {/* Nota */}
+        <p className="text-xs text-center mt-6 px-4" style={{ color: '#9CA3AF', fontFamily: 'Montserrat, sans-serif' }}>
+          Tu cuenta de Google se vincular\u00e1 autom\u00e1ticamente.
+        </p>
+      </div>
+
+      {/* Footer */}
+      <div className="text-center pb-6">
+        <p className="text-xs" style={{ color: '#7D7D7D', fontFamily: 'Montserrat, sans-serif' }}>
+          Powered by @CIEUniMagdalena - 2025
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // Componente Principal
-type AppState = 'loading' | 'home' | 'login' | 'roleSelection' | 'register' | 'registroExitoso' | 'studentHome' | 'teacherHome' | 'aprendeUnPoco' | 'aprendeUnPocoMinimal' | 'disenarFlashcard' | 'editarFlashcard' | 'misFlashcards' | 'misDocumentos' | 'editarMaterial' | 'rankings' | 'perfilEstudiante' | 'perfilDocente' | 'configuraciones' | 'configuracionesDocente' | 'perfilMenu' | 'perfilMenuDocente' | 'ponteAPrueba' | 'desafiaAlguien' | 'salaDesafio' | 'miProgreso' | 'guiasEstudio' | 'agregarMaterial' | 'categorias' | 'editarPerfil' | 'notificaciones' | 'estadisticasDocente';
+type AppState = 'loading' | 'home' | 'login' | 'roleSelection' | 'register' | 'registroExitoso' | 'googleRoleSelection' | 'studentHome' | 'teacherHome' | 'aprendeUnPoco' | 'aprendeUnPocoMinimal' | 'disenarFlashcard' | 'editarFlashcard' | 'misFlashcards' | 'misDocumentos' | 'editarMaterial' | 'rankings' | 'perfilEstudiante' | 'perfilDocente' | 'configuraciones' | 'configuracionesDocente' | 'perfilMenu' | 'perfilMenuDocente' | 'ponteAPrueba' | 'desafiaAlguien' | 'salaDesafio' | 'miProgreso' | 'guiasEstudio' | 'agregarMaterial' | 'categorias' | 'editarPerfil' | 'notificaciones' | 'estadisticasDocente';
 
 export function MuuuApp() {
   const [appState, setAppState] = useState<AppState>('loading');
@@ -1088,6 +1314,8 @@ export function MuuuApp() {
   const [flashcardEditarId, setFlashcardEditarId] = useState<number | undefined>(undefined);
   const [materialEditarId,  setMaterialEditarId]  = useState<number | undefined>(undefined);
   const [prevPerfilScreen,  setPrevPerfilScreen]  = useState<AppState>('perfilEstudiante');
+  // Estado temporal para el flujo de nuevo usuario Google
+  const [googlePendiente, setGooglePendiente] = useState<{ accessToken: string; nombre: string } | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -1155,6 +1383,39 @@ export function MuuuApp() {
           } else {
             setAppState('teacherHome');
           }
+        }}
+        onGoogleNuevo={(accessToken, nombre) => {
+          setGooglePendiente({ accessToken, nombre });
+          setAppState('googleRoleSelection');
+        }}
+      />
+    );
+  }
+
+  if (appState === 'googleRoleSelection' && googlePendiente) {
+    return (
+      <GoogleRoleSelectionScreen
+        nombre={googlePendiente.nombre}
+        onRoleSelected={async (rolElegido) => {
+          try {
+            const resultado = await loginGoogleAPI(
+              googlePendiente.accessToken,
+              rolElegido === 'student' ? 'ESTUDIANTE' : 'DOCENTE'
+            );
+            if (!resultado.esNuevo) {
+              const nombre = resultado.usuario.nombre.split(' ')[0];
+              setUserRole(rolElegido);
+              setUserName(nombre);
+              setGooglePendiente(null);
+              setAppState(rolElegido === 'student' ? 'studentHome' : 'teacherHome');
+            }
+          } catch (err) {
+            console.error('Error al completar registro con Google:', err);
+          }
+        }}
+        onBack={() => {
+          setGooglePendiente(null);
+          setAppState('login');
         }}
       />
     );
