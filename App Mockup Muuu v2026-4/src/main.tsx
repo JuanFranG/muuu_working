@@ -6,8 +6,12 @@ import "./styles/index.css";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '';
 
+// Solo envolver con GoogleOAuthProvider si el Client ID está configurado.
+// Sin esto, el provider crashea con clientId vacío y deja la pantalla morada.
+const root = <App />;
+
 createRoot(document.getElementById("root")!).render(
-  <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-    <App />
-  </GoogleOAuthProvider>
+  GOOGLE_CLIENT_ID
+    ? <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>{root}</GoogleOAuthProvider>
+    : root
 );
