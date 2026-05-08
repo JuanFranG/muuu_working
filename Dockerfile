@@ -14,15 +14,19 @@ FROM node:20-alpine AS frontend-builder
 
 WORKDIR /build
 
+# Instalar pnpm (gestor de paquetes que usa el proyecto)
+RUN npm install -g pnpm
+
 # Copia package files primero (caching de capas)
-COPY ["App Mockup Muuu v2026-4/package.json", "App Mockup Muuu v2026-4/package-lock.json", "./"]
-RUN npm ci --prefer-offline
+COPY ["App Mockup Muuu v2026-4/package.json", "App Mockup Muuu v2026-4/pnpm-lock.yaml", "./"]
+RUN pnpm install --frozen-lockfile
 
 # Copia el resto del frontend y construye
 # Nota: JSON-array es obligatorio para rutas con espacios en Docker
 COPY ["App Mockup Muuu v2026-4/", "."]
-RUN npm run build
+RUN pnpm run build
 # Resultado en /build/dist/
+
 
 
 # ──────────────────────────────────────────────────────────────
