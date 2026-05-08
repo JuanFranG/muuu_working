@@ -440,7 +440,7 @@ html, body {
 [data-theme="dark"] [style*="fffde7"],
 [data-theme="dark"] [style*="#F8F4EC"],
 [data-theme="dark"] [style*="#f8f4ec"] {
-  background: linear-gradient(180deg, #1A1810 0%, #0D0B14 100%) !important;
+  background: linear-gradient(180deg, #1A1810 0%, #121212 100%) !important;
 }
 
 /* Fondos blancos puros */
@@ -456,11 +456,6 @@ html, body {
 [data-theme="dark"] [style*="#F5F5F5"],
 [data-theme="dark"] [style*="#FEF3C7"] {
   background-color: #241F30 !important;
-}
-
-/* h-full genérico (fallback) */
-[data-theme="dark"] .h-full {
-  background-color: #0D0B14 !important;
 }
 
 /* ── 2. TARJETAS Y CONTENEDORES ──────────────────────────── */

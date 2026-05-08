@@ -90,11 +90,10 @@ export function useThemeColors(role: 'student' | 'teacher' = 'student') {
 
   if (darkMode) {
     return {
-      // Fondos
       bgPage:    '#0D0B14',
       bgGradient: isStudent
         ? 'linear-gradient(180deg, #1A1528 0%, #0D0B14 100%)'
-        : 'linear-gradient(180deg, #1A1810 0%, #0D0B14 100%)',
+        : 'linear-gradient(180deg, #1A1810 0%, #121212 100%)',
       bgCard:    '#1C1826',
       bgCardAlt: '#241F30',
       bgInput:   '#251F32',

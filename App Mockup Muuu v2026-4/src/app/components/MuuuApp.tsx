@@ -1364,10 +1364,11 @@ export function MuuuApp() {
   // ── Actualiza theme-color según la pantalla activa ───────
   useEffect(() => {
     const color = c.headerBg;
+    const bodyBg = c.bgPage;
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', color);
-    document.body.style.backgroundColor = color;
-  }, [c.headerBg]);
+    document.body.style.backgroundColor = bodyBg;
+  }, [c.headerBg, c.bgPage]);
 
   const handleRoleSelected = (role: 'student' | 'teacher') => {
     setUserRole(role);
