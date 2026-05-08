@@ -558,6 +558,7 @@ function LoginScreen({ onBack, onRegister, onLoginSuccess, onGoogleNuevo }: {
   const [emailError, setEmailError]   = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isLoading, setIsLoading]     = useState(false);
+  const c = useThemeColors('student');
 
   const handleLogin = async () => {
     setEmailError('');
@@ -592,13 +593,13 @@ function LoginScreen({ onBack, onRegister, onLoginSuccess, onGoogleNuevo }: {
 
   return (
     <div className="h-full flex flex-col relative" style={{ 
-      background: 'linear-gradient(180deg, #F3EBFF 0%, #FFFFFF 100%)' 
+      background: c.bgGradient 
     }}>
       {/* Botón volver */}
       <button
         onClick={onBack}
-        className="absolute top-6 left-6 z-10 p-2 rounded-full hover:bg-gray-100 transition-colors"
-        style={{ color: '#7952B3' }}
+        className="absolute top-6 left-6 z-10 p-2 rounded-full transition-colors"
+        style={{ color: c.purple, backgroundColor: c.bgCardAlt }}
       >
         <ArrowLeft size={28} strokeWidth={2.5} />
       </button>
@@ -613,7 +614,7 @@ function LoginScreen({ onBack, onRegister, onLoginSuccess, onGoogleNuevo }: {
             className="object-contain mx-auto mb-4"
           />
           <h2 className="text-2xl" style={{ 
-            color: '#1E293B',
+            color: c.textPrimary,
             fontFamily: 'Montserrat, sans-serif',
             fontWeight: 700
           }}>
@@ -628,20 +629,19 @@ function LoginScreen({ onBack, onRegister, onLoginSuccess, onGoogleNuevo }: {
             <div className="relative">
               <Mail 
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" 
-                style={{ color: emailError ? '#EF4444' : '#9B7EC7' }}
+                style={{ color: c.purple }}
               />
               <input
                 type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (emailError) setEmailError('');
-                }}
                 placeholder="Correo electrónico"
-                className="w-full p-4 pl-12 rounded-lg focus:outline-none focus:ring-2"
-                style={{
-                  border: emailError ? '2px solid #EF4444' : '2px solid #B8A4D9',
-                  boxShadow: emailError ? '0 2px 8px rgba(239, 68, 68, 0.25)' : '0 2px 8px rgba(184, 164, 217, 0.25)'
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 rounded-xl border focus:outline-none focus:ring-2 transition-all"
+                style={{ 
+                  backgroundColor: c.bgInput, 
+                  borderColor: emailError ? c.error : c.border,
+                  color: c.textPrimary,
+                  fontFamily: 'Montserrat, sans-serif',
                 }}
               />
             </div>
@@ -657,27 +657,27 @@ function LoginScreen({ onBack, onRegister, onLoginSuccess, onGoogleNuevo }: {
             <div className="relative">
               <Lock 
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5" 
-                style={{ color: passwordError ? '#EF4444' : '#9B7EC7' }}
+                style={{ color: c.purple }}
               />
               <input
                 type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (passwordError) setPasswordError('');
-                }}
                 placeholder="Contraseña"
-                className="w-full p-4 pl-12 pr-12 rounded-lg focus:outline-none focus:ring-2"
-                style={{
-                  border: passwordError ? '2px solid #EF4444' : '2px solid #B8A4D9',
-                  boxShadow: passwordError ? '0 2px 8px rgba(239, 68, 68, 0.25)' : '0 2px 8px rgba(184, 164, 217, 0.25)'
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-10 pr-12 py-3 rounded-xl border focus:outline-none focus:ring-2 transition-all"
+                style={{ 
+                  backgroundColor: c.bgInput, 
+                  borderColor: passwordError ? c.error : c.border,
+                  color: c.textPrimary,
+                  fontFamily: 'Montserrat, sans-serif',
                 }}
+                onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                style={{ color: '#7D7D7D' }}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1"
+                style={{ color: c.textMuted }}
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -690,16 +690,15 @@ function LoginScreen({ onBack, onRegister, onLoginSuccess, onGoogleNuevo }: {
           </div>
 
         {/* Botón Login */}
-          <button
+          <button 
             onClick={handleLogin}
             disabled={isLoading}
-            className="w-full p-4 rounded-xl transition-all flex items-center justify-center gap-2"
-            style={{
-              backgroundColor: isLoading ? '#B8A4D9' : '#9B7EC7',
-              color: '#FFFFFF',
+            className="w-full py-3 rounded-xl font-semibold transition-all shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2"
+            style={{ 
+              backgroundColor: c.purple, 
+              color: c.textOnPurple,
               fontFamily: 'Montserrat, sans-serif',
-              fontWeight: 600,
-              boxShadow: '0px 4px 12px rgba(155, 126, 199, 0.4)',
+              opacity: isLoading ? 0.7 : 1,
               cursor: isLoading ? 'not-allowed' : 'pointer'
             }}
           >
@@ -709,14 +708,18 @@ function LoginScreen({ onBack, onRegister, onLoginSuccess, onGoogleNuevo }: {
         </div>
 
         {/* Link a registro */}
-        <div className="text-center">
-          <p className="text-sm mb-2" style={{ color: '#475569', fontFamily: 'Montserrat, sans-serif' }}>
+        <div className="text-center mt-6">
+          <p style={{ color: c.textMuted, fontFamily: 'Montserrat, sans-serif' }}>
             ¿No tienes cuenta?
           </p>
-          <button
+          <button 
             onClick={onRegister}
-            className="underline hover:no-underline"
-            style={{ color: '#9B7EC7', fontFamily: 'Montserrat, sans-serif', fontWeight: 600 }}
+            style={{ 
+              color: c.purple, 
+              fontFamily: 'Montserrat, sans-serif',
+              textDecoration: 'underline'
+            }}
+            className="font-semibold hover:opacity-80 transition-opacity mt-1"
           >
             Regístrate gratis aquí
           </button>
@@ -1340,6 +1343,17 @@ export function MuuuApp() {
   // Estado temporal para el flujo de nuevo usuario Google
   const [googlePendiente, setGooglePendiente] = useState<{ accessToken: string; nombre: string } | null>(null);
 
+  const TEACHER_SCREENS: AppState[] = [
+    'teacherHome', 'disenarFlashcard', 'editarFlashcard',
+    'misFlashcards', 'misDocumentos', 'editarMaterial',
+    'agregarMaterial', 'categorias', 'perfilDocente',
+    'perfilMenuDocente', 'configuracionesDocente',
+    'idiomaDocente', 'privacidadDocente', 'ayudaDocente'
+  ];
+  const isTeacherScreen = TEACHER_SCREENS.includes(appState);
+  const themeRole = isTeacherScreen ? 'teacher' : 'student';
+  const c = useThemeColors(themeRole);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setAppState('home');
@@ -1349,17 +1363,11 @@ export function MuuuApp() {
 
   // ── Actualiza theme-color según la pantalla activa ───────
   useEffect(() => {
-    const TEACHER_SCREENS: AppState[] = [
-      'teacherHome', 'disenarFlashcard', 'editarFlashcard',
-      'misFlashcards', 'misDocumentos', 'editarMaterial',
-      'agregarMaterial', 'categorias', 'perfilDocente',
-      'perfilMenuDocente', 'configuracionesDocente',
-    ];
-    const color = TEACHER_SCREENS.includes(appState) ? '#F59E0B' : '#7952B3';
+    const color = c.headerBg;
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', color);
     document.body.style.backgroundColor = color;
-  }, [appState]);
+  }, [c.headerBg]);
 
   const handleRoleSelected = (role: 'student' | 'teacher') => {
     setUserRole(role);

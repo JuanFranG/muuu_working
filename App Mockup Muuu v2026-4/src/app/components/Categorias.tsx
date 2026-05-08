@@ -6,6 +6,7 @@ import {
   eliminarTemaAPI,
   type TemaEstadisticasAPI,
 } from '../services/api';
+import { useThemeColors } from '../contexts/SettingsContext';
 
 interface CategoriasProps {
   onBack: () => void;
@@ -27,6 +28,7 @@ export function Categorias({ onBack }: CategoriasProps) {
   const [eliminandoId, setEliminandoId]         = useState<number | null>(null);
   const [errorBorrado, setErrorBorrado]          = useState<{ id: number; msg: string } | null>(null);
   const [confirmDeleteId, setConfirmDeleteId]    = useState<number | null>(null);
+  const c = useThemeColors('teacher');
 
   const cargar = async () => {
     setCargando(true);
@@ -89,7 +91,7 @@ export function Categorias({ onBack }: CategoriasProps) {
       style={{
         height: '100%',
         width: '100%',
-        background: '#F8F4EC',
+        background: c.bgGradient,
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
@@ -98,10 +100,10 @@ export function Categorias({ onBack }: CategoriasProps) {
       {/* ── Header ───────────────────────────────────────────── */}
       <div
         style={{
-          background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)',
+          background: c.headerBg,
           padding: '20px 20px 24px 20px',
           borderRadius: '0 0 24px 24px',
-          boxShadow: '0 4px 12px rgba(245, 158, 11, 0.25)',
+          boxShadow: `0 4px 12px ${c.shadow}`,
           flexShrink: 0,
         }}
       >
@@ -121,7 +123,7 @@ export function Categorias({ onBack }: CategoriasProps) {
               flexShrink: 0,
             }}
           >
-            <ArrowLeft size={18} color="#78350F" strokeWidth={2.5} />
+            <ArrowLeft size={18} color={c.headerText} strokeWidth={2.5} />
           </button>
           <div>
             <h1
@@ -129,7 +131,7 @@ export function Categorias({ onBack }: CategoriasProps) {
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 700,
                 fontSize: '18px',
-                color: '#78350F',
+                color: c.headerText,
                 margin: 0,
               }}
             >
@@ -139,7 +141,8 @@ export function Categorias({ onBack }: CategoriasProps) {
               style={{
                 fontFamily: 'Poppins, sans-serif',
                 fontSize: '12px',
-                color: '#92400E',
+                color: c.headerText,
+                opacity: 0.8,
                 margin: 0,
               }}
             >
@@ -202,12 +205,12 @@ export function Categorias({ onBack }: CategoriasProps) {
           <div
             key={tema.id_tema}
             style={{
-              backgroundColor: '#FFFFFF',
+              backgroundColor: c.bgCard,
               borderRadius: '16px',
               padding: '16px 20px',
               marginBottom: '12px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-              border: '1.5px solid #F3F4F6',
+              boxShadow: `0 2px 8px ${c.shadow}`,
+              border: `1.5px solid ${c.borderCard}`,
             }}
           >
             {/* Fila principal */}
@@ -219,7 +222,7 @@ export function Categorias({ onBack }: CategoriasProps) {
                     fontFamily: 'Poppins, sans-serif',
                     fontWeight: 700,
                     fontSize: '14px',
-                    color: '#1F2937',
+                    color: c.textPrimary,
                     margin: 0,
                     lineHeight: '1.4',
                   }}
@@ -231,7 +234,7 @@ export function Categorias({ onBack }: CategoriasProps) {
                     style={{
                       fontFamily: 'Poppins, sans-serif',
                       fontSize: '11px',
-                      color: '#6B7280',
+                      color: c.textSecondary,
                       margin: '4px 0 0 0',
                       lineHeight: '1.5',
                     }}
@@ -250,8 +253,8 @@ export function Categorias({ onBack }: CategoriasProps) {
                       fontSize: '11px',
                       fontFamily: 'Poppins, sans-serif',
                       fontWeight: 600,
-                      color: tema.totalFlashcards > 0 ? '#92400E' : '#9CA3AF',
-                      backgroundColor: tema.totalFlashcards > 0 ? '#FEF3C7' : '#F3F4F6',
+                      color: tema.totalFlashcards > 0 ? c.yellowDark : c.textMuted,
+                      backgroundColor: tema.totalFlashcards > 0 ? c.yellowPale : c.bgSurface,
                       padding: '2px 8px',
                       borderRadius: '20px',
                     }}
@@ -267,8 +270,8 @@ export function Categorias({ onBack }: CategoriasProps) {
                       fontSize: '11px',
                       fontFamily: 'Poppins, sans-serif',
                       fontWeight: 600,
-                      color: tema.totalMateriales > 0 ? '#1E40AF' : '#9CA3AF',
-                      backgroundColor: tema.totalMateriales > 0 ? '#DBEAFE' : '#F3F4F6',
+                      color: tema.totalMateriales > 0 ? '#1E40AF' : c.textMuted,
+                      backgroundColor: tema.totalMateriales > 0 ? '#DBEAFE' : c.bgSurface,
                       padding: '2px 8px',
                       borderRadius: '20px',
                     }}
@@ -287,14 +290,14 @@ export function Categorias({ onBack }: CategoriasProps) {
                     width: '36px',
                     height: '36px',
                     borderRadius: '10px',
-                    backgroundColor: '#F3F4F6',
+                    backgroundColor: c.bgSurface,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
                   }}
                 >
-                  <Lock size={15} color="#9CA3AF" strokeWidth={2.5} />
+                  <Lock size={15} color={c.textMuted} strokeWidth={2.5} />
                 </div>
               ) : (
                 <button
@@ -415,12 +418,12 @@ export function Categorias({ onBack }: CategoriasProps) {
         {mostrarForm && (
           <div
             style={{
-              backgroundColor: '#FFFFFF',
+              backgroundColor: c.bgCard,
               borderRadius: '16px',
               padding: '16px',
               marginBottom: '12px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-              border: '2px solid #F59E0B',
+              boxShadow: `0 2px 8px ${c.shadow}`,
+              border: `2px solid ${c.yellowDark}`,
             }}
           >
             <p
@@ -428,7 +431,7 @@ export function Categorias({ onBack }: CategoriasProps) {
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 700,
                 fontSize: '14px',
-                color: '#78350F',
+                color: c.yellowDark,
                 marginBottom: '12px',
                 marginTop: 0,
               }}
@@ -437,8 +440,8 @@ export function Categorias({ onBack }: CategoriasProps) {
             </p>
 
             {/* Nombre */}
-            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: '#6B7280', margin: '0 0 4px 0' }}>
-              Nombre <span style={{ color: '#EF4444' }}>*</span>
+            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: c.textSecondary, margin: '0 0 4px 0' }}>
+              Nombre <span style={{ color: c.error }}>*</span>
             </p>
             <input
               type="text"
@@ -451,17 +454,18 @@ export function Categorias({ onBack }: CategoriasProps) {
                 boxSizing: 'border-box',
                 padding: '10px 12px',
                 borderRadius: '10px',
-                border: '1.5px solid #E5E7EB',
+                border: `1.5px solid ${c.border}`,
+                backgroundColor: c.bgInput,
                 fontFamily: 'Poppins, sans-serif',
                 fontSize: '13px',
-                color: '#1F2937',
+                color: c.textPrimary,
                 marginBottom: '10px',
                 outline: 'none',
               }}
             />
 
             {/* Descripción */}
-            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: '#6B7280', margin: '0 0 4px 0' }}>
+            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: c.textSecondary, margin: '0 0 4px 0' }}>
               Descripción (opcional)
             </p>
             <textarea
@@ -475,10 +479,11 @@ export function Categorias({ onBack }: CategoriasProps) {
                 boxSizing: 'border-box',
                 padding: '10px 12px',
                 borderRadius: '10px',
-                border: '1.5px solid #E5E7EB',
+                border: `1.5px solid ${c.border}`,
+                backgroundColor: c.bgInput,
                 fontFamily: 'Poppins, sans-serif',
                 fontSize: '13px',
-                color: '#1F2937',
+                color: c.textPrimary,
                 resize: 'none',
                 marginBottom: '12px',
                 outline: 'none',
@@ -502,8 +507,8 @@ export function Categorias({ onBack }: CategoriasProps) {
                   padding: '10px',
                   borderRadius: '10px',
                   border: 'none',
-                  background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)',
-                  color: '#78350F',
+                  background: `linear-gradient(135deg, ${c.yellowDark} 0%, ${c.yellow} 100%)`,
+                  color: c.textOnYellow,
                   fontFamily: 'Poppins, sans-serif',
                   fontWeight: 700,
                   fontSize: '13px',
@@ -525,9 +530,9 @@ export function Categorias({ onBack }: CategoriasProps) {
                 style={{
                   padding: '10px 16px',
                   borderRadius: '10px',
-                  border: '1.5px solid #D1D5DB',
-                  backgroundColor: '#FFFFFF',
-                  color: '#374151',
+                  border: `1.5px solid ${c.border}`,
+                  backgroundColor: c.bgSurface,
+                  color: c.textPrimary,
                   fontFamily: 'Poppins, sans-serif',
                   fontWeight: 600,
                   fontSize: '13px',

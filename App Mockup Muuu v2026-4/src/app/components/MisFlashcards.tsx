@@ -7,6 +7,7 @@ import {
   moverABorradorAPI,
   type FlashcardAPI,
 } from '../services/api';
+import { useThemeColors } from '../contexts/SettingsContext';
 
 interface MisFlashcardsProps {
   onBack:          () => void;
@@ -21,6 +22,7 @@ export function MisFlashcards({ onBack, onEditFlashcard }: MisFlashcardsProps) {
   const [errorMsg,   setErrorMsg]   = useState('');
   const [filtro,     setFiltro]     = useState<Filtro>('Todas');
   const [accionando, setAccionando] = useState<number | null>(null); // id en proceso
+  const c = useThemeColors('teacher');
 
   const cargar = async () => {
     setCargando(true);
@@ -83,32 +85,32 @@ export function MisFlashcards({ onBack, onEditFlashcard }: MisFlashcardsProps) {
   return (
     <div style={{
       height: '100%', width: '100%', display: 'flex', flexDirection: 'column',
-      background: 'linear-gradient(180deg, #FFF8EC 0%, #FFFFFF 100%)', overflow: 'hidden',
+      background: c.bgGradient, overflow: 'hidden',
     }}>
       {/* HEADER */}
       <div style={{
-        backgroundColor: '#F5A623', padding: '16px 20px', flexShrink: 0,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+        backgroundColor: c.headerBg, padding: '16px 20px', flexShrink: 0,
+        boxShadow: `0 2px 8px ${c.shadow}`,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
           <button onClick={onBack} style={{
             width: '36px', height: '36px', borderRadius: '50%', border: 'none',
-            background: 'rgba(61,35,1,0.15)', cursor: 'pointer', display: 'flex',
+            background: 'rgba(255,255,255,0.25)', cursor: 'pointer', display: 'flex',
             alignItems: 'center', justifyContent: 'center',
           }}>
-            <ArrowLeft size={20} style={{ color: '#3D2301' }} strokeWidth={2.5} />
+            <ArrowLeft size={20} color={c.headerText} strokeWidth={2.5} />
           </button>
           <div>
             <h1 style={{
               fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '18px',
-              color: '#3D2301', margin: 0,
+              color: c.headerText, margin: 0,
             }}>
               Mis Flashcards
             </h1>
             {!cargando && (
               <p style={{
-                fontFamily: 'Poppins, sans-serif', fontSize: '12px', color: '#3D2301',
-                opacity: 0.7, margin: 0,
+                fontFamily: 'Poppins, sans-serif', fontSize: '12px', color: c.headerText,
+                opacity: 0.8, margin: 0,
               }}>
                 {flashcards.length} total · {totalPublicadas} publicadas · {totalBorradores} borradores
               </p>
@@ -126,8 +128,8 @@ export function MisFlashcards({ onBack, onEditFlashcard }: MisFlashcardsProps) {
                 padding: '6px 14px', borderRadius: '999px', border: 'none',
                 cursor: 'pointer', fontFamily: 'Poppins, sans-serif',
                 fontWeight: 600, fontSize: '12px',
-                backgroundColor: filtro === f ? '#3D2301' : 'rgba(61,35,1,0.15)',
-                color: filtro === f ? '#FFF8EC' : '#3D2301',
+                backgroundColor: filtro === f ? c.headerText : 'rgba(255,255,255,0.25)',
+                color: filtro === f ? c.headerBg : c.headerText,
               }}
             >
               {f === 'PUBLICADO' ? 'Publicadas' : f === 'BORRADOR' ? 'Borradores' : 'Todas'}
@@ -141,8 +143,8 @@ export function MisFlashcards({ onBack, onEditFlashcard }: MisFlashcardsProps) {
 
         {cargando && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '60px', gap: '12px' }}>
-            <Loader2 size={32} className="animate-spin" style={{ color: '#F5A623' }} />
-            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: '#7D7D7D' }}>
+            <Loader2 size={32} className="animate-spin" color={c.yellowDark} />
+            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: c.textMuted }}>
               Cargando tus flashcards...
             </p>
           </div>
@@ -160,7 +162,7 @@ export function MisFlashcards({ onBack, onEditFlashcard }: MisFlashcardsProps) {
         {!cargando && !errorMsg && filtradas.length === 0 && (
           <div style={{ textAlign: 'center', paddingTop: '60px' }}>
             <p style={{ fontSize: '48px', marginBottom: '12px' }}>📭</p>
-            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: '#7D7D7D' }}>
+            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: c.textMuted }}>
               {filtro === 'Todas'
                 ? 'Aún no has creado ninguna flashcard.'
                 : `No tienes flashcards en estado ${filtro === 'PUBLICADO' ? 'Publicado' : 'Borrador'}.`}
@@ -173,10 +175,10 @@ export function MisFlashcards({ onBack, onEditFlashcard }: MisFlashcardsProps) {
             key={fc.id_flashcard}
             onClick={() => onEditFlashcard(fc.id_flashcard)}
             style={{
-              backgroundColor: '#FFFFFF', borderRadius: '16px', padding: '16px',
+              backgroundColor: c.bgCard, borderRadius: '16px', padding: '16px',
               marginBottom: '12px', cursor: 'pointer',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-              border: `2px solid ${fc.estado === 'PUBLICADO' ? '#D1FAE5' : '#FEF3C7'}`,
+              boxShadow: `0 2px 12px ${c.shadow}`,
+              border: `2px solid ${fc.estado === 'PUBLICADO' ? c.success : c.borderCard}`,
               transition: 'transform 0.15s',
             }}
           >
@@ -185,13 +187,13 @@ export function MisFlashcards({ onBack, onEditFlashcard }: MisFlashcardsProps) {
               <span style={{
                 padding: '3px 10px', borderRadius: '999px',
                 fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '10px',
-                backgroundColor: fc.estado === 'PUBLICADO' ? '#D1FAE5' : '#FEF3C7',
-                color: fc.estado === 'PUBLICADO' ? '#065F46' : '#92400E',
+                backgroundColor: fc.estado === 'PUBLICADO' ? (c.darkMode ? 'rgba(16, 185, 129, 0.2)' : '#D1FAE5') : (c.darkMode ? c.yellowPale : '#FEF3C7'),
+                color: fc.estado === 'PUBLICADO' ? c.success : c.yellowDark,
               }}>
                 {fc.estado === 'PUBLICADO' ? '✓ Publicada' : '✏ Borrador'}
               </span>
               <span style={{
-                fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: '#9CA3AF',
+                fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: c.textMuted,
               }}>
                 {new Date(fc.fechaCreacion).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })}
               </span>
@@ -200,7 +202,7 @@ export function MisFlashcards({ onBack, onEditFlashcard }: MisFlashcardsProps) {
             {/* Integral */}
             <p style={{
               fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: '16px',
-              color: '#1E293B', marginBottom: '8px', lineHeight: '1.5',
+              color: c.textPrimary, marginBottom: '8px', lineHeight: '1.5',
               overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
             }}>
@@ -211,14 +213,14 @@ export function MisFlashcards({ onBack, onEditFlashcard }: MisFlashcardsProps) {
             <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
               <span style={{
                 padding: '2px 8px', borderRadius: '6px',
-                backgroundColor: '#E6D5F0', color: '#7952B3',
+                backgroundColor: c.darkMode ? c.purplePale : '#E6D5F0', color: c.darkMode ? c.purple : '#7952B3',
                 fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '10px',
               }}>
                 {fc.tema}
               </span>
               <span style={{
                 padding: '2px 8px', borderRadius: '6px',
-                backgroundColor: '#F3F4F6', color: '#6B7280',
+                backgroundColor: c.bgSurface, color: c.textSecondary,
                 fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '10px',
               }}>
                 {fc.dificultad}
@@ -226,7 +228,7 @@ export function MisFlashcards({ onBack, onEditFlashcard }: MisFlashcardsProps) {
               {fc.totalOpciones !== undefined && (
                 <span style={{
                   padding: '2px 8px', borderRadius: '6px',
-                  backgroundColor: '#FFF8EC', color: '#92400E',
+                  backgroundColor: c.darkMode ? c.yellowPale : '#FFF8EC', color: c.yellowDark,
                   fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '10px',
                 }}>
                   {fc.totalOpciones} opciones
@@ -241,7 +243,7 @@ export function MisFlashcards({ onBack, onEditFlashcard }: MisFlashcardsProps) {
                 onClick={() => onEditFlashcard(fc.id_flashcard)}
                 style={{
                   flex: 1, padding: '8px', borderRadius: '10px', border: 'none',
-                  backgroundColor: '#F5A623', color: '#3D2301', cursor: 'pointer',
+                  backgroundColor: c.yellowDark, color: c.textOnYellow, cursor: 'pointer',
                   fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '12px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
                 }}
@@ -256,8 +258,8 @@ export function MisFlashcards({ onBack, onEditFlashcard }: MisFlashcardsProps) {
                 disabled={accionando === fc.id_flashcard}
                 style={{
                   flex: 1, padding: '8px', borderRadius: '10px', border: 'none', cursor: 'pointer',
-                  backgroundColor: fc.estado === 'PUBLICADO' ? '#FEF3C7' : '#D1FAE5',
-                  color: fc.estado === 'PUBLICADO' ? '#92400E' : '#065F46',
+                  backgroundColor: fc.estado === 'PUBLICADO' ? (c.darkMode ? c.yellowPale : '#FEF3C7') : (c.darkMode ? 'rgba(16, 185, 129, 0.2)' : '#D1FAE5'),
+                  color: fc.estado === 'PUBLICADO' ? c.yellowDark : c.success,
                   fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '12px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
                   opacity: accionando === fc.id_flashcard ? 0.6 : 1,
@@ -275,7 +277,7 @@ export function MisFlashcards({ onBack, onEditFlashcard }: MisFlashcardsProps) {
                 disabled={accionando === fc.id_flashcard}
                 style={{
                   width: '36px', height: '36px', borderRadius: '10px', border: 'none',
-                  backgroundColor: '#FEE2E2', color: '#DC2626', cursor: 'pointer',
+                  backgroundColor: c.errorBg, color: c.error, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   opacity: accionando === fc.id_flashcard ? 0.6 : 1, flexShrink: 0,
                 }}
