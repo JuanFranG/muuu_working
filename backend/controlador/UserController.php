@@ -428,6 +428,36 @@ class UserController
         echo json_encode(['ok' => true, 'url' => $url], JSON_UNESCAPED_UNICODE);
     }
 
+    /** DELETE /api/auth/cuenta — eliminar cuenta permanentemente */
+    public function eliminarCuenta(): void
+    {
+        session_start();
+
+        if (empty($_SESSION['id_usuario'])) {
+            $this->responderJson(401, ['ok' => false, 'mensaje' => 'No hay sesión activa.']);
+            return;
+        }
+
+        $id = (int) $_SESSION['id_usuario'];
+
+        try {
+            $this->modelo->eliminar($id);
+        } catch (\PDOException $e) {
+            $this->responderJson(500, ['ok' => false, 'mensaje' => 'Error al eliminar la cuenta: ' . $e->getMessage()]);
+            return;
+        }
+
+        // Destruir sesión
+        session_unset();
+        session_destroy();
+        if (ini_get('session.use_cookies')) {
+            $p = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000, $p['path'], $p['domain'], $p['secure'], $p['httponly']);
+        }
+
+        $this->responderJson(200, ['ok' => true, 'mensaje' => 'Cuenta eliminada correctamente.']);
+    }
+
     // =========================================================
     //  HELPERS PRIVADOS
     // =========================================================

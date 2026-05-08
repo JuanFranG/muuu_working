@@ -402,3 +402,81 @@ html, body {
     transform: translateY(0);
   }
 }
+
+/* ============================================================
+   MUUU · MODO OSCURO GLOBAL
+   Usa [data-theme="dark"] para override de inline styles.
+   !important necesario porque la app usa inline styles.
+   ============================================================ */
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Override para fondos de pantalla con inline gradients */
+  --muuu-bg-primary: #0D0B14;
+  --muuu-bg-secondary: #16121E;
+  --muuu-bg-student: #1A1528;
+  --muuu-bg-teacher: #1A1810;
+  --muuu-white: #0D0B14;
+  --background: #0D0B14;
+  --foreground: #E8E4F0;
+  --card: #1C1826;
+  --card-foreground: #E8E4F0;
+  --texto-principal: #E8E4F0;
+  --texto-secundario: #B0A8C0;
+  --texto-terciario: #8A8098;
+  --border: #3D3550;
+  --input-background: #251F32;
+}
+
+/* Fondos principales de pantalla */
+[data-theme="dark"] .h-full {
+  background-color: #0D0B14 !important;
+}
+
+/* Tarjetas y contenedores blancos */
+[data-theme="dark"] .bg-white,
+[data-theme="dark"] [class*="rounded-2xl"][style*="background"],
+[data-theme="dark"] [class*="rounded-xl"][style*="background"] {
+  color: #E8E4F0 !important;
+}
+
+/* Texto global */
+[data-theme="dark"] p,
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] span,
+[data-theme="dark"] label {
+  color: inherit;
+}
+
+/* Inputs */
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background-color: #251F32 !important;
+  color: #E8E4F0 !important;
+  border-color: #3D3550 !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #6D6580 !important;
+}
+
+/* El marco del iPhone en desktop */
+[data-theme="dark"] .bg-gray-100 {
+  background-color: #0A0810 !important;
+}
+
+/* Transiciones suaves al cambiar de tema */
+* {
+  transition: background-color 0.3s ease, color 0.2s ease, border-color 0.3s ease;
+}
+
+/* No transicionar transforms y posiciones (performance) */
+*:not(input):not(textarea):not(button) {
+  transition-property: background-color, color, border-color, box-shadow;
+}

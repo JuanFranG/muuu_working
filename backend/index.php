@@ -85,6 +85,7 @@ $rutasEstaticas = [
     'GET:auth/me'        => ['UserController',      'me'],
     'PATCH:auth/perfil'  => ['UserController',      'actualizarPerfil'],
     'POST:auth/foto'     => ['UserController',      'subirFoto'],
+    'DELETE:auth/cuenta' => ['UserController',      'eliminarCuenta'],
     // Catálogos
     'GET:temas'          => ['FlashcardController', 'listarTemas'],
     'GET:dificultades'   => ['FlashcardController', 'listarDificultades'],

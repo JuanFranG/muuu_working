@@ -203,4 +203,25 @@ class Usuario
         $stmt->execute([$nombre, $correo, $fotoPerfil, $googleId, $idRol]);
         return $this->buscarPorId((int) $this->db->lastInsertId());
     }
+
+    // ----------------------------------------------------------
+    // Eliminar cuenta y todos sus datos relacionados
+    // ----------------------------------------------------------
+    public function eliminar(int $id): void
+    {
+        // Orden de eliminación respetando claves foráneas
+        $tablas = [
+            'DELETE FROM NOTIFICACION WHERE id_usuario = ?',
+            'DELETE FROM HISTORIAL_FLASHCARD WHERE id_usuario = ?',
+            'DELETE FROM RESULTADO WHERE id_usuario = ?',
+            'DELETE FROM SUSCRIPCION WHERE id_usuario = ?',
+            'DELETE FROM FLASHCARD WHERE id_usuario = ?',
+            'DELETE FROM MATERIAL WHERE id_usuario = ?',
+            'DELETE FROM USUARIO WHERE id_usuario = ?',
+        ];
+        foreach ($tablas as $sql) {
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$id]);
+        }
+    }
 }

@@ -28,6 +28,10 @@ import { Categorias } from './Categorias';
 import { EditarPerfilMuuu } from './EditarPerfilMuuu';
 import { Notificaciones } from './Notificaciones';
 import { EstadisticasDocente } from './EstadisticasDocente';
+import { SubpantallaIdioma } from './SubpantallaIdioma';
+import { SubpantallaPrivacidad } from './SubpantallaPrivacidad';
+import { SubpantallaAyuda } from './SubpantallaAyuda';
+import { SettingsProvider } from '../contexts/SettingsContext';
 
 // Pantalla Home Estudiante
 function StudentHomeScreen({ userName = 'Estudiante', onNavigate }: { userName?: string; onNavigate: (screen: string) => void }) {
@@ -1321,7 +1325,7 @@ function GoogleRoleSelectionScreen({
 }
 
 // Componente Principal
-type AppState = 'loading' | 'home' | 'login' | 'roleSelection' | 'register' | 'registroExitoso' | 'googleRoleSelection' | 'studentHome' | 'teacherHome' | 'aprendeUnPoco' | 'aprendeUnPocoMinimal' | 'disenarFlashcard' | 'editarFlashcard' | 'misFlashcards' | 'misDocumentos' | 'editarMaterial' | 'rankings' | 'perfilEstudiante' | 'perfilDocente' | 'configuraciones' | 'configuracionesDocente' | 'perfilMenu' | 'perfilMenuDocente' | 'ponteAPrueba' | 'desafiaAlguien' | 'salaDesafio' | 'miProgreso' | 'guiasEstudio' | 'agregarMaterial' | 'categorias' | 'editarPerfil' | 'notificaciones' | 'estadisticasDocente';
+type AppState = 'loading' | 'home' | 'login' | 'roleSelection' | 'register' | 'registroExitoso' | 'googleRoleSelection' | 'studentHome' | 'teacherHome' | 'aprendeUnPoco' | 'aprendeUnPocoMinimal' | 'disenarFlashcard' | 'editarFlashcard' | 'misFlashcards' | 'misDocumentos' | 'editarMaterial' | 'rankings' | 'perfilEstudiante' | 'perfilDocente' | 'configuraciones' | 'configuracionesDocente' | 'perfilMenu' | 'perfilMenuDocente' | 'ponteAPrueba' | 'desafiaAlguien' | 'salaDesafio' | 'miProgreso' | 'guiasEstudio' | 'agregarMaterial' | 'categorias' | 'editarPerfil' | 'notificaciones' | 'estadisticasDocente' | 'idioma' | 'privacidad' | 'ayuda' | 'idiomaDocente' | 'privacidadDocente' | 'ayudaDocente';
 
 export function MuuuApp() {
   const [appState, setAppState] = useState<AppState>('loading');
@@ -1686,6 +1690,7 @@ export function MuuuApp() {
       <Configuraciones
         onBack={() => setAppState('perfilMenu')}
         onLogout={() => setAppState('login')}
+        onNavigate={(screen) => setAppState(screen as AppState)}
       />
     );
   }
@@ -1693,10 +1698,33 @@ export function MuuuApp() {
   if (appState === 'configuracionesDocente') {
     return (
       <ConfiguracionesDocente
-        onBack={() => setAppState('teacherHome')}
+        onBack={() => setAppState('perfilMenuDocente')}
         onLogout={() => setAppState('login')}
+        onNavigate={(screen) => setAppState((screen + 'Docente') as AppState)}
       />
     );
+  }
+
+  // Subpantallas de configuración — Estudiante
+  if (appState === 'idioma') {
+    return <SubpantallaIdioma onBack={() => setAppState('configuraciones')} role="student" />;
+  }
+  if (appState === 'privacidad') {
+    return <SubpantallaPrivacidad onBack={() => setAppState('configuraciones')} onLogout={() => setAppState('login')} role="student" />;
+  }
+  if (appState === 'ayuda') {
+    return <SubpantallaAyuda onBack={() => setAppState('configuraciones')} role="student" />;
+  }
+
+  // Subpantallas de configuración — Docente
+  if (appState === 'idiomaDocente') {
+    return <SubpantallaIdioma onBack={() => setAppState('configuracionesDocente')} role="teacher" />;
+  }
+  if (appState === 'privacidadDocente') {
+    return <SubpantallaPrivacidad onBack={() => setAppState('configuracionesDocente')} onLogout={() => setAppState('login')} role="teacher" />;
+  }
+  if (appState === 'ayudaDocente') {
+    return <SubpantallaAyuda onBack={() => setAppState('configuracionesDocente')} role="teacher" />;
   }
 
   if (appState === 'notificaciones') {
