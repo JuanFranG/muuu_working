@@ -20,6 +20,7 @@ export interface UsuarioAPI {
   rachaActual:          number | null;
   fechaUltimaActividad: string | null;
   fotoPerfil:           string | null;
+  googleId:             string | null;
   totalPuntos:          number;
   nivel:                number;
   posicion:             number | null;

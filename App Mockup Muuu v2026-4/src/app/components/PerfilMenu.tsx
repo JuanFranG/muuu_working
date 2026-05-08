@@ -3,6 +3,7 @@ import { ArrowLeft, UserCircle, Settings, LogOut } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import muuuLogo from 'figma:asset/4de3de61f8e4df99b460b6420b603ae06ba0b967.png';
 import { meAPI } from '../services/api';
+import { useThemeColors } from '../contexts/SettingsContext';
 
 interface PerfilMenuProps {
   onBack: () => void;
@@ -12,25 +13,27 @@ interface PerfilMenuProps {
 
 export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenuProps) {
   const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
+  const c = useThemeColors('student');
 
   useEffect(() => {
     meAPI().then(u => { if (u?.fotoPerfil) setFotoPerfil(u.fotoPerfil); }).catch(() => {});
   }, []);
+
   const menuOptions = [
     {
       icon: UserCircle,
       title: 'Mi Perfil',
       description: 'Ver y editar información personal',
-      color: '#9B7EC7',
-      bgColor: '#F3EBFF',
+      color: c.purple,
+      bgColor: c.purplePale,
       action: () => onNavigate('perfilEstudiante')
     },
     {
       icon: Settings,
       title: 'Configuración',
       description: 'Ajustes y preferencias',
-      color: '#7952B3',
-      bgColor: '#E6D5F0',
+      color: c.purpleDark,
+      bgColor: c.purpleLight,
       action: () => onNavigate('configuraciones')
     }
   ];
@@ -39,7 +42,7 @@ export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenu
     <div 
       className="h-full w-full relative overflow-hidden"
       style={{ 
-        background: 'linear-gradient(180deg, #F3EBFF 0%, #FFFFFF 100%)',
+        background: c.bgGradient,
         maxWidth: '375px',
         maxHeight: '812px',
         margin: '0 auto'
@@ -50,7 +53,7 @@ export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenu
         <div 
           className="absolute"
           style={{ 
-            backgroundColor: '#F5F5F5',
+            backgroundColor: c.bgCardAlt,
             width: '120px',
             height: '100px',
             top: '10%',
@@ -66,8 +69,8 @@ export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenu
         className="absolute top-0 left-0 right-0 z-20"
         style={{ 
           height: '80px',
-          backgroundColor: '#9B7EC7',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+          backgroundColor: c.headerBg,
+          boxShadow: `0 2px 8px ${c.shadow}`,
           padding: '16px 20px'
         }}
       >
@@ -75,7 +78,7 @@ export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenu
           <button
             onClick={onBack}
             className="p-2 rounded-full hover:bg-white/20 transition-colors"
-            style={{ color: '#FFFFFF' }}
+            style={{ color: c.headerText }}
           >
             <ArrowLeft size={28} strokeWidth={2.5} />
           </button>
@@ -85,7 +88,7 @@ export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenu
               fontFamily: 'Poppins, sans-serif',
               fontWeight: 700,
               fontSize: '24px',
-              color: '#FFFFFF'
+              color: c.headerText
             }}
           >
             Menú
@@ -115,12 +118,12 @@ export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenu
               width: '100px',
               height: '100px',
               borderRadius: '50%',
-              border: '5px solid #9B7EC7',
-              backgroundColor: fotoPerfil ? 'transparent' : '#E6D5F0',
+              border: `5px solid ${c.purple}`,
+              backgroundColor: fotoPerfil ? 'transparent' : c.purplePale,
               fontFamily: 'Poppins, sans-serif',
               fontWeight: 700,
               fontSize: '40px',
-              color: '#7952B3',
+              color: c.purpleDark,
               overflow: 'hidden',
             }}
           >
@@ -137,7 +140,7 @@ export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenu
               fontFamily: 'Poppins, sans-serif',
               fontWeight: 700,
               fontSize: '22px',
-              color: '#1E293B',
+              color: c.textPrimary,
               marginBottom: '4px'
             }}
           >
@@ -149,7 +152,7 @@ export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenu
               fontFamily: 'Poppins, sans-serif',
               fontWeight: 500,
               fontSize: '14px',
-              color: '#64748B'
+              color: c.textSecondary
             }}
           >
             Estudiante
@@ -164,9 +167,9 @@ export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenu
               onClick={option.action}
               className="w-full p-5 rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98]"
               style={{
-                backgroundColor: '#FFFFFF',
-                border: `2px solid ${option.bgColor}`,
-                boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)',
+                backgroundColor: c.bgCard,
+                border: `2px solid ${c.border}`,
+                boxShadow: `0 2px 12px ${c.shadow}`,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -178,7 +181,7 @@ export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenu
                   width: '50px',
                   height: '50px',
                   borderRadius: '12px',
-                  backgroundColor: option.bgColor,
+                  backgroundColor: c.purplePale,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -193,7 +196,7 @@ export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenu
                     fontFamily: 'Poppins, sans-serif',
                     fontWeight: 600,
                     fontSize: '16px',
-                    color: '#1E293B',
+                    color: c.textPrimary,
                     marginBottom: '2px'
                   }}
                 >
@@ -204,7 +207,7 @@ export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenu
                     fontFamily: 'Poppins, sans-serif',
                     fontWeight: 400,
                     fontSize: '13px',
-                    color: '#64748B'
+                    color: c.textSecondary
                   }}
                 >
                   {option.description}

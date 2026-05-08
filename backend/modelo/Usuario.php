@@ -79,6 +79,7 @@ class Usuario
                     u.rachaActual,
                     u.fechaUltimaActividad,
                     u.fotoPerfil,
+                    u.googleId,
                     r.nombre                                    AS rol,
                     COALESCE(rk.puntos, 0)                      AS totalPuntos,
                     FLOOR(COALESCE(rk.puntos, 0) / 500)         AS nivel,

@@ -1334,6 +1334,9 @@ export function MuuuApp() {
   const [flashcardEditarId, setFlashcardEditarId] = useState<number | undefined>(undefined);
   const [materialEditarId,  setMaterialEditarId]  = useState<number | undefined>(undefined);
   const [prevPerfilScreen,  setPrevPerfilScreen]  = useState<AppState>('perfilEstudiante');
+  // Datos del usuario para subpantallas
+  const [userEmail, setUserEmail] = useState<string>('');
+  const [hasGoogle, setHasGoogle] = useState<boolean>(false);
   // Estado temporal para el flujo de nuevo usuario Google
   const [googlePendiente, setGooglePendiente] = useState<{ accessToken: string; nombre: string } | null>(null);
 
@@ -1398,6 +1401,13 @@ export function MuuuApp() {
         onLoginSuccess={(role, lastName) => {
           setUserRole(role);
           setUserName(lastName);
+          // Obtener datos completos del usuario
+          meAPI().then(u => {
+            if (u) {
+              setUserEmail(u.correo);
+              setHasGoogle(!!u.googleId);
+            }
+          }).catch(() => {});
           if (role === 'student') {
             setAppState('studentHome');
           } else {
@@ -1710,7 +1720,7 @@ export function MuuuApp() {
     return <SubpantallaIdioma onBack={() => setAppState('configuraciones')} role="student" />;
   }
   if (appState === 'privacidad') {
-    return <SubpantallaPrivacidad onBack={() => setAppState('configuraciones')} onLogout={() => setAppState('login')} role="student" />;
+    return <SubpantallaPrivacidad onBack={() => setAppState('configuraciones')} onLogout={() => setAppState('login')} role="student" userEmail={userEmail} userRole="Estudiante" hasGoogle={hasGoogle} />;
   }
   if (appState === 'ayuda') {
     return <SubpantallaAyuda onBack={() => setAppState('configuraciones')} role="student" />;
@@ -1721,7 +1731,7 @@ export function MuuuApp() {
     return <SubpantallaIdioma onBack={() => setAppState('configuracionesDocente')} role="teacher" />;
   }
   if (appState === 'privacidadDocente') {
-    return <SubpantallaPrivacidad onBack={() => setAppState('configuracionesDocente')} onLogout={() => setAppState('login')} role="teacher" />;
+    return <SubpantallaPrivacidad onBack={() => setAppState('configuracionesDocente')} onLogout={() => setAppState('login')} role="teacher" userEmail={userEmail} userRole="Docente" hasGoogle={hasGoogle} />;
   }
   if (appState === 'ayudaDocente') {
     return <SubpantallaAyuda onBack={() => setAppState('configuracionesDocente')} role="teacher" />;

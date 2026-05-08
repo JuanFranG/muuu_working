@@ -404,15 +404,13 @@ html, body {
 }
 
 /* ============================================================
-   MUUU · MODO OSCURO GLOBAL
-   Usa [data-theme="dark"] para override de inline styles.
-   !important necesario porque la app usa inline styles.
+   MUUU · MODO OSCURO GLOBAL — TODAS LAS PANTALLAS
+   Usa [data-theme="dark"] + !important para override de inline.
+   Targetea patrones del DOM que React genera.
    ============================================================ */
 
 [data-theme="dark"] {
   color-scheme: dark;
-
-  /* Override para fondos de pantalla con inline gradients */
   --muuu-bg-primary: #0D0B14;
   --muuu-bg-secondary: #16121E;
   --muuu-bg-student: #1A1528;
@@ -429,30 +427,88 @@ html, body {
   --input-background: #251F32;
 }
 
-/* Fondos principales de pantalla */
+/* ── 1. FONDOS DE PANTALLA ─────────────────────────────────── */
+
+/* Pantallas gradiente estudiante (#F3EBFF) */
+[data-theme="dark"] [style*="F3EBFF"],
+[data-theme="dark"] [style*="f3ebff"] {
+  background: linear-gradient(180deg, #1A1528 0%, #0D0B14 100%) !important;
+}
+
+/* Pantallas gradiente docente (#FFFDE7, #F8F4EC) */
+[data-theme="dark"] [style*="FFFDE7"],
+[data-theme="dark"] [style*="fffde7"],
+[data-theme="dark"] [style*="#F8F4EC"],
+[data-theme="dark"] [style*="#f8f4ec"] {
+  background: linear-gradient(180deg, #1A1810 0%, #0D0B14 100%) !important;
+}
+
+/* Fondos blancos puros */
+[data-theme="dark"] [style*="background-color: rgb(255, 255, 255)"],
+[data-theme="dark"] [style*="background-color: #FFFFFF"],
+[data-theme="dark"] [style*="background-color: #ffffff"],
+[data-theme="dark"] .bg-white {
+  background-color: #1C1826 !important;
+}
+
+/* Fondos secundarios claros */
+[data-theme="dark"] [style*="#FAFAFA"],
+[data-theme="dark"] [style*="#F5F5F5"],
+[data-theme="dark"] [style*="#FEF3C7"] {
+  background-color: #241F30 !important;
+}
+
+/* h-full genérico (fallback) */
 [data-theme="dark"] .h-full {
   background-color: #0D0B14 !important;
 }
 
-/* Tarjetas y contenedores blancos */
-[data-theme="dark"] .bg-white,
-[data-theme="dark"] [class*="rounded-2xl"][style*="background"],
-[data-theme="dark"] [class*="rounded-xl"][style*="background"] {
+/* ── 2. TARJETAS Y CONTENEDORES ──────────────────────────── */
+
+/* Border morado pálido */
+[data-theme="dark"] [style*="#E6D5F0"] {
+  border-color: #3D3550 !important;
+}
+
+/* Border amarillo */
+[data-theme="dark"] [style*="#FED7AA"] {
+  border-color: #3A3520 !important;
+}
+
+/* ── 3. TEXTO — override inline colors ───────────────────── */
+
+/* Texto primario oscuro → claro */
+[data-theme="dark"] [style*="color: #1E293B"],
+[data-theme="dark"] [style*="color: rgb(30, 41, 59)"] {
   color: #E8E4F0 !important;
 }
 
-/* Texto global */
-[data-theme="dark"] p,
-[data-theme="dark"] h1,
-[data-theme="dark"] h2,
-[data-theme="dark"] h3,
-[data-theme="dark"] h4,
-[data-theme="dark"] span,
-[data-theme="dark"] label {
-  color: inherit;
+/* Texto secundario */
+[data-theme="dark"] [style*="color: #475569"],
+[data-theme="dark"] [style*="color: rgb(71, 85, 105)"] {
+  color: #B0A8C0 !important;
 }
 
-/* Inputs */
+/* Texto terciario / muted */
+[data-theme="dark"] [style*="color: #64748B"],
+[data-theme="dark"] [style*="color: rgb(100, 116, 139)"],
+[data-theme="dark"] [style*="color: #94A3B8"],
+[data-theme="dark"] [style*="color: #9CA3AF"],
+[data-theme="dark"] [style*="color: #7D7D7D"] {
+  color: #8A8098 !important;
+}
+
+/* Texto negro → claro */
+[data-theme="dark"] [style*="color: #1A1A1A"] {
+  color: #E8E4F0 !important;
+}
+
+/* Texto docente header */
+[data-theme="dark"] [style*="color: #78350F"] {
+  color: #E8E4F0 !important;
+}
+
+/* ── 4. INPUTS Y FORMULARIOS ─────────────────────────────── */
 [data-theme="dark"] input,
 [data-theme="dark"] textarea,
 [data-theme="dark"] select {
@@ -466,17 +522,81 @@ html, body {
   color: #6D6580 !important;
 }
 
-/* El marco del iPhone en desktop */
+/* ── 5. BOTONES CON FONDO BLANCO ─────────────────────────── */
+[data-theme="dark"] button[style*="background-color: #FFFFFF"],
+[data-theme="dark"] button[style*="background-color: rgb(255, 255, 255)"] {
+  background-color: #1C1826 !important;
+}
+
+[data-theme="dark"] .hover\:bg-gray-50:hover,
+[data-theme="dark"] .hover\:bg-gray-100:hover {
+  background-color: #2A2438 !important;
+}
+
+/* ── 6. MARCO iPHONE (Desktop) ───────────────────────────── */
 [data-theme="dark"] .bg-gray-100 {
   background-color: #0A0810 !important;
 }
 
-/* Transiciones suaves al cambiar de tema */
-* {
+[data-theme="dark"] .rounded-\[50px\].bg-white,
+[data-theme="dark"] [class*="rounded-"][class*="bg-white"] {
+  background-color: #0D0B14 !important;
+}
+
+/* ── 7. COMPONENTES ESPECÍFICOS ──────────────────────────── */
+
+/* Fondos de íconos student */
+[data-theme="dark"] [style*="background-color: #F3EBFF"],
+[data-theme="dark"] [style*="backgroundColor: #F3EBFF"] {
+  background-color: #2A2438 !important;
+}
+
+/* Fondos de íconos teacher */
+[data-theme="dark"] [style*="background-color: #FFFDE7"],
+[data-theme="dark"] [style*="backgroundColor: #FFFDE7"],
+[data-theme="dark"] [style*="background-color: #FEF3C7"],
+[data-theme="dark"] [style*="backgroundColor: #FEF3C7"],
+[data-theme="dark"] [style*="#FFF9C4"] {
+  background-color: #2A2518 !important;
+}
+
+/* Fondos rosa claro */
+[data-theme="dark"] [style*="#F4E4F4"] {
+  background-color: #2E2038 !important;
+}
+
+/* Separadores */
+[data-theme="dark"] [style*="#E2D9F3"] {
+  background-color: #3D3550 !important;
+}
+
+/* Error backgrounds */
+[data-theme="dark"] [style*="#FEE2E2"] {
+  background-color: #3B1C1C !important;
+}
+
+/* Nav border top */
+[data-theme="dark"] [style*="borderTop"] {
+  border-color: #3D3550 !important;
+}
+
+/* Bordes de input morado */
+[data-theme="dark"] [style*="#B8A4D9"] {
+  border-color: #4D3F68 !important;
+}
+
+/* Toggle CBD5E1 */
+[data-theme="dark"] [style*="#CBD5E1"] {
+  background-color: #3D3550 !important;
+}
+
+/* ── TRANSICIONES SUAVES ─────────────────────────────────── */
+*,
+*::before,
+*::after {
   transition: background-color 0.3s ease, color 0.2s ease, border-color 0.3s ease;
 }
 
-/* No transicionar transforms y posiciones (performance) */
-*:not(input):not(textarea):not(button) {
-  transition-property: background-color, color, border-color, box-shadow;
+button, a, input, textarea {
+  transition: background-color 0.3s ease, color 0.2s ease, border-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
