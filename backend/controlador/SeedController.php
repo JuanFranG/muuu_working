@@ -140,7 +140,7 @@ class SeedController
                 ],
             ],
             [
-                '\\int \\frac{dx}{\\sqrt{a^2-x^2}} \\quad (a>0)',
+                '\\int \\frac{1}{\\sqrt{a^2-x^2}} \\, dx \\quad (a>0)',
                 'arcsin(x/a) + C',
                 3, 3,
                 [
