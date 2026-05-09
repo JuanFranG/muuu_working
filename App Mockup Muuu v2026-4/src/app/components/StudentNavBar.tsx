@@ -1,19 +1,22 @@
+import { useThemeColors } from '../contexts/SettingsContext';
+
 interface StudentNavBarProps {
   onNavigate: (screen: string) => void;
   currentScreen?: 'home' | 'profile';
 }
 
 export function StudentNavBar({ onNavigate, currentScreen = 'home' }: StudentNavBarProps) {
+  const c = useThemeColors('student');
   return (
     <div
       className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-50"
       style={{
         width: '100%',
         maxWidth: '375px',
-        backgroundColor: '#FFFFFF',
-        borderTop: '1px solid #E5E7EB',
+        backgroundColor: c.bgCard,
+        borderTop: `1px solid ${c.border}`,
         padding: '12px 0',
-        boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.05)'
+        boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.1)'
       }}
     >
       <div className="flex items-center justify-center gap-16">

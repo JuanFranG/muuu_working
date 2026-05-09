@@ -101,7 +101,7 @@ export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
         style={{ background: c.bgGradient }}>
         <Loader2 size={40} style={{ color: '#9B7EC7' }} className="animate-spin" />
         <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '14px',
-          color: '#7D7D7D', marginTop: '16px' }}>
+          color: c.textMuted, marginTop: '16px' }}>
           Cargando flashcards de {contextLabel}...
         </p>
       </div>
@@ -118,7 +118,7 @@ export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
           color: c.textPrimary, textAlign: 'center', marginBottom: '8px' }}>
           Sin flashcards publicadas
         </h2>
-        <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: '#7D7D7D',
+        <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: c.textMuted,
           textAlign: 'center', marginBottom: '24px', lineHeight: '1.5' }}>
           {contextLabel} aún no ha publicado flashcards de práctica.
         </p>
@@ -151,7 +151,7 @@ export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
           color: c.textPrimary, textAlign: 'center', marginBottom: '8px' }}>
           Sin flashcards publicadas
         </h2>
-        <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: '#7D7D7D',
+        <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: c.textMuted,
           textAlign: 'center', marginBottom: '24px', lineHeight: '1.5' }}>
           El tema "{contextLabel}" aún no tiene flashcards publicadas.
         </p>
@@ -203,12 +203,12 @@ export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
     <div className="h-full flex flex-col"
       style={{ background: c.bgGradient }}>
       {/* Header */}
-      <div style={{ backgroundColor: '#FFFFFF', boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+      <div style={{ backgroundColor: c.bgCard, boxShadow: `0 2px 8px ${c.shadow}`,
         padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
         <button onClick={onBack} style={{
           width: '36px', height: '36px', borderRadius: '50%', border: 'none',
           background: 'transparent', cursor: 'pointer', display: 'flex',
-          alignItems: 'center', justifyContent: 'center', color: '#9B7EC7'
+          alignItems: 'center', justifyContent: 'center', color: c.purple
         }}>
           <ArrowLeft size={22} strokeWidth={2.5} />
         </button>
@@ -220,7 +220,7 @@ export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
 
       {/* Contenido del menú */}
       <div className="flex-1 flex flex-col justify-center" style={{ padding: '24px' }}>
-        <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '13px', color: '#7D7D7D',
+        <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '13px', color: c.textMuted,
           textAlign: 'center', marginBottom: '32px', lineHeight: '1.5' }}>
           Elige cómo quieres practicar
         </p>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Plus, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useThemeColors } from '../contexts/SettingsContext';
 import {
   listarTemasAPI,
   listarDificultadesAPI,
@@ -24,6 +25,7 @@ interface Option {
 }
 
 export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps) {
+  const c = useThemeColors('teacher');
   const modoEdicion = flashcardId !== undefined;
 
   const [question, setQuestion]         = useState('');
@@ -223,7 +225,7 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
 
   // ── RENDER ────────────────────────────────────────────────
   return (
-    <div className="h-full w-full relative overflow-hidden" style={{ backgroundColor: '#FAF8F3' }}>
+    <div className="h-full w-full relative overflow-hidden" style={{ backgroundColor: c.bgPage }}>
 
       {/* HEADER */}
       <div className="absolute top-0 left-0 right-0 z-50"
@@ -254,7 +256,7 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
         <div className="absolute z-40" style={{ top: '88px', width: '100%' }}>
           <div onClick={() => setShowPreview(true)}
             className="mx-4 flex items-center justify-between cursor-pointer"
-            style={{ padding: '10px 12px', backgroundColor: '#FFFCF0',
+            style={{ padding: '10px 12px', backgroundColor: c.bgSurface,
               border: '2px dashed #D4A017', borderRadius: '8px' }}>
             <div className="flex items-center gap-2">
               <Eye size={16} style={{ color: '#78350F' }} />
@@ -274,23 +276,23 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
           {showPreview && (
             <div className="absolute z-40"
               style={{ top: '88px', width: 'calc(100% - 32px)', maxWidth: '343px' }}>
-              <div style={{ position: 'relative', padding: '16px', backgroundColor: '#FFFCF0',
+              <div style={{ position: 'relative', padding: '16px', backgroundColor: c.bgSurface,
                 border: '2px dashed #D4A017', borderRadius: '12px',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>
+                boxShadow: `0 2px 6px ${c.shadow}` }}>
                 <p style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '10px',
                   textTransform: 'uppercase', color: '#78350F', marginBottom: '8px' }}>
                   VISTA PREVIA ESTUDIANTE
                 </p>
                 {/* Pregunta con render LaTeX */}
                 <div style={{ fontFamily: 'Georgia, serif', fontSize: '15px', fontWeight: 600,
-                  color: '#1E293B', marginBottom: '12px', lineHeight: '1.6',
+                  color: c.textPrimary, marginBottom: '12px', lineHeight: '1.6',
                   fontStyle: question ? 'normal' : 'italic' }}
                   dangerouslySetInnerHTML={{
                     __html: question
                       ? renderMath(question)
                       : 'Resuelve la siguiente integral:' }}
                 />
-                <div style={{ fontSize: '12px', color: '#4A4A4A', marginTop: '12px' }}>
+                <div style={{ fontSize: '12px', color: c.textMuted, marginTop: '12px' }}>
                   {options.slice(0, 2).map(o => (
                     <div key={o.id} style={{ marginBottom: '4px' }}>
                       <span style={{ fontWeight: 600 }}>{o.label})</span>{' '}
@@ -325,29 +327,29 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
           )}
 
           {/* ── SECCIÓN: TEMA ── */}
-          <div className="mb-4" style={{ padding: '16px', backgroundColor: '#FFFFFF',
-            border: '2px solid #E5E7EB', borderRadius: '10px',
+          <div className="mb-4" style={{ padding: '16px', backgroundColor: c.bgCard,
+            border: `2px solid ${c.border}`, borderRadius: '10px',
             marginTop: showPreview ? '20px' : '0' }}>
             <h2 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px',
-              color: '#1E293B', marginBottom: '10px' }}>
+              color: c.textPrimary, marginBottom: '10px' }}>
               Tema <span style={{ color: '#EF4444' }}>*</span>
             </h2>
-            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: '#6B7280', marginBottom: '12px' }}>
+            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: c.textMuted, marginBottom: '12px' }}>
               Selecciona la categoría de esta flashcard
             </p>
 
             {cargandoCatalogos ? (
-              <div className="flex items-center gap-2" style={{ color: '#9CA3AF', fontFamily: 'Poppins, sans-serif', fontSize: '13px' }}>
+              <div className="flex items-center gap-2" style={{ color: c.textMuted, fontFamily: 'Poppins, sans-serif', fontSize: '13px' }}>
                 <Loader2 size={16} className="animate-spin" /> Cargando temas...
               </div>
             ) : (
               <select value={selectedTopicId}
                 onChange={e => setSelectedTopicId(Number(e.target.value))}
                 className="w-full"
-                style={{ padding: '12px 14px', backgroundColor: '#FFFFFF',
+                style={{ padding: '12px 14px', backgroundColor: c.bgInput,
                   border: `2px solid ${selectedTopicId ? '#D4A017' : '#E6B82E'}`,
                   borderRadius: '8px', fontFamily: 'Poppins, sans-serif', fontWeight: 500,
-                  fontSize: '13px', color: selectedTopicId ? '#1E293B' : '#9CA3AF',
+                  fontSize: '13px', color: selectedTopicId ? c.textPrimary : c.textMuted,
                   cursor: 'pointer', outline: 'none', appearance: 'none',
                   backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23E6B82E' d='M4.427 6.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 6H4.604a.25.25 0 00-.177.427z'/%3E%3C/svg%3E")`,
                   backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', paddingRight: '40px' }}>
@@ -362,17 +364,17 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
           </div>
 
           {/* ── SECCIÓN: DIFICULTAD ── */}
-          <div className="mb-4" style={{ padding: '16px', backgroundColor: '#FFFFFF',
-            border: '2px solid #E5E7EB', borderRadius: '10px' }}>
+          <div className="mb-4" style={{ padding: '16px', backgroundColor: c.bgCard,
+            border: `2px solid ${c.border}`, borderRadius: '10px' }}>
             <h2 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px',
-              color: '#1E293B', marginBottom: '10px' }}>
+              color: c.textPrimary, marginBottom: '10px' }}>
               Dificultad <span style={{ color: '#EF4444' }}>*</span>
             </h2>
-            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: '#6B7280', marginBottom: '12px' }}>
+            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: c.textMuted, marginBottom: '12px' }}>
               Selecciona el nivel de dificultad
             </p>
             {cargandoCatalogos ? (
-              <div className="flex items-center gap-2" style={{ color: '#9CA3AF', fontFamily: 'Poppins, sans-serif', fontSize: '13px' }}>
+              <div className="flex items-center gap-2" style={{ color: c.textMuted, fontFamily: 'Poppins, sans-serif', fontSize: '13px' }}>
                 <Loader2 size={16} className="animate-spin" /> Cargando...
               </div>
             ) : (
@@ -383,11 +385,11 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
                   return (
                     <button key={d.id_dificultad} onClick={() => setDificultadId(d.id_dificultad)}
                       style={{ padding: '12px 8px',
-                        backgroundColor: activo ? '#FEF3C7' : '#FAFAFA',
-                        border: activo ? `2px solid ${meta.color}` : '2px solid #E5E7EB',
+                        backgroundColor: activo ? '#FEF3C7' : c.bgSurface,
+                        border: activo ? `2px solid ${meta.color}` : `2px solid ${c.border}`,
                         borderRadius: '8px', fontFamily: 'Poppins, sans-serif',
                         fontWeight: activo ? 600 : 500, fontSize: '12px',
-                        color: activo ? meta.color : '#4A4A4A', cursor: 'pointer',
+                        color: activo ? meta.color : c.textPrimary, cursor: 'pointer',
                         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
                       <span style={{ fontSize: '18px' }}>{meta.emoji}</span>
                       <span>{d.nombre}</span>
@@ -399,22 +401,22 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
           </div>
 
           {/* ── SECCIÓN: PREGUNTA PRINCIPAL ── */}
-          <div className="mb-4" style={{ padding: '16px', backgroundColor: '#FFFFFF',
-            border: '2px solid #E5E7EB', borderRadius: '10px' }}>
+          <div className="mb-4" style={{ padding: '16px', backgroundColor: c.bgCard,
+            border: `2px solid ${c.border}`, borderRadius: '10px' }}>
             <h2 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px',
-              color: '#1E293B', marginBottom: '10px' }}>
+              color: c.textPrimary, marginBottom: '10px' }}>
               1. Pregunta principal <span style={{ color: '#EF4444' }}>*</span>
             </h2>
             <textarea value={question} onChange={e => setQuestion(e.target.value)}
               placeholder="Resuelve la siguiente integral:" className="w-full resize-none" rows={2}
-              style={{ padding: '10px', border: '2px solid #D1D5DB', borderRadius: '8px',
+              style={{ padding: '10px', border: `2px solid ${c.border}`, borderRadius: '8px',
                 fontFamily: 'Poppins, sans-serif', fontSize: '13px', lineHeight: '1.4',
-                outline: 'none', backgroundColor: '#FFFFFF', marginBottom: '10px' }}
+                outline: 'none', backgroundColor: c.bgInput, color: c.textPrimary, marginBottom: '10px' }}
               onFocus={e => { e.target.style.borderColor = '#E6B82E'; e.target.style.boxShadow = '0 0 0 3px rgba(230,184,46,0.1)'; }}
-              onBlur={e => { e.target.style.borderColor = '#D1D5DB'; e.target.style.boxShadow = 'none'; }} />
+              onBlur={e => { e.target.style.borderColor = c.border; e.target.style.boxShadow = 'none'; }} />
 
             {/* Barra de herramientas */}
-            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', color: '#9CA3AF', marginBottom: '6px' }}>
+            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', color: c.textMuted, marginBottom: '6px' }}>
               Símbolos — haz clic para insertar. Puedes usar: <code style={{fontSize:'10px'}}>^2</code> para superíndice, <code style={{fontSize:'10px'}}>_n</code> para subíndice, <code style={{fontSize:'10px'}}>\frac{"{a}{b}"}</code> para fracción.
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -433,8 +435,8 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
                 <button key={sym} onClick={() => insertSymbol(sym)} title={tip}
                   className="flex items-center justify-center"
                   style={{ minWidth: '36px', height: '32px', padding: '0 6px',
-                    backgroundColor: '#FFFEF9', border: '1.5px solid #D1D5DB', borderRadius: '6px',
-                    fontFamily: 'serif', fontSize: '16px', color: '#4A4A4A', cursor: 'pointer' }}>
+                    backgroundColor: c.bgSurface, border: `1.5px solid ${c.border}`, borderRadius: '6px',
+                    fontFamily: 'serif', fontSize: '16px', color: c.textPrimary, cursor: 'pointer' }}>
                   {sym}
                 </button>
               ))}
@@ -452,20 +454,20 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
           </div>
 
           {/* ── SECCIÓN: OPCIONES Y RETROALIMENTACIÓN ── */}
-          <div className="mb-4" style={{ padding: '16px', backgroundColor: '#FFFFFF',
-            border: '2px solid #E5E7EB', borderRadius: '10px' }}>
+          <div className="mb-4" style={{ padding: '16px', backgroundColor: c.bgCard,
+            border: `2px solid ${c.border}`, borderRadius: '10px' }}>
             <h2 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px',
-              color: '#1E293B', marginBottom: '6px' }}>
+              color: c.textPrimary, marginBottom: '6px' }}>
               2. Opciones y retroalimentación <span style={{ color: '#EF4444' }}>*</span>
             </h2>
-            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: '#6B7280', marginBottom: '12px' }}>
+            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: c.textMuted, marginBottom: '12px' }}>
               Marca la respuesta correcta ✓ y escribe la retroalimentación de cada opción
             </p>
 
             {options.map(option => (
               <div key={option.id} style={{ marginBottom: '10px', padding: '12px',
-                backgroundColor: '#FAFAFA',
-                border: `2px solid ${option.isCorrect ? '#10B981' : '#E5E7EB'}`,
+                backgroundColor: c.bgSurface,
+                border: `2px solid ${option.isCorrect ? '#10B981' : c.border}`,
                 borderRadius: '8px' }}>
 
                 {/* ── Fila superior: círculo + "Correcta" toggle ── */}
@@ -487,12 +489,12 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
                     style={{
                       display: 'flex', alignItems: 'center', gap: '6px',
                       padding: '5px 12px',
-                      backgroundColor: option.isCorrect ? '#10B981' : '#FFFFFF',
-                      border: `1.5px solid ${option.isCorrect ? '#10B981' : '#D1D5DB'}`,
+                      backgroundColor: option.isCorrect ? '#10B981' : c.bgCard,
+                      border: `1.5px solid ${option.isCorrect ? '#10B981' : c.border}`,
                       borderRadius: '20px', cursor: 'pointer',
                       fontFamily: 'Poppins, sans-serif', fontWeight: 700,
                       fontSize: '11px',
-                      color: option.isCorrect ? '#FFFFFF' : '#6B7280',
+                      color: option.isCorrect ? '#FFFFFF' : c.textMuted,
                       transition: 'all 0.2s ease',
                       flexShrink: 0,
                     }}>
@@ -507,12 +509,12 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
                   placeholder={`Escribe la opción ${option.label}`}
                   style={{ width: '100%', boxSizing: 'border-box',
                     height: '36px', padding: '8px 10px',
-                    border: '1.5px solid #D1D5DB', borderRadius: '6px',
+                    border: `1.5px solid ${c.border}`, borderRadius: '6px',
                     fontFamily: 'Poppins, sans-serif', fontSize: '12px',
-                    outline: 'none', backgroundColor: '#FFFFFF',
+                    outline: 'none', backgroundColor: c.bgInput, color: c.textPrimary,
                     marginBottom: '8px' }}
                   onFocus={e => { e.target.style.borderColor = '#E6B82E'; }}
-                  onBlur={e => { e.target.style.borderColor = '#D1D5DB'; }} />
+                  onBlur={e => { e.target.style.borderColor = c.border; }} />
 
                 {/* ── Retroalimentación ── */}
                 <div style={{ padding: '10px',
@@ -535,7 +537,7 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
                     style={{ width: '100%', boxSizing: 'border-box',
                       padding: '8px', border: '1px solid transparent', borderRadius: '4px',
                       fontFamily: 'Poppins, sans-serif', fontSize: '11px', lineHeight: '1.4',
-                      outline: 'none', backgroundColor: '#FFFFFF', color: '#4A4A4A' }}
+                      outline: 'none', backgroundColor: 'rgba(255,255,255,0.15)', color: option.isCorrect ? '#047857' : '#92400E' }}
                     onFocus={e => { e.target.style.borderColor = option.isCorrect ? '#10B981' : '#E6B82E'; }}
                     onBlur={e => { e.target.style.borderColor = 'transparent'; }} />
                 </div>
@@ -560,13 +562,13 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
 
       {/* FOOTER FIJO */}
       <div className="absolute bottom-0 z-50"
-        style={{ backgroundColor: '#FFFFFF', borderTop: '2px solid #E5E7EB',
-          padding: '12px 16px', width: '100%', boxShadow: '0 -2px 10px rgba(0,0,0,0.05)' }}>
+        style={{ backgroundColor: c.bgCard, borderTop: `2px solid ${c.border}`,
+          padding: '12px 16px', width: '100%', boxShadow: '0 -2px 10px rgba(0,0,0,0.1)' }}>
         <div className="flex gap-3">
           <button onClick={handleSaveDraft} disabled={guardando}
-            style={{ flex: 1, height: '44px', backgroundColor: '#FFFFFF',
-              color: '#1E293B', fontFamily: 'Poppins, sans-serif', fontWeight: 700,
-              fontSize: '13px', border: '2px solid #1E293B', borderRadius: '8px',
+            style={{ flex: 1, height: '44px', backgroundColor: c.bgSurface,
+              color: c.textPrimary, fontFamily: 'Poppins, sans-serif', fontWeight: 700,
+              fontSize: '13px', border: `2px solid ${c.border}`, borderRadius: '8px',
               cursor: guardando ? 'not-allowed' : 'pointer', opacity: guardando ? 0.6 : 1,
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
             {guardando && <Loader2 size={14} className="animate-spin" />}
