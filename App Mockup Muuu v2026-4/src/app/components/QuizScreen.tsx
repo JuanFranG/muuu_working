@@ -437,19 +437,19 @@ export function QuizScreen({
               {showNemotecnia ? 'Ocultar' : 'Nemotécnica'}
             </button>
           </div>
-          {/* Texto de la integral */}
+          {/* Texto de la integral — pasa por renderMath para convertir LaTeX */}
           <div style={{ fontFamily: 'Georgia, serif', fontSize: '28px', color: c.purpleDark, fontStyle: 'italic',
             letterSpacing: '1px', lineHeight: '1.8', padding: '10px 24px 20px 24px' }}>
             <div className="flex items-center justify-center"
-              dangerouslySetInnerHTML={{ __html: fc?.integral ?? '∫ f(x) dx' }} />
+              dangerouslySetInnerHTML={{ __html: renderMath(fc?.integral ?? '∫ f(x) dx') }} />
           </div>
         </div>
 
         {showNemotecnia ? (
           <FlashcardNemotecnia
             onClose={() => setShowNemotecnia(false)}
-            question={fc?.integral ?? '∫ f(x) dx'}
-            answer={opciones.find(o => o.esCorrecta)?.contenidoRespuesta ?? '—'}
+            question={renderMath(fc?.integral ?? '∫ f(x) dx')}
+            answer={renderMath(opciones.find(o => o.esCorrecta)?.contenidoRespuesta ?? '—')}
           />
         ) : (
           <>

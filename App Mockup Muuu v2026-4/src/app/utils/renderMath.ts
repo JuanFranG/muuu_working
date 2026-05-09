@@ -22,10 +22,20 @@ export function renderMath(text: string): string {
     .replace(/\\alpha/g, 'α')
     .replace(/\\beta/g,  'β')
     .replace(/\\theta/g, 'θ')
+    .replace(/\\gamma/g, 'γ')
+    .replace(/\\delta/g, 'δ')
+    .replace(/\\sigma/g, 'σ')
+    .replace(/\\omega/g, 'ω')
     .replace(/\\sin/g,   'sin')
     .replace(/\\cos/g,   'cos')
     .replace(/\\tan/g,   'tan')
     .replace(/\\ln/g,    'ln')
     .replace(/\\log/g,   'log')
+    .replace(/\\lim/g,   'lim')
+    // Espaciado LaTeX
+    .replace(/\\,/g,     '&thinsp;')
+    .replace(/\\;/g,     '&ensp;')
+    .replace(/\\quad/g,  '&emsp;')
+    .replace(/\\!/g,     '')
     .replace(/\n/g,      '<br/>');
 }
