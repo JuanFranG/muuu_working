@@ -3,18 +3,19 @@ import { ArrowLeft, Heart, Check, X, Flame, Clock, Home } from 'lucide-react';
 import { FlashcardNemotecnia } from './FlashcardNemotecnia';
 import { guardarResultadoQuizAPI, type ResultadoQuizItem, type FlashcardQuizAPI } from '../services/api';
 import { useThemeColors } from '../contexts/SettingsContext';
+import { renderMath } from '../utils/renderMath';
 
 // ─────────────────────────────────────────────────────────────
 //  QuizScreen — componente exportable del quiz de flashcards
-//  Recibe las flashcards ya cargadas y un contextLabel
-//  (nombre del docente o nombre del tema).
+//  Recibe las flashcards ya cargadas y un contextLabel.
+//  Soporta múltiples opciones correctas y renderizado LaTeX.
 // ─────────────────────────────────────────────────────────────
 
 export interface QuizScreenProps {
   flashcards:      FlashcardQuizAPI[];
-  contextLabel:    string;      // nombre docente O nombre tema
+  contextLabel:    string;
   onBack:          () => void;
-  onChangeContext: () => void;  // volver a selección
+  onChangeContext: () => void;
 }
 
 export function QuizScreen({
@@ -24,28 +25,33 @@ export function QuizScreen({
   onChangeContext,
 }: QuizScreenProps) {
   const c = useThemeColors('student');
-  const [currentIdx, setCurrentIdx]               = useState(0);
-  const totalQuestions                            = flashcards.length;
-  const [lives, setLives]                         = useState(3);
-  const [correctAnswers, setCorrectAnswers]       = useState(0);
-  const [incorrectAnswers, setIncorrectAnswers]   = useState(0);
+  const [currentIdx, setCurrentIdx]                 = useState(0);
+  const totalQuestions                              = flashcards.length;
+  const [lives, setLives]                           = useState(3);
+  const [correctAnswers, setCorrectAnswers]         = useState(0);
+  const [incorrectAnswers, setIncorrectAnswers]     = useState(0);
   const [consecutiveCorrect, setConsecutiveCorrect] = useState(0);
-  const [timeElapsed, setTimeElapsed]             = useState(0);
-  const [selectedOption, setSelectedOption]       = useState<number | null>(null);
-  const [isVerified, setIsVerified]               = useState(false);
-  const [quizEnded, setQuizEnded]                 = useState(false);
-  const [quizCompleted, setQuizCompleted]         = useState(false);
-  const [showExitModal, setShowExitModal]         = useState(false);
-  const [showNemotecnia, setShowNemotecnia]       = useState(false);
-  const [puntosGanados, setPuntosGanados]         = useState(0);
+  const [timeElapsed, setTimeElapsed]               = useState(0);
+  // Selección múltiple de opciones
+  const [selectedOptions, setSelectedOptions]       = useState<number[]>([]);
+  const [isVerified, setIsVerified]                 = useState(false);
+  const [lastAnswerCorrect, setLastAnswerCorrect]   = useState(false);
+  const [quizEnded, setQuizEnded]                   = useState(false);
+  const [quizCompleted, setQuizCompleted]           = useState(false);
+  const [showExitModal, setShowExitModal]           = useState(false);
+  const [showNemotecnia, setShowNemotecnia]         = useState(false);
+  const [puntosGanados, setPuntosGanados]           = useState(0);
 
-  // Registro de resultados por flashcard (ref para evitar stale closures)
   const flashcardResultsRef = useRef<ResultadoQuizItem[]>([]);
   const resultadoGuardadoRef = useRef(false);
 
-  const fc            = flashcards[currentIdx];
-  const opciones      = fc?.opciones ?? [];
-  const correctAnswer = opciones.findIndex(o => o.esCorrecta);
+  const fc      = flashcards[currentIdx];
+  const opciones = fc?.opciones ?? [];
+
+  // Índices de todas las opciones correctas (soporta 1 o más)
+  const correctIndices = opciones
+    .map((o, i) => (o.esCorrecta ? i : -1))
+    .filter(i => i >= 0);
 
   // Temporizador
   useEffect(() => {
@@ -55,25 +61,21 @@ export function QuizScreen({
     }
   }, [quizEnded, quizCompleted]);
 
-  // Guardar resultado al terminar el quiz (completado o por 3 fallos)
+  // Guardar resultado al terminar
   useEffect(() => {
     if ((!quizEnded && !quizCompleted) || resultadoGuardadoRef.current) return;
     resultadoGuardadoRef.current = true;
-
     const payload = {
       flashcards:  flashcardResultsRef.current,
       correctas:   correctAnswers,
       incorrectas: incorrectAnswers,
       tiempo:      timeElapsed,
     };
-    console.log('[Quiz] → Enviando resultado al servidor:', JSON.stringify(payload));
-
+    console.log('[Quiz] → Enviando resultado:', JSON.stringify(payload));
     guardarResultadoQuizAPI(payload).then(r => {
-      console.log('[Quiz] ← Respuesta del servidor:', JSON.stringify(r));
+      console.log('[Quiz] ← Respuesta:', JSON.stringify(r));
       setPuntosGanados(r.puntosGanados);
-    }).catch((err) => {
-      console.error('[Quiz] ✗ Error inesperado:', err);
-    });
+    }).catch(err => console.error('[Quiz] ✗ Error:', err));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quizEnded, quizCompleted]);
 
@@ -83,23 +85,27 @@ export function QuizScreen({
     text:  o.contenidoRespuesta,
   }));
 
-  const feedbackTexts: Record<number, { title: string; text: string; emoji: string }> = {};
-  opciones.forEach((o, idx) => {
-    feedbackTexts[idx] = {
-      title: o.esCorrecta ? '¡Muy bien!' : 'Casi...',
-      text:  o.retroalimentacion || (o.esCorrecta
-        ? 'Respuesta correcta.'
-        : 'Esa no es la respuesta correcta. Revisa el procedimiento.'),
-      emoji: o.esCorrecta ? '🎉' : '💡',
-    };
-  });
+  // ── Toggle de selección (múltiple) ───────────────────────────
+  const toggleOption = (optionId: number) => {
+    if (isVerified) return;
+    setSelectedOptions(prev =>
+      prev.includes(optionId)
+        ? prev.filter(id => id !== optionId)
+        : [...prev, optionId]
+    );
+  };
 
+  // ── Verificar ─────────────────────────────────────────────────
   const handleVerify = () => {
-    if (selectedOption === null) return;
+    if (selectedOptions.length === 0) return;
     setIsVerified(true);
-    const isCorrect = selectedOption === correctAnswer;
 
-    // Registrar resultado de esta flashcard
+    const isCorrect =
+      correctIndices.length === selectedOptions.length &&
+      correctIndices.every(i => selectedOptions.includes(i));
+
+    setLastAnswerCorrect(isCorrect);
+
     if (fc?.id_flashcard) {
       flashcardResultsRef.current.push({
         id_flashcard: fc.id_flashcard,
@@ -125,20 +131,16 @@ export function QuizScreen({
       return;
     }
     setCurrentIdx(prev => prev + 1);
-    setSelectedOption(null);
+    setSelectedOptions([]);
     setIsVerified(false);
+    setLastAnswerCorrect(false);
     setShowNemotecnia(false);
   };
 
-  // Color del texto de cada opción — oscuro cuando el fondo es claro (verificado)
-  const getOptionTextColor = (optionId: number): string => {
-    if (!isVerified) return c.textPrimary;
-    if (optionId === correctAnswer) return '#047857';   // texto verde oscuro sobre fondo verde claro
-    if (selectedOption === optionId) return '#991B1B';  // texto rojo oscuro sobre fondo rojo claro
-    return c.textMuted;
-  };
-
+  // ── Estilos de opciones ───────────────────────────────────────
   const getOptionStyle = (optionId: number) => {
+    const isSelected   = selectedOptions.includes(optionId);
+    const isCorrectOpt = correctIndices.includes(optionId);
     const base = {
       display: 'flex',
       alignItems: 'center',
@@ -153,18 +155,55 @@ export function QuizScreen({
       border: `2px solid ${c.purplePale}`,
       backgroundColor: c.bgCard,
       marginBottom: '8px',
-      opacity: 1,
+      opacity: 1 as number,
     };
     if (isVerified) {
-      if (optionId === correctAnswer)
+      if (isCorrectOpt)
         return { ...base, border: '2px solid #10B981', backgroundColor: '#D1FAE5', opacity: 1 };
-      if (selectedOption === optionId)
+      if (isSelected)
         return { ...base, border: '2px solid #EF4444', backgroundColor: '#FEE2E2', opacity: 1 };
       return { ...base, border: `2px solid ${c.purplePale}`, backgroundColor: c.bgCardAlt, opacity: 0.5 };
     }
-    if (selectedOption === optionId)
+    if (isSelected)
       return { ...base, border: `2px solid ${c.purple}`, backgroundColor: c.purpleSoft };
     return base;
+  };
+
+  // Texto de la opción (oscuro cuando el fondo es claro al verificar)
+  const getOptionTextColor = (optionId: number): string => {
+    if (!isVerified) return c.textPrimary;
+    if (correctIndices.includes(optionId))          return '#047857';
+    if (selectedOptions.includes(optionId))         return '#991B1B';
+    return c.textMuted;
+  };
+
+  // ── Feedback unificado (soporta múltiples correctas) ─────────
+  const getFeedback = () => {
+    if (!isVerified) return null;
+    if (lastAnswerCorrect) {
+      const firstCorrect = opciones[correctIndices[0]];
+      return {
+        title: '¡Muy bien!',
+        text:  firstCorrect?.retroalimentacion || 'Respuesta correcta.',
+        emoji: '🎉',
+        color: '#10B981',
+      };
+    }
+    // Incorrecta: mostrar cuáles eran las correctas
+    const correctLetters = correctIndices.map(i => String.fromCharCode(65 + i)).join(', ');
+    // Retroalimentación de la primera opción incorrecta seleccionada
+    const firstWrong = selectedOptions.find(i => !correctIndices.includes(i));
+    const wrongFeedback = firstWrong !== undefined
+      ? opciones[firstWrong]?.retroalimentacion
+      : '';
+    const plural = correctIndices.length > 1;
+    return {
+      title: 'Casi...',
+      text:  wrongFeedback ||
+        `La${plural ? 's' : ''} opción${plural ? 'es' : ''} correcta${plural ? 's eran' : ' era'}: ${correctLetters}.`,
+      emoji: '💡',
+      color: '#EF4444',
+    };
   };
 
   const formatTime = (seconds: number) => {
@@ -180,16 +219,17 @@ export function QuizScreen({
     setIncorrectAnswers(0);
     setConsecutiveCorrect(0);
     setTimeElapsed(0);
-    setSelectedOption(null);
+    setSelectedOptions([]);
     setIsVerified(false);
+    setLastAnswerCorrect(false);
     setQuizEnded(false);
     setQuizCompleted(false);
     setPuntosGanados(0);
-    flashcardResultsRef.current    = [];
-    resultadoGuardadoRef.current   = false;
+    flashcardResultsRef.current  = [];
+    resultadoGuardadoRef.current = false;
   };
 
-  // ── Pantalla: quiz terminado por 3 fallos ─────────────────
+  // ── Pantalla: quiz terminado por 3 fallos ─────────────────────
   if (quizEnded) {
     return (
       <div className="h-full flex flex-col items-center justify-center"
@@ -230,7 +270,7 @@ export function QuizScreen({
     );
   }
 
-  // ── Pantalla: prueba completada ───────────────────────────
+  // ── Pantalla: prueba completada ───────────────────────────────
   if (quizCompleted) {
     const accuracy = Math.round((correctAnswers / totalQuestions) * 100);
     return (
@@ -245,9 +285,7 @@ export function QuizScreen({
             Has completado la prueba con éxito
           </p>
           <div style={{ backgroundColor: c.bgSurface, borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
-            <div style={{ fontSize: '36px', fontFamily: 'Poppins, sans-serif', fontWeight: 700, color: '#10B981', marginBottom: '8px' }}>
-              {accuracy}%
-            </div>
+            <div style={{ fontSize: '36px', fontFamily: 'Poppins, sans-serif', fontWeight: 700, color: '#10B981', marginBottom: '8px' }}>{accuracy}%</div>
             <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '12px', color: c.textMuted, marginBottom: '16px' }}>Precisión</p>
             <div className="flex justify-between mb-2">
               <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '13px', color: c.textMuted }}>Correctas:</span>
@@ -278,7 +316,7 @@ export function QuizScreen({
     );
   }
 
-  // ── Modal de confirmación de salida ───────────────────────
+  // ── Modal de confirmación de salida ──────────────────────────
   const ExitConfirmationModal = () => (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: c.bgOverlay }}>
       <div style={{ backgroundColor: c.bgCard, borderRadius: '20px', padding: '24px', maxWidth: '320px', width: '90%', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
@@ -301,14 +339,15 @@ export function QuizScreen({
     </div>
   );
 
-  // ── Quiz principal ────────────────────────────────────────
+  const feedback = getFeedback();
+
+  // ── Quiz principal ────────────────────────────────────────────
   return (
     <div className="h-full relative overflow-y-auto flex flex-col" style={{ background: c.bgGradient }}>
       {showExitModal && <ExitConfirmationModal />}
 
       {/* HEADER STICKY */}
       <div className="sticky top-0 z-50" style={{ backgroundColor: c.bgCard, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-        {/* Fila 1: Botón volver, título y corazones */}
         <div className="flex items-center justify-between" style={{ height: '60px', padding: '0 16px' }}>
           <button onClick={() => setShowExitModal(true)}
             className="flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
@@ -328,7 +367,7 @@ export function QuizScreen({
           </div>
         </div>
 
-        {/* Fila 2: Stats */}
+        {/* Stats */}
         <div style={{ padding: '12px 16px 16px 16px', borderTop: `1px solid ${c.border}` }}>
           <div className="flex items-center justify-center gap-2">
             <div style={{ backgroundColor: '#D1FAE5', borderRadius: '8px', padding: '6px 10px', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -359,6 +398,7 @@ export function QuizScreen({
 
       {/* CONTENIDO */}
       <div className="flex-1 flex flex-col" style={{ padding: '20px' }}>
+
         {/* Barra de progreso */}
         <div style={{ marginBottom: '16px' }}>
           <div className="flex items-center justify-between mb-2" style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: c.textMuted }}>
@@ -382,7 +422,7 @@ export function QuizScreen({
           Resuelve la siguiente integral:
         </p>
 
-        {/* Integral */}
+        {/* ── Tarjeta integral ────────────────────────────────── */}
         <div style={{ margin: '0 0 24px 0', backgroundColor: c.bgCard, borderRadius: '16px', boxShadow: '0 4px 16px rgba(155,126,199,0.15)', overflow: 'hidden' }}>
           {/* Fila superior: etiqueta + botón Nemotécnica */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px 0 16px' }}>
@@ -400,7 +440,8 @@ export function QuizScreen({
           {/* Texto de la integral */}
           <div style={{ fontFamily: 'Georgia, serif', fontSize: '28px', color: c.purpleDark, fontStyle: 'italic',
             letterSpacing: '1px', lineHeight: '1.8', padding: '10px 24px 20px 24px' }}>
-            <div className="flex items-center justify-center" dangerouslySetInnerHTML={{ __html: fc?.integral ?? '∫ f(x) dx' }} />
+            <div className="flex items-center justify-center"
+              dangerouslySetInnerHTML={{ __html: fc?.integral ?? '∫ f(x) dx' }} />
           </div>
         </div>
 
@@ -412,54 +453,79 @@ export function QuizScreen({
           />
         ) : (
           <>
-            {/* Opciones */}
+            {/* Indicador de selección múltiple */}
+            {correctIndices.length > 1 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px',
+                padding: '8px 12px', backgroundColor: c.purpleSoft, borderRadius: '10px',
+                border: `1px solid ${c.purplePale}` }}>
+                <span style={{ fontSize: '14px' }}>💡</span>
+                <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '12px', color: c.purpleDark,
+                  margin: 0, fontWeight: 600 }}>
+                  Esta pregunta tiene {correctIndices.length} respuestas correctas — selecciónalas todas
+                </p>
+              </div>
+            )}
+
+            {/* ── Opciones ──────────────────────────────────── */}
             <div style={{ marginBottom: '20px' }}>
               {options.map(option => (
                 <button key={option.id}
-                  onClick={() => !isVerified && setSelectedOption(option.id)}
+                  onClick={() => toggleOption(option.id)}
                   disabled={isVerified}
                   style={getOptionStyle(option.id)}>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3" style={{ flex: 1, minWidth: 0 }}>
+                    {/* Burbuja con letra */}
                     <div style={{
-                      width: '32px', height: '32px', borderRadius: '50%',
+                      width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px',
-                      backgroundColor: isVerified && option.id === correctAnswer ? '#10B981'
-                        : isVerified && selectedOption === option.id && selectedOption !== correctAnswer ? '#EF4444'
-                        : !isVerified && selectedOption === option.id ? c.purple
+                      backgroundColor:
+                        isVerified && correctIndices.includes(option.id)          ? '#10B981'
+                        : isVerified && selectedOptions.includes(option.id)       ? '#EF4444'
+                        : !isVerified && selectedOptions.includes(option.id)      ? c.purple
                         : c.purplePale,
-                      color: (isVerified && option.id === correctAnswer)
-                        || (isVerified && selectedOption === option.id)
-                        || (!isVerified && selectedOption === option.id)
-                        ? '#FFFFFF' : c.purpleDark,
-                      flexShrink: 0,
+                      color:
+                        (isVerified && correctIndices.includes(option.id))
+                        || (isVerified && selectedOptions.includes(option.id))
+                        || (!isVerified && selectedOptions.includes(option.id))
+                          ? '#FFFFFF' : c.purpleDark,
                     }}>
                       {option.label}
                     </div>
-                    <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '15px', color: getOptionTextColor(option.id), flex: 1, textAlign: 'left' }}>
-                      {option.text}
-                    </span>
+                    {/* Texto con renderMath */}
+                    <span
+                      style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '14px',
+                        color: getOptionTextColor(option.id), flex: 1, textAlign: 'left', lineHeight: '1.5' }}
+                      dangerouslySetInnerHTML={{ __html: renderMath(option.text) || option.text }}
+                    />
                   </div>
-                  {isVerified && option.id === correctAnswer && <Check size={24} color="#10B981" strokeWidth={3} />}
-                  {isVerified && selectedOption === option.id && selectedOption !== correctAnswer && <X size={24} color="#EF4444" strokeWidth={3} />}
+                  {/* Iconos de verificación */}
+                  {isVerified && correctIndices.includes(option.id) && (
+                    <Check size={22} color="#10B981" strokeWidth={3} style={{ flexShrink: 0 }} />
+                  )}
+                  {isVerified && selectedOptions.includes(option.id) && !correctIndices.includes(option.id) && (
+                    <X size={22} color="#EF4444" strokeWidth={3} style={{ flexShrink: 0 }} />
+                  )}
                 </button>
               ))}
             </div>
 
             {/* Feedback */}
-            {isVerified && selectedOption !== null && (
+            {isVerified && feedback && (
               <div style={{ marginBottom: '20px', padding: '16px', borderRadius: '16px',
-                backgroundColor: selectedOption === correctAnswer ? '#D1FAE5' : '#FEE2E2',
-                border: `3px solid ${selectedOption === correctAnswer ? '#10B981' : '#EF4444'}`,
-                boxShadow: `0 4px 16px ${selectedOption === correctAnswer ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}` }}>
+                backgroundColor: lastAnswerCorrect ? '#D1FAE5' : '#FEE2E2',
+                border: `3px solid ${feedback.color}`,
+                boxShadow: `0 4px 16px ${lastAnswerCorrect ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}` }}>
                 <div className="flex items-start gap-3">
-                  <div style={{ fontSize: '24px', flexShrink: 0 }}>{feedbackTexts[selectedOption].emoji}</div>
+                  <div style={{ fontSize: '24px', flexShrink: 0 }}>{feedback.emoji}</div>
                   <div style={{ flex: 1 }}>
-                    <h4 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '16px', color: selectedOption === correctAnswer ? '#10B981' : '#EF4444', marginBottom: '8px' }}>
-                      {feedbackTexts[selectedOption].title}
+                    <h4 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '16px',
+                      color: feedback.color, marginBottom: '8px' }}>
+                      {feedback.title}
                     </h4>
-                    <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '13px', color: selectedOption === correctAnswer ? '#047857' : '#991B1B', lineHeight: '1.6' }}>
-                      {feedbackTexts[selectedOption].text}
+                    <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '13px',
+                      color: lastAnswerCorrect ? '#047857' : '#991B1B', lineHeight: '1.6' }}>
+                      {feedback.text}
                     </p>
                   </div>
                 </div>
@@ -469,27 +535,29 @@ export function QuizScreen({
             {/* Botón Verificar / Siguiente */}
             <div className="mt-auto pb-4">
               {!isVerified ? (
-                <button onClick={handleVerify} disabled={selectedOption === null} className="w-full transition-all" style={{
-                  height: '52px',
-                  backgroundColor: selectedOption !== null ? c.purple : c.textMuted,
-                  color: '#FFFFFF', border: 'none', borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '15px',
-                  textTransform: 'uppercase',
-                  boxShadow: selectedOption !== null ? '0 6px 20px rgba(155,126,199,0.4)' : 'none',
-                  cursor: selectedOption !== null ? 'pointer' : 'not-allowed',
-                }}>
+                <button onClick={handleVerify} disabled={selectedOptions.length === 0} className="w-full transition-all"
+                  style={{
+                    height: '52px',
+                    backgroundColor: selectedOptions.length > 0 ? c.purple : c.textMuted,
+                    color: '#FFFFFF', border: 'none', borderRadius: '12px',
+                    fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '15px',
+                    textTransform: 'uppercase',
+                    boxShadow: selectedOptions.length > 0 ? '0 6px 20px rgba(155,126,199,0.4)' : 'none',
+                    cursor: selectedOptions.length > 0 ? 'pointer' : 'not-allowed',
+                  }}>
                   Verificar Respuesta
                 </button>
               ) : (
-                <button onClick={handleNext} className="w-full transition-all" style={{
-                  height: '52px',
-                  backgroundColor: selectedOption === correctAnswer ? '#10B981' : c.purple,
-                  color: '#FFFFFF', border: 'none', borderRadius: '12px',
-                  fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '15px',
-                  textTransform: 'uppercase',
-                  boxShadow: `0 6px 20px rgba(${selectedOption === correctAnswer ? '16,185,129' : '155,126,199'},0.4)`,
-                  cursor: 'pointer',
-                }}>
+                <button onClick={handleNext} className="w-full transition-all"
+                  style={{
+                    height: '52px',
+                    backgroundColor: lastAnswerCorrect ? '#10B981' : c.purple,
+                    color: '#FFFFFF', border: 'none', borderRadius: '12px',
+                    fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '15px',
+                    textTransform: 'uppercase',
+                    boxShadow: `0 6px 20px rgba(${lastAnswerCorrect ? '16,185,129' : '155,126,199'},0.4)`,
+                    cursor: 'pointer',
+                  }}>
                   Siguiente Pregunta
                 </button>
               )}

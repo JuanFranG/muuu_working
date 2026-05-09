@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Plus, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useThemeColors } from '../contexts/SettingsContext';
+import { renderMath } from '../utils/renderMath';
 import {
   listarTemasAPI,
   listarDificultadesAPI,
@@ -92,8 +93,11 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
   const handleFeedbackChange = (id: string, feedback: string) =>
     setOptions(options.map(opt => opt.id === id ? { ...opt, feedback } : opt));
 
-  const handleCorrectChange  = (id: string) =>
-    setOptions(options.map(opt => ({ ...opt, isCorrect: opt.id === id })));
+  // Toggle: permite marcar/desmarcar múltiples respuestas correctas
+  const handleCorrectChange = (id: string) =>
+    setOptions(options.map(opt =>
+      opt.id === id ? { ...opt, isCorrect: !opt.isCorrect } : opt
+    ));
 
   const handleAddOption = () => {
     const nextLabel = String.fromCharCode(65 + options.length);
@@ -104,31 +108,7 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
 
   const insertSymbol = (symbol: string) => setQuestion(prev => prev + symbol);
 
-  // Convierte texto con notación LaTeX básica a HTML visualizable
-  const renderMath = (text: string): string => {
-    if (!text) return '';
-    return text
-      .replace(/\\int/g, '∫')
-      .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '<span style="display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:0.85em"><span style="border-bottom:1.5px solid currentColor;padding:0 2px">$1</span><span style="padding:0 2px">$2</span></span>')
-      .replace(/\\sqrt\{([^}]+)\}/g, '√<span style="text-decoration:overline">$1</span>')
-      .replace(/\^{([^}]+)}/g, '<sup>$1</sup>')
-      .replace(/\^(\w)/g,       '<sup>$1</sup>')
-      .replace(/_{([^}]+)}/g,   '<sub>$1</sub>')
-      .replace(/_(\w)/g,        '<sub>$1</sub>')
-      .replace(/\\cdot/g, '·')
-      .replace(/\\times/g, '×')
-      .replace(/\\pi/g, 'π')
-      .replace(/\\infty/g, '∞')
-      .replace(/\\alpha/g, 'α')
-      .replace(/\\beta/g, 'β')
-      .replace(/\\theta/g, 'θ')
-      .replace(/\\sin/g, 'sin')
-      .replace(/\\cos/g, 'cos')
-      .replace(/\\tan/g, 'tan')
-      .replace(/\\ln/g, 'ln')
-      .replace(/\\log/g, 'log')
-      .replace(/\n/g, '<br/>');
-  };
+  // renderMath importado desde utils/renderMath.ts
 
   // ── Validación común ──────────────────────────────────────
   const validar = (): string | null => {
@@ -461,7 +441,7 @@ export function DisenarFlashcard({ onBack, flashcardId }: DisenarFlashcardProps)
               2. Opciones y retroalimentación <span style={{ color: '#EF4444' }}>*</span>
             </h2>
             <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: c.textMuted, marginBottom: '12px' }}>
-              Marca la respuesta correcta ✓ y escribe la retroalimentación de cada opción
+              Marca una o más respuestas correctas ✓ y escribe la retroalimentación de cada opción
             </p>
 
             {options.map(option => (
