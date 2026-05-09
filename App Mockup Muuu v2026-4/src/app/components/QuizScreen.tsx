@@ -439,9 +439,9 @@ export function QuizScreen({
           </div>
           {/* Texto de la integral — pasa por renderMath para convertir LaTeX */}
           <div style={{ fontFamily: 'Georgia, serif', fontSize: '28px', color: c.purpleDark, fontStyle: 'italic',
-            letterSpacing: '1px', lineHeight: '1.8', padding: '10px 24px 20px 24px' }}>
-            <div className="flex items-center justify-center"
-              dangerouslySetInnerHTML={{ __html: renderMath(fc?.integral ?? '∫ f(x) dx') }} />
+            letterSpacing: '1px', lineHeight: '1.8', padding: '10px 24px 20px 24px',
+            textAlign: 'center', wordBreak: 'break-word' }}>
+            <div dangerouslySetInnerHTML={{ __html: renderMath(fc?.integral ?? '∫ f(x) dx') }} />
           </div>
         </div>
 
