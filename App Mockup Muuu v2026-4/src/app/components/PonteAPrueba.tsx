@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft, Loader2, GraduationCap, BookOpen } from 'lucide-react';
+import { useThemeColors } from '../contexts/SettingsContext';
 import { PonteAPruebaDocentes } from './PonteAPruebaDocentes';
 import { PonteAPruebaTema } from './PonteAPruebaTema';
 import { QuizScreen } from './QuizScreen';
@@ -34,6 +35,7 @@ interface PonteAPruebaProps {
 }
 
 export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
+  const c = useThemeColors('student');
   const [screen, setScreen]           = useState<PATScreen>('menu');
   const [flashcards, setFlashcards]   = useState<FlashcardQuizAPI[]>([]);
   const [contextLabel, setContextLabel] = useState('');
@@ -96,7 +98,7 @@ export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
   if (screen === 'loadingDocente' || screen === 'loadingTema') {
     return (
       <div className="h-full flex flex-col items-center justify-center"
-        style={{ background: 'linear-gradient(180deg, #F3EBFF 0%, #FFFFFF 100%)' }}>
+        style={{ background: c.bgGradient }}>
         <Loader2 size={40} style={{ color: '#9B7EC7' }} className="animate-spin" />
         <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '14px',
           color: '#7D7D7D', marginTop: '16px' }}>
@@ -110,10 +112,10 @@ export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
   if (screen === 'sinFlashcardsDocente') {
     return (
       <div className="h-full flex flex-col items-center justify-center"
-        style={{ background: 'linear-gradient(180deg, #F3EBFF 0%, #FFFFFF 100%)', padding: '24px' }}>
+        style={{ background: c.bgGradient, padding: '24px' }}>
         <div style={{ fontSize: '64px', marginBottom: '16px' }}>📭</div>
         <h2 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '20px',
-          color: '#1E293B', textAlign: 'center', marginBottom: '8px' }}>
+          color: c.textPrimary, textAlign: 'center', marginBottom: '8px' }}>
           Sin flashcards publicadas
         </h2>
         <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: '#7D7D7D',
@@ -121,7 +123,7 @@ export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
           {contextLabel} aún no ha publicado flashcards de práctica.
         </p>
         <button onClick={() => setScreen('selectDocente')} style={{
-          height: '48px', padding: '0 32px', backgroundColor: '#9B7EC7',
+          height: '48px', padding: '0 32px', backgroundColor: c.purple,
           color: '#FFFFFF', border: 'none', borderRadius: '12px',
           fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px', cursor: 'pointer',
           marginBottom: '12px'
@@ -129,8 +131,8 @@ export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
           ← Elegir otro docente
         </button>
         <button onClick={() => setScreen('menu')} style={{
-          height: '44px', padding: '0 24px', backgroundColor: '#F3EBFF',
-          color: '#7952B3', border: 'none', borderRadius: '12px',
+          height: '44px', padding: '0 24px', backgroundColor: c.purpleSoft,
+          color: c.purpleDark, border: 'none', borderRadius: '12px',
           fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '14px', cursor: 'pointer'
         }}>
           Volver al menú
@@ -143,10 +145,10 @@ export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
   if (screen === 'sinFlashcardsTema') {
     return (
       <div className="h-full flex flex-col items-center justify-center"
-        style={{ background: 'linear-gradient(180deg, #F3EBFF 0%, #FFFFFF 100%)', padding: '24px' }}>
+        style={{ background: c.bgGradient, padding: '24px' }}>
         <div style={{ fontSize: '64px', marginBottom: '16px' }}>📭</div>
         <h2 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '20px',
-          color: '#1E293B', textAlign: 'center', marginBottom: '8px' }}>
+          color: c.textPrimary, textAlign: 'center', marginBottom: '8px' }}>
           Sin flashcards publicadas
         </h2>
         <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: '#7D7D7D',
@@ -154,7 +156,7 @@ export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
           El tema "{contextLabel}" aún no tiene flashcards publicadas.
         </p>
         <button onClick={() => setScreen('selectTema')} style={{
-          height: '48px', padding: '0 32px', backgroundColor: '#9B7EC7',
+          height: '48px', padding: '0 32px', backgroundColor: c.purple,
           color: '#FFFFFF', border: 'none', borderRadius: '12px',
           fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px', cursor: 'pointer',
           marginBottom: '12px'
@@ -162,8 +164,8 @@ export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
           ← Elegir otro tema
         </button>
         <button onClick={() => setScreen('menu')} style={{
-          height: '44px', padding: '0 24px', backgroundColor: '#F3EBFF',
-          color: '#7952B3', border: 'none', borderRadius: '12px',
+          height: '44px', padding: '0 24px', backgroundColor: c.purpleSoft,
+          color: c.purpleDark, border: 'none', borderRadius: '12px',
           fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '14px', cursor: 'pointer'
         }}>
           Volver al menú
@@ -199,7 +201,7 @@ export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
   // ── Menú principal ────────────────────────────────────────
   return (
     <div className="h-full flex flex-col"
-      style={{ background: 'linear-gradient(180deg, #F3EBFF 0%, #FFFFFF 100%)' }}>
+      style={{ background: c.bgGradient }}>
       {/* Header */}
       <div style={{ backgroundColor: '#FFFFFF', boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
         padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
@@ -211,7 +213,7 @@ export function PonteAPrueba({ onBack }: PonteAPruebaProps) {
           <ArrowLeft size={22} strokeWidth={2.5} />
         </button>
         <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '17px',
-          color: '#1E293B', margin: 0 }}>
+          color: c.textPrimary, margin: 0 }}>
           Ponte a Prueba
         </h1>
       </div>

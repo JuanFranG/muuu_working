@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Bell, Edit3, ClipboardList, BarChart3, Archive, Tag, Home, User, Settings, HelpCircle, ChevronRight, Users, FileStack, Upload } from 'lucide-react';
 import { listarFlashcardsAPI, listarMaterialesAPI, listarTemasAPI, contarSuscriptoresAPI, meAPI, contarNoLeidasAPI, obtenerEstadisticasDocenteAPI } from '../services/api';
+import { useThemeColors } from '../contexts/SettingsContext';
 
 interface TeacherHomeProps {
   userName?: string;
@@ -8,6 +9,7 @@ interface TeacherHomeProps {
 }
 
 export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps) {
+  const c = useThemeColors('teacher');
   const [totalFlashcards,  setTotalFlashcards]  = useState<number | null>(null);
   const [totalDocumentos,  setTotalDocumentos]  = useState<number | null>(null);
   const [totalCategorias,  setTotalCategorias]  = useState<number | null>(null);
@@ -40,7 +42,7 @@ export function TeacherHome({ userName = 'Russo', onNavigate }: TeacherHomeProps
     <div
       className="h-full w-full relative overflow-y-auto"
       style={{
-        background: '#F8F4EC',
+        background: c.bgPage,
         maxWidth: '375px',
         maxHeight: '812px',
         margin: '0 auto',

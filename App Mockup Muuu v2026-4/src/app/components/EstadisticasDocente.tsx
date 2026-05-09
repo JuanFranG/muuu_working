@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Eye, Download, Users, BookOpen, FileText, BarChart3 } from 'lucide-react';
 import { obtenerEstadisticasDocenteAPI, type EstadisticasDocenteAPI } from '../services/api';
+import { useThemeColors } from '../contexts/SettingsContext';
 
 interface EstadisticasDocenteProps {
   onBack: () => void;
@@ -17,6 +18,7 @@ const INICIAL: EstadisticasDocenteAPI = {
 };
 
 export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
+  const c = useThemeColors('teacher');
   const [stats,    setStats]    = useState<EstadisticasDocenteAPI>(INICIAL);
   const [cargando, setCargando] = useState(true);
 
@@ -26,10 +28,10 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
       .finally(() => setCargando(false));
   }, []);
 
-  const primary = '#F59E0B';
-  const dark    = '#78350F';
-  const bg      = '#F8F4EC';
-  const cardBg  = '#FFFFFF';
+  const primary = c.yellowDark;
+  const dark    = c.headerText;
+  const bg      = c.bgGradient;
+  const cardBg  = c.bgCard;
 
   const getAciertosColor = (pct: number) => {
     if (pct >= 70) return '#10B981';
@@ -40,7 +42,7 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
   return (
     <div
       className="h-full w-full relative overflow-y-auto"
-      style={{ background: bg, maxWidth: '375px', margin: '0 auto', paddingBottom: '40px' }}
+      style={{ background: c.bgPage, maxWidth: '375px', margin: '0 auto', paddingBottom: '40px' }}
     >
       {/* ── HEADER ───────────────────────────────────────────── */}
       <div style={{
@@ -137,7 +139,7 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
             <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '28px', color: dark, lineHeight: 1 }}>
               {cargando ? '…' : stats.flashcardsPublicadas}
             </div>
-            <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: '#6B7280' }}>
+            <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: c.textMuted }}>
               Flashcards publicadas
             </div>
           </div>
@@ -170,7 +172,7 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
             <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '28px', color: dark, lineHeight: 1 }}>
               {cargando ? '…' : stats.materiales}
             </div>
-            <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: '#6B7280' }}>
+            <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: c.textMuted }}>
               Materiales subidos
             </div>
           </div>
@@ -186,7 +188,7 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
             <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '28px', color: dark, lineHeight: 1 }}>
               {cargando ? '…' : stats.accesos + stats.descargas}
             </div>
-            <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: '#6B7280' }}>
+            <div style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px', color: c.textMuted }}>
               Interacciones totales
             </div>
           </div>
@@ -199,7 +201,7 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
         }}>
           <h3 style={{
             fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '13px',
-            color: '#1E293B', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px',
+            color: c.textPrimary, marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px',
           }}>
             Actividad en Materiales
           </h3>
@@ -236,17 +238,17 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
         }}>
           <h3 style={{
             fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '13px',
-            color: '#1E293B', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px',
+            color: c.textPrimary, marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px',
           }}>
             Flashcards Más Practicadas
           </h3>
 
           {cargando ? (
-            <p style={{ fontFamily: 'Poppins, sans-serif', color: '#9CA3AF', fontSize: '13px' }}>Cargando…</p>
+            <p style={{ fontFamily: 'Poppins, sans-serif', color: c.textMuted, fontSize: '13px' }}>Cargando…</p>
           ) : stats.topFlashcards.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '20px 0' }}>
               <span style={{ fontSize: '40px' }}>📚</span>
-              <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '13px', color: '#9CA3AF', marginTop: '8px' }}>
+              <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '13px', color: c.textMuted, marginTop: '8px' }}>
                 Aún ningún estudiante ha practicado tus flashcards
               </p>
             </div>
@@ -255,15 +257,15 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
               {stats.topFlashcards.map((fc, i) => (
                 <div key={i} style={{
                   padding: '14px',
-                  backgroundColor: i === 0 ? '#FFFBEB' : '#F9FAFB',
+                  backgroundColor: i === 0 ? c.yellowPale : c.bgSurface,
                   borderRadius: '12px',
-                  border: i === 0 ? '2px solid #FDE68A' : '1px solid #F3F4F6',
+                  border: i === 0 ? `2px solid ${c.yellowLight}` : `1px solid ${c.border}`,
                 }}>
                   {/* Fila superior: posición + integral + veces */}
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '10px' }}>
                     <div style={{
                       width: '28px', height: '28px', borderRadius: '50%', flexShrink: 0,
-                      background: i === 0 ? 'linear-gradient(135deg, #FFD700, #FFA500)' : '#E5E7EB',
+                      background: i === 0 ? 'linear-gradient(135deg, #FFD700, #FFA500)' : c.border,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '12px',
                       color: i === 0 ? '#78350F' : '#6B7280',
@@ -274,12 +276,12 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
                       <p
                         style={{
                           fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '12px',
-                          color: '#1E293B', margin: '0 0 2px 0',
+                          color: c.textPrimary, margin: '0 0 2px 0',
                           overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
                         }}
                         dangerouslySetInnerHTML={{ __html: fc.integral }}
                       />
-                      <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', color: '#9CA3AF', margin: 0 }}>
+                      <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', color: c.textMuted, margin: 0 }}>
                         {fc.tema} · {fc.vecesEstudiada} {fc.vecesEstudiada === 1 ? 'vez' : 'veces'}
                       </p>
                     </div>
@@ -288,7 +290,7 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
                   {/* Barra de tasa de aciertos */}
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                      <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', color: '#6B7280' }}>
+                      <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', color: c.textMuted }}>
                         Tasa de aciertos
                       </span>
                       <span style={{
@@ -298,7 +300,7 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
                         {fc.tasaAciertos}%
                       </span>
                     </div>
-                    <div style={{ height: '6px', backgroundColor: '#E5E7EB', borderRadius: '3px', overflow: 'hidden' }}>
+                    <div style={{ height: '6px', backgroundColor: c.border, borderRadius: '3px', overflow: 'hidden' }}>
                       <div style={{
                         width: `${fc.tasaAciertos}%`,
                         height: '100%',

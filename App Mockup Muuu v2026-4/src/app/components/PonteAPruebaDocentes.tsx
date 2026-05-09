@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Heart, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { listarDocentesAPI, suscribirseAPI, desuscribirseAPI, type DocenteAPI } from '../services/api';
+import { useThemeColors } from '../contexts/SettingsContext';
 
 interface PonteAPruebaDocentesProps {
   onBack:           () => void;
@@ -10,6 +11,7 @@ interface PonteAPruebaDocentesProps {
 const AVATAR_COLORS = ['#9B7EC7', '#8A2BE2', '#B8A4D9', '#9370DB', '#7952B3'];
 
 export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDocentesProps) {
+  const c = useThemeColors('student');
   const [searchQuery,    setSearchQuery]    = useState('');
   const [docentes,       setDocentes]       = useState<DocenteAPI[]>([]);
   const [cargando,       setCargando]       = useState(true);
@@ -93,7 +95,7 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
       width:         '100%',
       display:       'flex',
       flexDirection: 'column',
-      background:    'linear-gradient(180deg, #F3EBFF 0%, #FFFFFF 100%)',
+      background:    c.bgGradient,
       overflow:      'hidden',
     }}>
 
@@ -110,7 +112,7 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
         >
           <div
             style={{
-              backgroundColor: '#FFFFFF', borderRadius: '24px', padding: '28px 24px',
+              backgroundColor: c.bgCard, borderRadius: '24px', padding: '28px 24px',
               maxWidth: '320px', width: '100%',
               boxShadow: '0 20px 60px rgba(0,0,0,0.25)',
             }}
@@ -124,18 +126,18 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
             {/* Título */}
             <h3 style={{
               fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '18px',
-              color: '#1E293B', textAlign: 'center', margin: '0 0 10px 0',
+              color: c.textPrimary, textAlign: 'center', margin: '0 0 10px 0',
             }}>
               ¿Cancelar suscripción?
             </h3>
 
             {/* Mensaje */}
             <p style={{
-              fontFamily: 'Poppins, sans-serif', fontSize: '13px', color: '#6B7280',
+              fontFamily: 'Poppins, sans-serif', fontSize: '13px', color: c.textMuted,
               textAlign: 'center', lineHeight: '1.5', margin: '0 0 24px 0',
             }}>
               Dejarás de recibir notificaciones de nuevas flashcards y materiales de{' '}
-              <span style={{ fontWeight: 700, color: '#1E293B' }}>
+              <span style={{ fontWeight: 700, color: c.textPrimary }}>
                 {confirmarDocente.nombre}
               </span>.
             </p>
@@ -156,8 +158,8 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
               <button
                 onClick={() => setConfirmarDocente(null)}
                 style={{
-                  width: '100%', height: '48px', border: '2px solid #E6D5F0',
-                  borderRadius: '12px', backgroundColor: '#FFFFFF', color: '#7952B3',
+                  width: '100%', height: '48px', border: `2px solid ${c.purplePale}`,
+                  borderRadius: '12px', backgroundColor: c.bgCard, color: c.purpleDark,
                   fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '14px',
                   cursor: 'pointer',
                 }}
@@ -171,8 +173,8 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
 
       {/* ── HEADER ─────────────────────────────────────────── */}
       <div style={{
-        backgroundColor: '#FFFFFF',
-        boxShadow:       '0 2px 8px rgba(0,0,0,0.08)',
+        backgroundColor: c.bgCard,
+        boxShadow:       `0 2px 8px ${c.shadow}`,
         padding:         '16px 20px',
         flexShrink:      0,
       }}>
@@ -181,12 +183,12 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
           <button onClick={onBack} style={{
             width: '36px', height: '36px', borderRadius: '50%', border: 'none',
             background: 'transparent', cursor: 'pointer', display: 'flex',
-            alignItems: 'center', justifyContent: 'center', color: '#9B7EC7',
+            alignItems: 'center', justifyContent: 'center', color: c.purple,
           }}>
             <ArrowLeft size={22} strokeWidth={2.5} />
           </button>
 
-          <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '17px', color: '#1E293B', margin: 0 }}>
+          <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '17px', color: c.textPrimary, margin: 0 }}>
             Elige un Docente
           </h1>
 
@@ -199,12 +201,12 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
 
         {/* Buscador */}
         <div style={{
-          position: 'relative', backgroundColor: '#F8F9FA',
-          borderRadius: '16px', border: '2px solid #E6D5F0',
+          position: 'relative', backgroundColor: c.bgSurface,
+          borderRadius: '16px', border: `2px solid ${c.purplePale}`,
         }}>
           <Search size={18} strokeWidth={2.5} style={{
             position: 'absolute', left: '14px', top: '50%',
-            transform: 'translateY(-50%)', color: '#9B7EC7',
+            transform: 'translateY(-50%)', color: c.purple,
           }} />
           <input
             type="text"
@@ -214,7 +216,7 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
             style={{
               width: '100%', padding: '12px 16px 12px 44px',
               background: 'transparent', border: 'none', outline: 'none',
-              fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: '#1E293B', boxSizing: 'border-box',
+              fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: c.textPrimary, boxSizing: 'border-box',
             }}
           />
         </div>
@@ -261,14 +263,14 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
           return (
             <div key={docente.id_usuario} style={{
               display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '14px 16px',
-              borderRadius: '20px', marginBottom: '10px', backgroundColor: '#FFFFFF',
-              boxShadow: '0 4px 16px rgba(155,126,199,0.12)', border: '1.5px solid #EDE4F8',
+              borderRadius: '20px', marginBottom: '10px', backgroundColor: c.bgCard,
+              boxShadow: `0 4px 16px ${c.shadow}`, border: `1.5px solid ${c.borderCard}`,
             }}>
               {/* Avatar */}
               {docente.fotoPerfil ? (
                 <img src={docente.fotoPerfil} alt={docente.nombre} style={{
                   width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover',
-                  border: '2px solid #EDE4F8', flexShrink: 0, marginTop: '2px',
+                  border: `2px solid ${c.borderCard}`, flexShrink: 0, marginTop: '2px',
                 }} />
               ) : (
                 <div style={{
@@ -286,7 +288,7 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
                 {/* Nombre completo */}
                 <h3 style={{
                   fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px',
-                  color: '#1E293B', margin: '0 0 6px 0', lineHeight: '1.3',
+                  color: c.textPrimary, margin: '0 0 6px 0', lineHeight: '1.3',
                 }}>
                   {docente.nombre}
                 </h3>
@@ -297,7 +299,7 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                       {temasVisibles.map(t => (
                         <span key={t} style={{
-                          backgroundColor: '#F3EBFF', color: '#7952B3',
+                          backgroundColor: c.purpleSoft, color: c.purpleDark,
                           padding: '4px 8px', borderRadius: '6px',
                           fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '10px',
                           lineHeight: '1.3',
@@ -307,7 +309,7 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
                       ))}
                       {!expandido && temasOcultos > 0 && (
                         <button onClick={() => toggleExpandir(docente.id_usuario)} style={{
-                          backgroundColor: '#EDE4F8', color: '#9B7EC7',
+                          backgroundColor: c.purplePale, color: c.purple,
                           padding: '4px 8px', borderRadius: '6px', border: 'none',
                           fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '10px',
                           cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px',
@@ -318,7 +320,7 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
                       )}
                       {expandido && temasOcultos > 0 && (
                         <button onClick={() => toggleExpandir(docente.id_usuario)} style={{
-                          backgroundColor: '#EDE4F8', color: '#9B7EC7',
+                          backgroundColor: c.purplePale, color: c.purple,
                           padding: '4px 8px', borderRadius: '6px', border: 'none',
                           fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '10px',
                           cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px',
@@ -333,7 +335,7 @@ export function PonteAPruebaDocentes({ onBack, onSelectTeacher }: PonteAPruebaDo
 
                 {/* Flashcards */}
                 <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '11px',
-                  fontWeight: 600, color: '#9B7EC7' }}>
+                  fontWeight: 600, color: c.purple }}>
                   {docente.totalFlashcards} Flashcards
                 </span>
               </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Edit2, Mail, Calendar, BadgeCheck } from 'lucide-react';
 import { meAPI, UsuarioAPI } from '../services/api';
+import { useThemeColors } from '../contexts/SettingsContext';
 
 interface PerfilDocenteProps {
   onBack: () => void;
@@ -10,6 +11,7 @@ interface PerfilDocenteProps {
 }
 
 export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, onNavigate }: PerfilDocenteProps) {
+  const c = useThemeColors('teacher');
   const [data, setData] = useState<UsuarioAPI | null>(null);
 
   useEffect(() => {
@@ -25,7 +27,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
     <div
       className="h-full w-full relative overflow-y-auto"
       style={{
-        background: '#FFFFFF',
+        background: c.bgPage,
         maxWidth: '375px',
         maxHeight: '812px',
         margin: '0 auto'
@@ -266,7 +268,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
       </div>
 
       {/* Zona Inferior Blanca/Crema */}
-      <div style={{ background: '#FFFBF0', padding: '24px 20px' }}>
+      <div style={{ background: c.bgCard, padding: '24px 20px' }}>
         {/* Información Personal */}
         <div className="mb-6">
           <h3
@@ -286,8 +288,8 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
           <div
             className="rounded-xl overflow-hidden"
             style={{
-              backgroundColor: '#FFFFFF',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)'
+              backgroundColor: c.bgSurface,
+              boxShadow: `0 2px 8px ${c.shadow}`
             }}
           >
             {/* Nº de identificación */}
@@ -314,7 +316,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
                       fontFamily: 'Poppins, sans-serif',
                       fontWeight: 500,
                       fontSize: '11px',
-                      color: '#9CA3AF',
+                      color: c.textMuted,
                       marginBottom: '2px'
                     }}
                   >
@@ -325,7 +327,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
                       fontFamily: 'Poppins, sans-serif',
                       fontWeight: 600,
                       fontSize: '14px',
-                      color: '#1F2937'
+                      color: c.textPrimary
                     }}
                   >
                     {data?.id_usuario ?? '—'}
@@ -335,7 +337,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
             </div>
 
             {/* Separador */}
-            <div style={{ height: '1px', backgroundColor: '#E5E7EB', margin: '0 20px' }} />
+            <div style={{ height: '1px', backgroundColor: c.border, margin: '0 20px' }} />
 
             {/* Correo electrónico */}
             <div style={{ padding: '16px 20px' }}>
@@ -361,7 +363,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
                       fontFamily: 'Poppins, sans-serif',
                       fontWeight: 500,
                       fontSize: '11px',
-                      color: '#9CA3AF',
+                      color: c.textMuted,
                       marginBottom: '2px'
                     }}
                   >
@@ -372,7 +374,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
                       fontFamily: 'Poppins, sans-serif',
                       fontWeight: 600,
                       fontSize: '14px',
-                      color: '#1F2937'
+                      color: c.textPrimary
                     }}
                   >
                     {(() => {
@@ -393,7 +395,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
             </div>
 
             {/* Separador */}
-            <div style={{ height: '1px', backgroundColor: '#E5E7EB', margin: '0 20px' }} />
+            <div style={{ height: '1px', backgroundColor: c.border, margin: '0 20px' }} />
 
             {/* Última actividad */}
             <div style={{ padding: '16px 20px' }}>
@@ -419,7 +421,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
                       fontFamily: 'Poppins, sans-serif',
                       fontWeight: 500,
                       fontSize: '11px',
-                      color: '#9CA3AF',
+                      color: c.textMuted,
                       marginBottom: '2px'
                     }}
                   >
@@ -430,7 +432,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
                       fontFamily: 'Poppins, sans-serif',
                       fontWeight: 600,
                       fontSize: '14px',
-                      color: '#1F2937'
+                      color: c.textPrimary
                     }}
                   >
                     {data?.fechaUltimaActividad ?? '—'}

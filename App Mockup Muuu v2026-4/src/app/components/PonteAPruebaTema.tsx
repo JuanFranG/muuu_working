@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Loader2 } from 'lucide-react';
 import { listarTemasAPI, type TemaAPI } from '../services/api';
+import { useThemeColors } from '../contexts/SettingsContext';
 
 // ─────────────────────────────────────────────────────────────
 //  PonteAPruebaTema — selección de tema para el quiz
@@ -12,6 +13,7 @@ interface PonteAPruebaTemaProps {
 }
 
 export function PonteAPruebaTema({ onBack, onSelectTema }: PonteAPruebaTemaProps) {
+  const c = useThemeColors('student');
   const [searchQuery, setSearchQuery] = useState('');
   const [temas,       setTemas]       = useState<TemaAPI[]>([]);
   const [cargando,    setCargando]    = useState(true);
@@ -44,23 +46,23 @@ export function PonteAPruebaTema({ onBack, onSelectTema }: PonteAPruebaTemaProps
   return (
     <div style={{
       height: '100%', width: '100%', display: 'flex', flexDirection: 'column',
-      background: 'linear-gradient(180deg, #F3EBFF 0%, #FFFFFF 100%)', overflow: 'hidden',
+      background: c.bgGradient, overflow: 'hidden',
     }}>
       {/* ── HEADER ─────────────────────────────────────────── */}
       <div style={{
-        backgroundColor: '#FFFFFF', boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        backgroundColor: c.bgCard, boxShadow: `0 2px 8px ${c.shadow}`,
         padding: '16px 20px', flexShrink: 0,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <button onClick={onBack} style={{
             width: '36px', height: '36px', borderRadius: '50%', border: 'none',
             background: 'transparent', cursor: 'pointer', display: 'flex',
-            alignItems: 'center', justifyContent: 'center', color: '#9B7EC7',
+            alignItems: 'center', justifyContent: 'center', color: c.purple,
           }}>
             <ArrowLeft size={22} strokeWidth={2.5} />
           </button>
 
-          <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '17px', color: '#1E293B', margin: 0 }}>
+          <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '17px', color: c.textPrimary, margin: 0 }}>
             Ponte a Prueba por Tema
           </h1>
 
@@ -69,12 +71,12 @@ export function PonteAPruebaTema({ onBack, onSelectTema }: PonteAPruebaTemaProps
 
         {/* Buscador */}
         <div style={{
-          position: 'relative', backgroundColor: '#F8F9FA',
-          borderRadius: '16px', border: '2px solid #E6D5F0',
+          position: 'relative', backgroundColor: c.bgSurface,
+          borderRadius: '16px', border: `2px solid ${c.purplePale}`,
         }}>
           <Search size={18} strokeWidth={2.5} style={{
             position: 'absolute', left: '14px', top: '50%',
-            transform: 'translateY(-50%)', color: '#9B7EC7',
+            transform: 'translateY(-50%)', color: c.purple,
           }} />
           <input
             type="text"
@@ -84,7 +86,7 @@ export function PonteAPruebaTema({ onBack, onSelectTema }: PonteAPruebaTemaProps
             style={{
               width: '100%', padding: '12px 16px 12px 44px',
               background: 'transparent', border: 'none', outline: 'none',
-              fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: '#1E293B', boxSizing: 'border-box',
+              fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: c.textPrimary, boxSizing: 'border-box',
             }}
           />
         </div>
@@ -96,7 +98,7 @@ export function PonteAPruebaTema({ onBack, onSelectTema }: PonteAPruebaTemaProps
         {cargando && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '60px', gap: '12px' }}>
             <Loader2 size={32} className="animate-spin" style={{ color: '#9B7EC7' }} />
-            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: '#7D7D7D', margin: 0 }}>
+            <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: c.textMuted, margin: 0 }}>
               Cargando temas...
             </p>
           </div>
@@ -113,7 +115,7 @@ export function PonteAPruebaTema({ onBack, onSelectTema }: PonteAPruebaTemaProps
 
         {!cargando && !errorMsg && filteredTemas.length === 0 && (
           <div style={{ textAlign: 'center', paddingTop: '48px', fontFamily: 'Poppins, sans-serif',
-            fontSize: '14px', color: '#7D7D7D' }}>
+            fontSize: '14px', color: c.textMuted }}>
             {searchQuery ? 'No se encontraron temas con ese criterio.' : 'No hay temas disponibles.'}
           </div>
         )}
@@ -121,20 +123,20 @@ export function PonteAPruebaTema({ onBack, onSelectTema }: PonteAPruebaTemaProps
         {!cargando && filteredTemas.map((tema) => (
           <div key={tema.id_tema} style={{
             display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 18px',
-            borderRadius: '20px', marginBottom: '10px', backgroundColor: '#FFFFFF',
-            boxShadow: '0 4px 16px rgba(155,126,199,0.12)', border: '1.5px solid #EDE4F8',
+            borderRadius: '20px', marginBottom: '10px', backgroundColor: c.bgCard,
+            boxShadow: `0 4px 16px ${c.shadow}`, border: `1.5px solid ${c.borderCard}`,
           }}>
             {/* Info — nombre + descripción sin truncar */}
             <div style={{ flex: 1 }}>
               <h3 style={{
                 fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px',
-                color: '#1E293B', margin: '0 0 4px 0', lineHeight: '1.35',
+                color: c.textPrimary, margin: '0 0 4px 0', lineHeight: '1.35',
               }}>
                 {tema.nombre}
               </h3>
               {tema.descripcion && (
                 <p style={{
-                  fontFamily: 'Poppins, sans-serif', fontSize: '12px', color: '#7D7D7D',
+                  fontFamily: 'Poppins, sans-serif', fontSize: '12px', color: c.textMuted,
                   margin: 0, lineHeight: '1.45',
                 }}>
                   {tema.descripcion}
@@ -147,7 +149,7 @@ export function PonteAPruebaTema({ onBack, onSelectTema }: PonteAPruebaTemaProps
               onClick={() => onSelectTema(tema.id_tema, tema.nombre)}
               style={{
                 padding: '10px 18px', borderRadius: '999px', border: 'none',
-                backgroundColor: '#9B7EC7', color: '#FFFFFF',
+                backgroundColor: c.purple, color: '#FFFFFF',
                 fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '13px',
                 cursor: 'pointer', boxShadow: '0 4px 12px rgba(155,126,199,0.35)',
                 flexShrink: 0, whiteSpace: 'nowrap',

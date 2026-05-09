@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Trophy, Medal, Crown } from 'lucide-react';
 import { meAPI, obtenerRankingAPI, type RankingItemAPI } from '../services/api';
+import { useThemeColors } from '../contexts/SettingsContext';
 
 interface RankingsProps {
   onBack: () => void;
 }
 
 export function Rankings({ onBack }: RankingsProps) {
+  const c = useThemeColors('student');
   const [estudiantes, setEstudiantes] = useState<RankingItemAPI[]>([]);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const [cargando, setCargando] = useState(true);
@@ -48,7 +50,7 @@ export function Rankings({ onBack }: RankingsProps) {
     <div
       className="h-full w-full relative overflow-hidden"
       style={{
-        background: 'linear-gradient(180deg, #F3EBFF 0%, #FFFFFF 100%)',
+        background: c.bgGradient,
         maxWidth: '375px',
         maxHeight: '812px',
         margin: '0 auto'
@@ -63,15 +65,15 @@ export function Rankings({ onBack }: RankingsProps) {
       {/* Header */}
       <div
         className="absolute top-0 left-0 right-0 z-20"
-        style={{ height: '100px', backgroundColor: '#FFFFFF', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', padding: '16px 20px' }}
+        style={{ height: '100px', backgroundColor: c.bgCard, boxShadow: `0 2px 8px ${c.shadow}`, padding: '16px 20px' }}
       >
         <div className="flex items-center justify-between h-full">
-          <button onClick={onBack} className="p-2 rounded-full hover:bg-gray-100 transition-colors" style={{ color: '#7952B3' }}>
+          <button onClick={onBack} className="p-2 rounded-full hover:bg-gray-100 transition-colors" style={{ color: c.purpleDark }}>
             <ArrowLeft size={28} strokeWidth={2.5} />
           </button>
           <div className="flex items-center gap-2">
             <Trophy size={28} color="#FFD700" strokeWidth={2.5} />
-            <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '24px', color: '#1E293B' }}>Rankings</h1>
+            <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '24px', color: c.textPrimary }}>Rankings</h1>
           </div>
           <div style={{ width: '44px' }} />
         </div>
@@ -131,12 +133,12 @@ export function Rankings({ onBack }: RankingsProps) {
                       ? getMedalBackground(est.medalla)
                       : esCurrent
                         ? 'linear-gradient(135deg, #9B7EC7 0%, #7952B3 100%)'
-                        : '#FFFFFF',
+                        : c.bgCard,
                     border: est.medalla
                       ? 'none'
                       : esCurrent
                         ? '3px solid #7952B3'
-                        : '2px solid #E6D5F0',
+                        : `2px solid ${c.purplePale}`,
                     boxShadow: est.medalla
                       ? '0 4px 12px rgba(0,0,0,0.15)'
                       : esCurrent
@@ -161,9 +163,9 @@ export function Rankings({ onBack }: RankingsProps) {
                   {/* Posición */}
                   <div className="flex items-center justify-center" style={{
                     width: '36px', height: '36px', borderRadius: '50%',
-                    backgroundColor: est.medalla || esCurrent ? 'rgba(255,255,255,0.3)' : '#E6D5F0',
+                    backgroundColor: est.medalla || esCurrent ? 'rgba(255,255,255,0.3)' : c.purplePale,
                     fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '16px',
-                    color: est.medalla || esCurrent ? '#FFFFFF' : '#7952B3',
+                    color: est.medalla || esCurrent ? '#FFFFFF' : c.purpleDark,
                   }}>
                     {index + 1}
                   </div>
@@ -175,7 +177,7 @@ export function Rankings({ onBack }: RankingsProps) {
                     backgroundColor: est.medalla || esCurrent ? 'rgba(255,255,255,0.4)' : '#E6D5F0',
                     overflow: 'hidden', flexShrink: 0,
                     fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '20px',
-                    color: est.medalla ? '#1A1A1A' : esCurrent ? '#1A1A1A' : '#7952B3',
+                    color: est.medalla ? '#1A1A1A' : esCurrent ? '#1A1A1A' : c.purpleDark,
                   }}>
                     {est.fotoPerfil
                       ? <img src={est.fotoPerfil} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -187,7 +189,7 @@ export function Rankings({ onBack }: RankingsProps) {
                   <div className="flex-1">
                     <p style={{
                       fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '16px',
-                      color: est.medalla ? (est.medalla === 'oro' ? '#1A1A1A' : '#1E293B') : esCurrent ? '#FFFFFF' : '#1E293B',
+                      color: est.medalla ? (est.medalla === 'oro' ? '#1A1A1A' : c.textPrimary) : esCurrent ? '#FFFFFF' : c.textPrimary,
                       marginBottom: '2px',
                     }}>
                       {est.nombre}
@@ -213,17 +215,17 @@ export function Rankings({ onBack }: RankingsProps) {
       {currentUser && pointsToThird > 0 && (
         <div className="absolute" style={{
           bottom: '20px', left: '20px', right: '20px',
-          backgroundColor: '#FFFFFF', border: '2px solid #E6D5F0',
+          backgroundColor: c.bgCard, border: `2px solid ${c.purplePale}`,
           borderRadius: '16px', padding: '16px',
-          boxShadow: '0 4px 12px rgba(155,126,199,0.15)', zIndex: 10,
+          boxShadow: `0 4px 12px ${c.shadow}`, zIndex: 10,
         }}>
           <div className="flex items-center justify-between mb-2">
-            <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '13px', color: '#7952B3' }}>
+            <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '13px', color: c.purpleDark }}>
               Te faltan {pointsToThird.toLocaleString()} puntos para el podio
             </span>
             <Medal size={20} color="#CD7F32" fill="#CD7F32" />
           </div>
-          <div style={{ width: '100%', height: '8px', backgroundColor: '#E6D5F0', borderRadius: '4px', overflow: 'hidden' }}>
+          <div style={{ width: '100%', height: '8px', backgroundColor: c.purplePale, borderRadius: '4px', overflow: 'hidden' }}>
             <div style={{
               width: `${Math.min(100, (currentUser.puntos / thirdPlacePoints) * 100)}%`,
               height: '100%',

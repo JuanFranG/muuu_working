@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Sparkles, Video, Loader2, Download, ExternalLink, BookOpen } from 'lucide-react';
+import { useThemeColors } from '../contexts/SettingsContext';
 import {
   listarDocentesMaterialesAPI,
   listarMaterialesPorDocenteAPI,
@@ -89,6 +90,7 @@ function materialToTask(m: MaterialAPI): Task {
 }
 
 export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
+  const c = useThemeColors('student');
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('Todas');
   const [searchQuery, setSearchQuery] = useState('');
   const [allTasks, setAllTasks]       = useState<Task[]>([]);
@@ -187,11 +189,11 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
       key={task.id}
       className="transition-all hover:scale-[1.01] relative"
       style={{
-        backgroundColor: '#FFFFFF',
+        backgroundColor: c.bgCard,
         borderRadius: '12px',
         padding: '16px',
         marginBottom: '12px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+        boxShadow: `0 2px 8px ${c.shadow}`,
         cursor: esUrlValida(task.url) ? 'pointer' : 'default'
       }}
       onClick={() => abrirContenido(task)}
@@ -292,7 +294,7 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
               fontFamily: 'Poppins, sans-serif',
               fontWeight: 600,
               fontSize: '14px',
-              color: '#1E293B',
+              color: c.textPrimary,
               marginBottom: '4px',
               lineHeight: '1.3'
             }}
@@ -303,7 +305,7 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
             style={{
               fontFamily: 'Poppins, sans-serif',
               fontSize: '11px',
-              color: '#7D7D7D'
+              color: c.textMuted
             }}
           >
             {task.subtitle}
@@ -318,7 +320,7 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
         <div>
           {task.progress > 0 && task.progress < 100 && (
             <div className="flex items-center gap-2">
-              <div style={{ width: '60px', height: '6px', backgroundColor: '#E6D5F0',
+              <div style={{ width: '60px', height: '6px', backgroundColor: c.purplePale,
                 borderRadius: '3px', overflow: 'hidden' }}>
                 <div style={{ width: `${task.progress}%`, height: '100%',
                   backgroundColor: '#9B7EC7', borderRadius: '3px', transition: 'width 0.3s ease' }} />
@@ -384,13 +386,13 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
     return (
       <div style={{
         height: '100%', width: '100%', display: 'flex', flexDirection: 'column',
-        background: 'linear-gradient(180deg, #F3EBFF 0%, #FFFFFF 100%)', overflow: 'hidden',
+        background: c.bgGradient, overflow: 'hidden',
       }}>
         {/* Header */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          height: '60px', backgroundColor: '#FFFFFF',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)', padding: '0 16px', flexShrink: 0,
+          height: '60px', backgroundColor: c.bgCard,
+          boxShadow: `0 2px 8px ${c.shadow}`, padding: '0 16px', flexShrink: 0,
         }}>
           <button onClick={onBack} style={{
             width: '32px', height: '32px', borderRadius: '50%', border: 'none',
@@ -399,7 +401,7 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
           }}>
             <ArrowLeft size={20} strokeWidth={2.5} />
           </button>
-          <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '16px', color: '#1E293B' }}>
+          <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '16px', color: c.textPrimary }}>
             Aprende un Poco
           </h1>
           <div style={{ width: '32px' }}>
@@ -409,10 +411,10 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
 
         {/* Subtítulo */}
         <div style={{ padding: '20px 16px 8px' }}>
-          <p style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '15px', color: '#1E293B', margin: 0 }}>
+          <p style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '15px', color: c.textPrimary, margin: 0 }}>
             ¿De qué docente quieres aprender?
           </p>
-          <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '12px', color: '#64748B', margin: '4px 0 0' }}>
+          <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '12px', color: c.textMuted, margin: '4px 0 0' }}>
             Selecciona un docente para ver sus materiales
           </p>
         </div>
@@ -449,7 +451,7 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
                 width: '100%', display: 'flex', alignItems: 'center', gap: '14px',
                 padding: '14px 16px', marginBottom: '10px', borderRadius: '16px',
                 border: 'none', cursor: 'pointer',
-                backgroundColor: '#FFFFFF', boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
+                backgroundColor: c.bgCard, boxShadow: `0 2px 10px ${c.shadow}`,
                 textAlign: 'left',
               }}
             >
@@ -468,10 +470,10 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
               {/* Info */}
               <div style={{ flex: 1 }}>
                 <p style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px',
-                  color: '#1E293B', margin: 0 }}>
+                  color: c.textPrimary, margin: 0 }}>
                   {doc.nombre}
                 </p>
-                <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '12px', color: '#64748B', margin: '2px 0 0' }}>
+                <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '12px', color: c.textMuted, margin: '2px 0 0' }}>
                   {doc.totalMateriales} material{doc.totalMateriales !== 1 ? 'es' : ''}
                   {doc.temaPrincipal ? ` · ${doc.temaPrincipal}` : ''}
                 </p>
@@ -496,7 +498,7 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
     <div
       className="h-full relative overflow-hidden flex flex-col"
       style={{
-        background: 'linear-gradient(180deg, #F3EBFF 0%, #FFFFFF 100%)'
+        background: c.bgGradient
       }}
     >
       {/* HEADER STICKY */}
@@ -504,8 +506,8 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
         className="sticky top-0 z-50 flex items-center justify-between"
         style={{
           height: '60px',
-          backgroundColor: '#FFFFFF',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+          backgroundColor: c.bgCard,
+          boxShadow: `0 2px 8px ${c.shadow}`,
           padding: '0 16px'
         }}
       >
@@ -524,7 +526,7 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
             fontFamily: 'Poppins, sans-serif',
             fontWeight: 700,
             fontSize: '15px',
-            color: '#1E293B',
+            color: c.textPrimary,
             textAlign: 'center',
             flex: 1,
           }}
@@ -542,14 +544,14 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
       <div
         style={{
           padding: '12px 16px',
-          backgroundColor: '#FFFFFF',
-          borderBottom: '1px solid #F3F4F6'
+          backgroundColor: c.bgCard,
+          borderBottom: `1px solid ${c.border}`
         }}
       >
         <div
           className="flex items-center gap-2"
           style={{
-            backgroundColor: '#F3EBFF',
+            backgroundColor: c.purpleSoft,
             borderRadius: '12px',
             padding: '10px 14px'
           }}
@@ -567,7 +569,7 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
               outline: 'none',
               fontFamily: 'Poppins, sans-serif',
               fontSize: '13px',
-              color: '#1E293B'
+              color: c.textPrimary
             }}
           />
         </div>
@@ -578,8 +580,8 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
         className="flex gap-2"
         style={{
           padding: '12px 16px',
-          backgroundColor: '#FFFFFF',
-          borderBottom: '1px solid #F3F4F6'
+          backgroundColor: c.bgCard,
+          borderBottom: `1px solid ${c.border}`
         }}
       >
         {(['Todas', 'Guías PDF', 'Videos', 'Resumen'] as FilterType[]).map((filter) => (
@@ -593,8 +595,8 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
               fontFamily: 'Poppins, sans-serif',
               fontWeight: 600,
               fontSize: '12px',
-              backgroundColor: selectedFilter === filter ? '#9B7EC7' : '#F3EBFF',
-              color: selectedFilter === filter ? '#FFFFFF' : '#7952B3',
+              backgroundColor: selectedFilter === filter ? c.purple : c.purpleSoft,
+              color: selectedFilter === filter ? '#FFFFFF' : c.purpleDark,
               border: 'none',
               cursor: 'pointer'
             }}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, GraduationCap, Mail, Calendar, BookOpen, Trophy, Target, Edit } from 'lucide-react';
+import { useThemeColors } from '../contexts/SettingsContext';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import muuuLogo from 'figma:asset/4de3de61f8e4df99b460b6420b603ae06ba0b967.png';
 import { meAPI, UsuarioAPI } from '../services/api';
@@ -11,6 +12,7 @@ interface PerfilEstudianteProps {
 }
 
 export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' }: PerfilEstudianteProps) {
+  const c = useThemeColors('student');
   const [data, setData] = useState<UsuarioAPI | null>(null);
 
   useEffect(() => {
@@ -26,7 +28,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
     <div
       className="h-full w-full relative overflow-hidden"
       style={{
-        background: 'linear-gradient(180deg, #F3EBFF 0%, #FFFFFF 100%)',
+        background: c.bgGradient,
         maxWidth: '375px',
         maxHeight: '812px',
         margin: '0 auto'
@@ -138,7 +140,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
               fontFamily: 'Poppins, sans-serif',
               fontWeight: 700,
               fontSize: '24px',
-              color: '#1E293B',
+              color: c.textPrimary,
               marginBottom: '4px'
             }}
           >
@@ -165,9 +167,9 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
           <div
             className="flex flex-col items-center p-4 rounded-2xl"
             style={{
-              backgroundColor: '#FFFFFF',
-              border: '2px solid #E6D5F0',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+              backgroundColor: c.bgCard,
+              border: `2px solid ${c.purplePale}`,
+              boxShadow: `0 2px 8px ${c.shadow}`
             }}
           >
             <Trophy size={28} color="#FFD700" strokeWidth={2.5} />
@@ -176,7 +178,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 800,
                 fontSize: '20px',
-                color: '#1E293B',
+                color: c.textPrimary,
                 marginTop: '8px'
               }}
             >
@@ -187,7 +189,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 500,
                 fontSize: '11px',
-                color: '#64748B'
+                color: c.textMuted
               }}
             >
               Puntos
@@ -197,9 +199,9 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
           <div
             className="flex flex-col items-center p-4 rounded-2xl"
             style={{
-              backgroundColor: '#FFFFFF',
-              border: '2px solid #E6D5F0',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+              backgroundColor: c.bgCard,
+              border: `2px solid ${c.purplePale}`,
+              boxShadow: `0 2px 8px ${c.shadow}`
             }}
           >
             <BookOpen size={28} color="#9B7EC7" strokeWidth={2.5} />
@@ -208,7 +210,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 800,
                 fontSize: '20px',
-                color: '#1E293B',
+                color: c.textPrimary,
                 marginTop: '8px'
               }}
             >
@@ -219,7 +221,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 500,
                 fontSize: '11px',
-                color: '#64748B'
+                color: c.textMuted
               }}
             >
               Cards
@@ -229,9 +231,9 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
           <div
             className="flex flex-col items-center p-4 rounded-2xl"
             style={{
-              backgroundColor: '#FFFFFF',
-              border: '2px solid #E6D5F0',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+              backgroundColor: c.bgCard,
+              border: `2px solid ${c.purplePale}`,
+              boxShadow: `0 2px 8px ${c.shadow}`
             }}
           >
             <Target size={28} color="#10B981" strokeWidth={2.5} />
@@ -240,7 +242,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 800,
                 fontSize: '20px',
-                color: '#1E293B',
+                color: c.textPrimary,
                 marginTop: '8px'
               }}
             >
@@ -251,7 +253,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 500,
                 fontSize: '11px',
-                color: '#64748B'
+                color: c.textMuted
               }}
             >
               Días
@@ -263,9 +265,9 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
         <div
           className="p-5 rounded-2xl mb-4"
           style={{
-            backgroundColor: '#FFFFFF',
-            border: '2px solid #E6D5F0',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+            backgroundColor: c.bgCard,
+            border: `2px solid ${c.purplePale}`,
+            boxShadow: `0 2px 8px ${c.shadow}`
           }}
         >
           <h3
@@ -273,7 +275,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
               fontFamily: 'Poppins, sans-serif',
               fontWeight: 700,
               fontSize: '16px',
-              color: '#1E293B',
+              color: c.textPrimary,
               marginBottom: '16px'
             }}
           >
@@ -287,7 +289,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
                   width: '40px',
                   height: '40px',
                   borderRadius: '10px',
-                  backgroundColor: '#F3EBFF',
+                  backgroundColor: c.purpleSoft,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -303,7 +305,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
                     fontFamily: 'Poppins, sans-serif',
                     fontWeight: 500,
                     fontSize: '12px',
-                    color: '#64748B'
+                    color: c.textMuted
                   }}
                 >
                   Identificación
@@ -313,7 +315,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
                     fontFamily: 'Poppins, sans-serif',
                     fontWeight: 600,
                     fontSize: '14px',
-                    color: '#1E293B'
+                    color: c.textPrimary
                   }}
                 >
                   {data?.id_usuario ?? '—'}
@@ -327,7 +329,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
                   width: '40px',
                   height: '40px',
                   borderRadius: '10px',
-                  backgroundColor: '#F3EBFF',
+                  backgroundColor: c.purpleSoft,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -343,7 +345,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
                     fontFamily: 'Poppins, sans-serif',
                     fontWeight: 500,
                     fontSize: '12px',
-                    color: '#64748B'
+                    color: c.textMuted
                   }}
                 >
                   Correo Electrónico
@@ -353,7 +355,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
                     fontFamily: 'Poppins, sans-serif',
                     fontWeight: 600,
                     fontSize: '14px',
-                    color: '#1E293B'
+                    color: c.textPrimary
                   }}
                 >
                   {(() => {
@@ -378,7 +380,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
                   width: '40px',
                   height: '40px',
                   borderRadius: '10px',
-                  backgroundColor: '#F3EBFF',
+                  backgroundColor: c.purpleSoft,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -394,7 +396,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
                     fontFamily: 'Poppins, sans-serif',
                     fontWeight: 500,
                     fontSize: '12px',
-                    color: '#64748B'
+                    color: c.textMuted
                   }}
                 >
                   Última Actividad
@@ -404,7 +406,7 @@ export function PerfilEstudiante({ onBack, onNavigate, userName = 'Juan Pérez' 
                     fontFamily: 'Poppins, sans-serif',
                     fontWeight: 600,
                     fontSize: '14px',
-                    color: '#1E293B'
+                    color: c.textPrimary
                   }}
                 >
                   {data?.fechaUltimaActividad ?? '—'}

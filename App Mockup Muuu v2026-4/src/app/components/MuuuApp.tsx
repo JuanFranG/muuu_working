@@ -31,7 +31,7 @@ import { EstadisticasDocente } from './EstadisticasDocente';
 import { SubpantallaIdioma } from './SubpantallaIdioma';
 import { SubpantallaPrivacidad } from './SubpantallaPrivacidad';
 import { SubpantallaAyuda } from './SubpantallaAyuda';
-import { SettingsProvider } from '../contexts/SettingsContext';
+import { SettingsProvider, useThemeColors } from '../contexts/SettingsContext';
 
 // Pantalla Home Estudiante
 function StudentHomeScreen({ userName = 'Estudiante', onNavigate }: { userName?: string; onNavigate: (screen: string) => void }) {
@@ -381,23 +381,22 @@ function LoadingScreen() {
 
 // Pantalla de Inicio
 function HomeScreen({ onLoginClick, onRegisterClick }: { onLoginClick: () => void; onRegisterClick: () => void }) {
+  const c = useThemeColors('student');
   return (
-    <div className="h-full flex flex-col relative overflow-hidden" style={{ 
-      background: 'linear-gradient(180deg, #F3EBFF 0%, #FFFFFF 100%)' 
-    }}>
+    <div className="h-full flex flex-col relative overflow-hidden" style={{ background: c.bgGradient }}>
       {/* Elementos decorativos */}
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-8 w-24 h-24 rounded-full blur-xl" style={{ backgroundColor: '#FFD700' }}></div>
-        <div className="absolute bottom-32 right-10 w-32 h-32 rounded-full blur-2xl" style={{ backgroundColor: '#9B7EC7' }}></div>
+        <div className="absolute top-20 left-8 w-24 h-24 rounded-full blur-xl" style={{ backgroundColor: c.yellow }}></div>
+        <div className="absolute bottom-32 right-10 w-32 h-32 rounded-full blur-2xl" style={{ backgroundColor: c.purple }}></div>
       </div>
 
       {/* Contenido principal */}
       <div className="flex-1 flex flex-col items-center justify-center z-10 px-8">
         {/* Logo */}
         <div className="mb-6">
-          <ImageWithFallback 
-            src={muuuLogo} 
-            alt="Muuu Logo" 
+          <ImageWithFallback
+            src={muuuLogo}
+            alt="Muuu Logo"
             style={{ width: '240px', height: 'auto' }}
             className="object-contain drop-shadow-lg"
           />
@@ -405,17 +404,10 @@ function HomeScreen({ onLoginClick, onRegisterClick }: { onLoginClick: () => voi
 
         {/* Título y descripción */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl mb-3" style={{ 
-            color: '#1E293B', 
-            fontFamily: 'Montserrat, sans-serif',
-            fontWeight: 700
-          }}>
+          <h1 className="text-3xl mb-3" style={{ color: c.textPrimary, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>
             Muuu
           </h1>
-          <p className="text-base" style={{ 
-            color: '#475569',
-            fontFamily: 'Montserrat, sans-serif'
-          }}>
+          <p className="text-base" style={{ color: c.textSecondary, fontFamily: 'Montserrat, sans-serif' }}>
             Flashcards nemotécnicas<br />
             para dominar el Cálculo Integral
           </p>
@@ -426,13 +418,7 @@ function HomeScreen({ onLoginClick, onRegisterClick }: { onLoginClick: () => voi
           <button
             onClick={onLoginClick}
             className="w-full p-4 rounded-xl transition-all hover:scale-[1.02]"
-            style={{
-              backgroundColor: '#9B7EC7',
-              color: '#FFFFFF',
-              fontFamily: 'Montserrat, sans-serif',
-              fontWeight: 600,
-              boxShadow: '0px 4px 16px rgba(155, 126, 199, 0.4)'
-            }}
+            style={{ backgroundColor: c.purple, color: '#FFFFFF', fontFamily: 'Montserrat, sans-serif', fontWeight: 600, boxShadow: '0px 4px 16px rgba(155, 126, 199, 0.4)' }}
           >
             Iniciar sesión
           </button>
@@ -440,13 +426,7 @@ function HomeScreen({ onLoginClick, onRegisterClick }: { onLoginClick: () => voi
           <button
             onClick={onRegisterClick}
             className="w-full p-4 rounded-xl border-2 transition-all hover:scale-[1.02]"
-            style={{
-              backgroundColor: 'transparent',
-              borderColor: '#9B7EC7',
-              color: '#9B7EC7',
-              fontFamily: 'Montserrat, sans-serif',
-              fontWeight: 600
-            }}
+            style={{ backgroundColor: 'transparent', borderColor: c.purple, color: c.purple, fontFamily: 'Montserrat, sans-serif', fontWeight: 600 }}
           >
             Crear cuenta nueva
           </button>
@@ -455,7 +435,7 @@ function HomeScreen({ onLoginClick, onRegisterClick }: { onLoginClick: () => voi
 
       {/* Footer */}
       <div className="text-center pb-6 z-10">
-        <p className="text-xs" style={{ color: '#7D7D7D', fontFamily: 'Montserrat, sans-serif' }}>
+        <p className="text-xs" style={{ color: c.textMuted, fontFamily: 'Montserrat, sans-serif' }}>
           © 2025 Muuu - Universidad del Magdalena
         </p>
       </div>

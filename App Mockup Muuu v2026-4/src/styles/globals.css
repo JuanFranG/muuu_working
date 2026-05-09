@@ -404,9 +404,8 @@ html, body {
 }
 
 /* ============================================================
-   MUUU · MODO OSCURO GLOBAL — TODAS LAS PANTALLAS
-   Usa [data-theme="dark"] + !important para override de inline.
-   Targetea patrones del DOM que React genera.
+   MUUU · MODO OSCURO — variables CSS y reglas globales.
+   Los colores por componente se controlan con useThemeColors().
    ============================================================ */
 
 [data-theme="dark"] {
@@ -415,7 +414,6 @@ html, body {
   --muuu-bg-secondary: #16121E;
   --muuu-bg-student: #1A1528;
   --muuu-bg-teacher: #1A1810;
-  --muuu-white: #0D0B14;
   --background: #0D0B14;
   --foreground: #E8E4F0;
   --card: #1C1826;
@@ -427,162 +425,24 @@ html, body {
   --input-background: #251F32;
 }
 
-/* ── 1. FONDOS DE PANTALLA ─────────────────────────────────── */
-
-/* Pantallas gradiente estudiante (#F3EBFF) */
-[data-theme="dark"] [style*="F3EBFF"],
-[data-theme="dark"] [style*="f3ebff"] {
-  background: linear-gradient(180deg, #1A1528 0%, #0D0B14 100%) !important;
-}
-
-/* Pantallas gradiente docente (#FFFDE7, #F8F4EC) */
-[data-theme="dark"] [style*="FFFDE7"],
-[data-theme="dark"] [style*="fffde7"],
-[data-theme="dark"] [style*="#F8F4EC"],
-[data-theme="dark"] [style*="#f8f4ec"] {
-  background: linear-gradient(180deg, #1A1810 0%, #121212 100%) !important;
-}
-
-/* Fondos blancos puros */
-[data-theme="dark"] [style*="background-color: rgb(255, 255, 255)"],
-[data-theme="dark"] [style*="background-color: #FFFFFF"],
-[data-theme="dark"] [style*="background-color: #ffffff"],
-[data-theme="dark"] .bg-white {
-  background-color: #1E1E1E !important;
-}
-
-/* Fondos secundarios claros */
-[data-theme="dark"] [style*="#FAFAFA"],
-[data-theme="dark"] [style*="#F5F5F5"],
-[data-theme="dark"] [style*="#FEF3C7"] {
-  background-color: #2A2A2A !important;
-}
-
-/* ── 2. TARJETAS Y CONTENEDORES ──────────────────────────── */
-
-/* Border morado pálido */
-[data-theme="dark"] [style*="#E6D5F0"] {
-  border-color: #374151 !important;
-}
-
-/* Border amarillo */
-[data-theme="dark"] [style*="#FED7AA"] {
-  border-color: #3A3520 !important;
-}
-
-/* ── 3. TEXTO — override inline colors ───────────────────── */
-
-/* Texto primario oscuro → claro */
-[data-theme="dark"] [style*="color: #1E293B"],
-[data-theme="dark"] [style*="color: rgb(30, 41, 59)"] {
-  color: #F3F4F6 !important;
-}
-
-/* Texto secundario */
-[data-theme="dark"] [style*="color: #475569"],
-[data-theme="dark"] [style*="color: rgb(71, 85, 105)"] {
-  color: #9CA3AF !important;
-}
-
-/* Texto terciario / muted */
-[data-theme="dark"] [style*="color: #64748B"],
-[data-theme="dark"] [style*="color: rgb(100, 116, 139)"],
-[data-theme="dark"] [style*="color: #94A3B8"],
-[data-theme="dark"] [style*="color: #9CA3AF"],
-[data-theme="dark"] [style*="color: #7D7D7D"] {
-  color: #6B7280 !important;
-}
-
-/* Texto negro → claro */
-[data-theme="dark"] [style*="color: #1A1A1A"] {
-  color: #F3F4F6 !important;
-}
-
-/* Texto docente header */
-[data-theme="dark"] [style*="color: #78350F"] {
-  color: #F3F4F6 !important;
-}
-
-/* ── 4. INPUTS Y FORMULARIOS ─────────────────────────────── */
+/* ── Inputs y formularios ─────────────────────────────────── */
 [data-theme="dark"] input,
 [data-theme="dark"] textarea,
 [data-theme="dark"] select {
-  background-color: #374151 !important;
-  color: #F3F4F6 !important;
-  border-color: #4B5563 !important;
+  background-color: #251F32 !important;
+  color: #E8E4F0 !important;
+  border-color: #3D3550 !important;
 }
 
 [data-theme="dark"] input::placeholder,
 [data-theme="dark"] textarea::placeholder {
-  color: #9CA3AF !important;
+  color: #6D6580 !important;
 }
 
-/* ── 5. BOTONES CON FONDO BLANCO ─────────────────────────── */
-[data-theme="dark"] button[style*="background-color: #FFFFFF"],
-[data-theme="dark"] button[style*="background-color: rgb(255, 255, 255)"] {
-  background-color: #1E1E1E !important;
-}
-
+/* ── Hover states de Tailwind ─────────────────────────────── */
 [data-theme="dark"] .hover\:bg-gray-50:hover,
 [data-theme="dark"] .hover\:bg-gray-100:hover {
-  background-color: #374151 !important;
-}
-
-/* ── 6. MARCO iPHONE (Desktop) ───────────────────────────── */
-[data-theme="dark"] .bg-gray-100 {
-  background-color: #000000 !important;
-}
-
-[data-theme="dark"] .rounded-\[50px\].bg-white,
-[data-theme="dark"] [class*="rounded-"][class*="bg-white"] {
-  background-color: #121212 !important;
-}
-
-/* ── 7. COMPONENTES ESPECÍFICOS ──────────────────────────── */
-
-/* Fondos de íconos student */
-[data-theme="dark"] [style*="background-color: #F3EBFF"],
-[data-theme="dark"] [style*="backgroundColor: #F3EBFF"] {
-  background-color: #374151 !important;
-}
-
-/* Fondos de íconos teacher */
-[data-theme="dark"] [style*="background-color: #FFFDE7"],
-[data-theme="dark"] [style*="backgroundColor: #FFFDE7"],
-[data-theme="dark"] [style*="background-color: #FEF3C7"],
-[data-theme="dark"] [style*="backgroundColor: #FEF3C7"],
-[data-theme="dark"] [style*="#FFF9C4"] {
-  background-color: #2A2518 !important;
-}
-
-/* Fondos rosa claro */
-[data-theme="dark"] [style*="#F4E4F4"] {
-  background-color: #374151 !important;
-}
-
-/* Separadores */
-[data-theme="dark"] [style*="#E2D9F3"] {
-  background-color: #4B5563 !important;
-}
-
-/* Error backgrounds */
-[data-theme="dark"] [style*="#FEE2E2"] {
-  background-color: #3B1C1C !important;
-}
-
-/* Nav border top */
-[data-theme="dark"] [style*="borderTop"] {
-  border-color: #4B5563 !important;
-}
-
-/* Bordes de input morado */
-[data-theme="dark"] [style*="#B8A4D9"] {
-  border-color: #4B5563 !important;
-}
-
-/* Toggle CBD5E1 */
-[data-theme="dark"] [style*="#CBD5E1"] {
-  background-color: #4B5563 !important;
+  background-color: #2A2438 !important;
 }
 
 /* ── TRANSICIONES SUAVES ─────────────────────────────────── */

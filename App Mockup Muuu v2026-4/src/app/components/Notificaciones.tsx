@@ -7,6 +7,7 @@ import {
   listarNotificacionesAPI, eliminarNotificacionAPI,
   marcarTodasLeidasAPI, type NotificacionAPI,
 } from '../services/api';
+import { useThemeColors } from '../contexts/SettingsContext';
 
 interface NotificacionesProps {
   onBack: () => void;
@@ -57,12 +58,13 @@ function formatearFecha(iso: string): string {
 // ─────────────────────────────────────────────────────────────
 export function Notificaciones({ onBack, rol }: NotificacionesProps) {
   const isDocente = rol === 'DOCENTE';
-  const primary   = isDocente ? '#F59E0B' : '#9B7EC7';
-  const dark      = isDocente ? '#78350F' : '#FFFFFF';
-  const bg        = isDocente ? '#FFFBF0' : '#F3EBFF';
+  const ct = useThemeColors(isDocente ? 'teacher' : 'student');
+  const primary   = isDocente ? ct.yellowDark : ct.purple;
+  const dark      = isDocente ? ct.headerText : '#FFFFFF';
+  const bg        = ct.bgGradient;
   const headerBg  = isDocente
-    ? 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)'
-    : '#9B7EC7';
+    ? `linear-gradient(135deg, ${ct.yellowDark} 0%, #FBBF24 100%)`
+    : ct.purple;
 
   const [notificaciones, setNotificaciones] = useState<NotificacionAPI[]>([]);
   const [cargando,       setCargando]       = useState(true);
@@ -175,14 +177,14 @@ export function Notificaciones({ onBack, rol }: NotificacionesProps) {
           }}>
             <div style={{
               width: '72px', height: '72px', borderRadius: '50%',
-              backgroundColor: '#FFFFFF', border: `2px solid ${primary}20`,
+              backgroundColor: ct.bgCard, border: `2px solid ${primary}20`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               <BellOff size={32} color={primary} strokeWidth={1.5} />
             </div>
             <p style={{
               fontFamily: 'Poppins, sans-serif', fontWeight: 600,
-              fontSize: '15px', color: '#1E293B', margin: 0,
+              fontSize: '15px', color: ct.textPrimary, margin: 0,
             }}>
               Todo al día
             </p>
@@ -203,8 +205,8 @@ export function Notificaciones({ onBack, rol }: NotificacionesProps) {
 
           return (
             <div key={n.id_notificacion} style={{
-              backgroundColor: '#FFFFFF',
-              border: noLeida ? `1.5px solid ${primary}40` : '1.5px solid #F1F5F9',
+              backgroundColor: ct.bgCard,
+              border: noLeida ? `1.5px solid ${primary}40` : `1.5px solid ${ct.border}`,
               borderRadius: '16px', padding: '14px 14px 14px 14px',
               marginBottom: '10px', display: 'flex', alignItems: 'flex-start', gap: '12px',
               boxShadow: noLeida
@@ -225,7 +227,7 @@ export function Notificaciones({ onBack, rol }: NotificacionesProps) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
                   <span style={{
                     fontFamily: 'Poppins, sans-serif', fontWeight: 700,
-                    fontSize: '13px', color: '#1E293B',
+                    fontSize: '13px', color: ct.textPrimary,
                   }}>
                     {n.titulo}
                   </span>
@@ -239,7 +241,7 @@ export function Notificaciones({ onBack, rol }: NotificacionesProps) {
                 </div>
                 <p style={{
                   fontFamily: 'Poppins, sans-serif', fontSize: '12px',
-                  color: '#475569', margin: '0 0 6px 0', lineHeight: '1.4',
+                  color: ct.textSecondary, margin: '0 0 6px 0', lineHeight: '1.4',
                 }}>
                   {n.mensaje}
                 </p>

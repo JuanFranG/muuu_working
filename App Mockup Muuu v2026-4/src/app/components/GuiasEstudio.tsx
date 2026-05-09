@@ -1,10 +1,12 @@
 import { ArrowLeft, BookOpen } from 'lucide-react';
+import { useThemeColors } from '../contexts/SettingsContext';
 
 interface GuiasEstudioProps {
   onBack: () => void;
 }
 
 export function GuiasEstudio({ onBack }: GuiasEstudioProps) {
+  const c = useThemeColors('student');
   return (
     <div
       className="h-full relative overflow-y-auto flex flex-col"
@@ -52,7 +54,7 @@ export function GuiasEstudio({ onBack }: GuiasEstudioProps) {
         className="flex-1 flex flex-col items-center justify-center"
         style={{
           marginTop: '40px',
-          backgroundColor: '#FFFFFF',
+          backgroundColor: c.bgCard,
           borderTopLeftRadius: '32px',
           borderTopRightRadius: '32px',
           padding: '40px 20px'
@@ -64,7 +66,7 @@ export function GuiasEstudio({ onBack }: GuiasEstudioProps) {
             width: '120px',
             height: '120px',
             borderRadius: '50%',
-            backgroundColor: '#F3EBFF',
+            backgroundColor: c.purpleSoft,
             marginBottom: '24px'
           }}
         >
@@ -76,7 +78,7 @@ export function GuiasEstudio({ onBack }: GuiasEstudioProps) {
             fontFamily: 'Poppins, sans-serif',
             fontWeight: 700,
             fontSize: '24px',
-            color: '#1E293B',
+            color: c.textPrimary,
             marginBottom: '12px',
             textAlign: 'center'
           }}
@@ -88,7 +90,7 @@ export function GuiasEstudio({ onBack }: GuiasEstudioProps) {
           style={{
             fontFamily: 'Poppins, sans-serif',
             fontSize: '14px',
-            color: '#7D7D7D',
+            color: c.textMuted,
             textAlign: 'center',
             maxWidth: '280px',
             lineHeight: '1.6'
