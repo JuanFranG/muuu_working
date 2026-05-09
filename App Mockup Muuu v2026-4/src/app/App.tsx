@@ -22,7 +22,6 @@ export default function App() {
             width: '100%',
             height: '100dvh',
             overflow: 'hidden',
-            backgroundColor: '#FFFFFF',
             position: 'fixed',
             inset: 0,
           }}
@@ -40,8 +39,8 @@ export default function App() {
         <div className="relative">
           {/* Marco iPhone */}
           <div className="w-[375px] h-[812px] bg-black rounded-[60px] p-2 shadow-2xl">
-            {/* Pantalla */}
-            <div className="w-full h-full bg-white rounded-[50px] overflow-hidden relative">
+            {/* Pantalla — fondo transparent para que los componentes controlen su propio bg */}
+            <div className="w-full h-full rounded-[50px] overflow-hidden relative" style={{ backgroundColor: 'transparent' }}>
               <div className="size-full relative z-0">
                 <MuuuApp />
               </div>
