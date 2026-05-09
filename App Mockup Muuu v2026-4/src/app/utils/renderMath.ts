@@ -1,9 +1,39 @@
 /**
  * Convierte texto con notación LaTeX/matemática básica a HTML visualizable.
  * Compartido entre QuizScreen, DisenarFlashcard y FlashcardNemotecnia.
+ *
+ * MODO DELIMITADO (recomendado para texto mixto):
+ *   Usar $...$ para marcar zonas matemáticas:
+ *   "Si $\int_a^b f(x)\,dx$ = 5, entonces..."
+ *   → Solo el contenido dentro de $...$ se transforma.
+ *   → El texto fuera queda intacto (solo se convierten saltos de línea).
+ *
+ * MODO COMPLETO (retrocompatible):
+ *   Si el texto no contiene $, se aplica la transformación a todo el string.
+ *   Todos los flashcards existentes siguen funcionando sin cambios.
  */
 export function renderMath(text: string): string {
   if (!text) return '';
+
+  // ── Modo delimitado: si hay $...$ procesar solo esas zonas ──
+  if (text.includes('$')) {
+    // Divide en partes: índices pares = texto plano, impares = math
+    const parts = text.split(/\$([^$]+)\$/);
+    return parts
+      .map((part, i) =>
+        i % 2 === 0
+          ? part.replace(/\n/g, '<br/>')   // texto plano → solo saltos
+          : applyLatexTransforms(part)      // zona math → transformar todo
+      )
+      .join('');
+  }
+
+  // ── Modo completo (retrocompatible): transforma todo el string ──
+  return applyLatexTransforms(text);
+}
+
+/** Aplica todas las transformaciones LaTeX → HTML a un string. */
+function applyLatexTransforms(text: string): string {
   return text
     .replace(/\\int/g, '∫')
     .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g,
@@ -32,6 +62,9 @@ export function renderMath(text: string): string {
     .replace(/\\ln/g,    'ln')
     .replace(/\\log/g,   'log')
     .replace(/\\lim/g,   'lim')
+    .replace(/\\neq/g,   '≠')
+    .replace(/\\leq/g,   '≤')
+    .replace(/\\geq/g,   '≥')
     // Espaciado LaTeX
     .replace(/\\,/g,     '&thinsp;')
     .replace(/\\;/g,     '&ensp;')

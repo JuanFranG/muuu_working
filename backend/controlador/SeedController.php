@@ -201,7 +201,7 @@ class SeedController
 
             // ── TEMA 6 — Teorema Fundamental del Calculo ───────
             [
-                'Si F(x) = \\int_0^x t^2 \\, dt, cual es la derivada F\'(x)?',
+                'Si $F(x) = \\int_0^x t^2 \\, dt$, cual es la derivada $F\'(x)$?',
                 'x^2',
                 6, 1,
                 [
@@ -225,7 +225,7 @@ class SeedController
 
             // ── TEMA 7 — Propiedades Integral Definida ─────────
             [
-                'Si \\int_a^b f(x)\\,dx = 5 y \\int_a^b g(x)\\,dx = 3, cuanto vale \\int_a^b [2f(x)+g(x)]\\,dx?',
+                'Si $\\int_a^b f(x)\\,dx$ = 5 y $\\int_a^b g(x)\\,dx$ = 3, cuanto vale $\\int_a^b [2f(x)+g(x)]\\,dx$?',
                 '13',
                 7, 1,
                 [
@@ -236,7 +236,7 @@ class SeedController
                 ],
             ],
             [
-                'Cual es el valor de \\int_a^a f(x) \\, dx?',
+                'Cual es el valor de $\\int_a^a f(x) \\, dx$?',
                 '0',
                 7, 1,
                 [
@@ -249,7 +249,7 @@ class SeedController
 
             // ── TEMA 8 — Integrales Numéricas ──────────────────
             [
-                'Formula del Metodo del Trapecio para aproximar una integral con n=1',
+                'Formula del Metodo del Trapecio para aproximar $\\int_a^b f(x)\\,dx$ con n=1',
                 '\\frac{b-a}{2}[f(a)+f(b)]',
                 $t8, 1,
                 [
@@ -260,7 +260,7 @@ class SeedController
                 ],
             ],
             [
-                'Formula de la Regla de Simpson 1/3 para aproximar una integral con n=2',
+                'Formula de la Regla de Simpson 1/3 para aproximar $\\int_a^b f(x)\\,dx$ con n=2',
                 '\\frac{b-a}{6}[f(a) + 4f(m) + f(b)]  donde  m = \\frac{a+b}{2}',
                 $t8, 2,
                 [
