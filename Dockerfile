@@ -16,7 +16,7 @@ WORKDIR /build
 
 # Copia package files primero para cachear la instalación de dependencias
 COPY ["App Mockup Muuu v2026-4/package.json", "App Mockup Muuu v2026-4/package-lock.json", "./"]
-RUN npm ci
+RUN npm install
 
 # Copia el resto del frontend y construye
 # Nota: JSON-array es obligatorio para rutas con espacios en Docker
