@@ -130,6 +130,14 @@ export function QuizScreen({
     setShowNemotecnia(false);
   };
 
+  // Color del texto de cada opción — oscuro cuando el fondo es claro (verificado)
+  const getOptionTextColor = (optionId: number): string => {
+    if (!isVerified) return c.textPrimary;
+    if (optionId === correctAnswer) return '#047857';   // texto verde oscuro sobre fondo verde claro
+    if (selectedOption === optionId) return '#991B1B';  // texto rojo oscuro sobre fondo rojo claro
+    return c.textMuted;
+  };
+
   const getOptionStyle = (optionId: number) => {
     const base = {
       display: 'flex',
@@ -375,12 +383,25 @@ export function QuizScreen({
         </p>
 
         {/* Integral */}
-        <div style={{ fontFamily: 'Georgia, serif', fontSize: '30px', color: c.purpleDark, fontStyle: 'italic', margin: '0 0 24px 0', letterSpacing: '1px', lineHeight: '1.8', padding: '20px 24px', backgroundColor: c.bgCard, borderRadius: '16px', boxShadow: '0 4px 16px rgba(155,126,199,0.15)', position: 'relative' }}>
-          <div className="flex items-center justify-center mb-3" dangerouslySetInnerHTML={{ __html: fc?.integral ?? '∫ f(x) dx' }} />
-          <button onClick={() => setShowNemotecnia(!showNemotecnia)} className="absolute top-4 right-4"
-            style={{ backgroundColor: c.purple, color: '#FFFFFF', border: 'none', borderRadius: '10px', fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '12px', cursor: 'pointer', padding: '6px 12px' }}>
-            {showNemotecnia ? 'Ocultar' : 'Nemotécnica'}
-          </button>
+        <div style={{ margin: '0 0 24px 0', backgroundColor: c.bgCard, borderRadius: '16px', boxShadow: '0 4px 16px rgba(155,126,199,0.15)', overflow: 'hidden' }}>
+          {/* Fila superior: etiqueta + botón Nemotécnica */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px 0 16px' }}>
+            <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', fontWeight: 600,
+              color: c.textMuted, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
+              Integral
+            </span>
+            <button onClick={() => setShowNemotecnia(!showNemotecnia)}
+              style={{ backgroundColor: c.purple, color: '#FFFFFF', border: 'none', borderRadius: '10px',
+                fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '12px',
+                cursor: 'pointer', padding: '6px 14px', flexShrink: 0 }}>
+              {showNemotecnia ? 'Ocultar' : 'Nemotécnica'}
+            </button>
+          </div>
+          {/* Texto de la integral */}
+          <div style={{ fontFamily: 'Georgia, serif', fontSize: '28px', color: c.purpleDark, fontStyle: 'italic',
+            letterSpacing: '1px', lineHeight: '1.8', padding: '10px 24px 20px 24px' }}>
+            <div className="flex items-center justify-center" dangerouslySetInnerHTML={{ __html: fc?.integral ?? '∫ f(x) dx' }} />
+          </div>
         </div>
 
         {showNemotecnia ? (
@@ -415,7 +436,7 @@ export function QuizScreen({
                     }}>
                       {option.label}
                     </div>
-                    <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '15px', color: c.textPrimary, flex: 1, textAlign: 'left' }}>
+                    <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '15px', color: getOptionTextColor(option.id), flex: 1, textAlign: 'left' }}>
                       {option.text}
                     </span>
                   </div>
@@ -437,7 +458,7 @@ export function QuizScreen({
                     <h4 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '16px', color: selectedOption === correctAnswer ? '#10B981' : '#EF4444', marginBottom: '8px' }}>
                       {feedbackTexts[selectedOption].title}
                     </h4>
-                    <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '13px', color: c.textPrimary, lineHeight: '1.6' }}>
+                    <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '13px', color: selectedOption === correctAnswer ? '#047857' : '#991B1B', lineHeight: '1.6' }}>
                       {feedbackTexts[selectedOption].text}
                     </p>
                   </div>
