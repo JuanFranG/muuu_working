@@ -32,15 +32,28 @@ export function renderMath(text: string): string {
   return applyLatexTransforms(text);
 }
 
+/**
+ * Grupo que captura contenido con UN nivel de anidamiento de llaves.
+ * Ejemplo: captura  x^{n+1}  dentro de  \frac{x^{n+1}}{n+1}
+ *   (?:[^{}]  → cualquier char que no sea llave
+ *    |\{[^}]*\})*  → O un grupo {…} sin llaves internas
+ */
+const BRACE_CONTENT = '(?:[^{}]|\\{[^}]*\\})*';
+
 /** Aplica todas las transformaciones LaTeX → HTML a un string. */
 function applyLatexTransforms(text: string): string {
   return text
     .replace(/\\int/g, '∫')
-    .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g,
+    // \frac con soporte de llaves anidadas en numerador y denominador
+    .replace(
+      new RegExp(`\\\\frac\\{(${BRACE_CONTENT})\\}\\{(${BRACE_CONTENT})\\}`, 'g'),
       '<span style="display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:0.85em">' +
       '<span style="border-bottom:1.5px solid currentColor;padding:0 2px">$1</span>' +
       '<span style="padding:0 2px">$2</span></span>')
-    .replace(/\\sqrt\{([^}]+)\}/g, '√<span style="text-decoration:overline">$1</span>')
+    // \sqrt con soporte de llaves anidadas
+    .replace(
+      new RegExp(`\\\\sqrt\\{(${BRACE_CONTENT})\\}`, 'g'),
+      '√<span style="text-decoration:overline">$1</span>')
     .replace(/\^{([^}]+)}/g,  '<sup>$1</sup>')
     .replace(/\^(\w)/g,        '<sup>$1</sup>')
     .replace(/_{([^}]+)}/g,   '<sub>$1</sub>')
