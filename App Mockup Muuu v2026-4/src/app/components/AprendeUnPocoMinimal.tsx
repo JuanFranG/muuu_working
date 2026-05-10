@@ -346,7 +346,7 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
         </div>
 
         {/* Botón de acción: Descargar (docs/imágenes) o Abrir (videos/links) */}
-        {esUrlValida(task.url) && (
+        {esUrlValida(task.url) ? (
           task.type === 'Videos' ? (
             /* Videos y links: abrir en nueva pestaña */
             <button
@@ -362,9 +362,9 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
               Abrir
             </button>
           ) : (
-            /* PDFs e imágenes: descargar */
+            /* PDFs e imágenes: abrir en nueva pestaña (más compatible en móvil) */
             <button
-              onClick={(e) => descargarContenido(task, e)}
+              onClick={(e) => { e.stopPropagation(); window.open(task.url, '_blank', 'noopener,noreferrer'); registrarDescargaAPI(task.id); }}
               className="flex items-center gap-1 transition-all hover:scale-105"
               style={{
                 backgroundColor: '#9B7EC7', color: '#FFFFFF', border: 'none',
@@ -373,9 +373,18 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
               }}
             >
               <Download size={13} strokeWidth={2.5} />
-              Descargar
+              Abrir PDF
             </button>
           )
+        ) : (
+          /* Sin URL válida: indicador visual */
+          <span style={{
+            fontFamily: 'Poppins, sans-serif', fontSize: '10px', fontWeight: 600,
+            color: '#9CA3AF', backgroundColor: '#F3F4F6',
+            padding: '4px 10px', borderRadius: '6px'
+          }}>
+            ⚠ Sin archivo
+          </span>
         )}
       </div>
     </div>

@@ -1010,28 +1010,6 @@ export function AgregarMaterial({ onBack, materialId }: AgregarMaterialProps) {
                         Videos
                       </span>
                     </div>
-                    <div
-                      style={{
-                        flex: 1,
-                        height: '28px',
-                        borderRadius: '8px',
-                        backgroundColor: '#F3EBFF',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontFamily: 'Poppins, sans-serif',
-                          fontSize: '10px',
-                          fontWeight: 600,
-                          color: '#7952B3'
-                        }}
-                      >
-                        Resumen
-                      </span>
-                    </div>
                   </div>
                 </div>
 
