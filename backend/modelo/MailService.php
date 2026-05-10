@@ -1,7 +1,7 @@
 <?php
 // ============================================================
 //  MUUU APP · Servicio de correo — MailService
-//  Integración con Mailtrap Sending API (HTTP, sin Composer)
+//  Integración con Brevo Transactional Email API (sin Composer)
 //
 //  Uso:
 //    MailService::nuevaSuscripcion($correoDocente, $nombreDocente, $nombreEst)
@@ -9,13 +9,14 @@
 //    MailService::nuevoMaterial($correoEst, $nombreEst, $nombreDocente, $titulo)
 //
 //  Requiere extensión PHP curl (instalada en Dockerfile).
+//  Token leído de variable de entorno BREVO_KEY.
 //  Siempre silencioso — nunca lanza excepción al caller.
 // ============================================================
 
 class MailService
 {
-    private const API_URL    = 'https://send.api.mailtrap.io/api/send';
-    private const FROM_EMAIL = 'hello@demomailtrap.co';
+    private const API_URL    = 'https://api.brevo.com/v3/smtp/email';
+    private const FROM_EMAIL = 'jfgonzalez@unimagdalena.edu.co';
     private const FROM_NAME  = 'MUUU App';
 
     // =========================================================
@@ -87,7 +88,7 @@ class MailService
     }
 
     // =========================================================
-    //  Método base — llamada HTTP a Mailtrap API
+    //  Método base — llamada HTTP a Brevo API
     // =========================================================
     private static function enviar(
         string $toEmail,
@@ -97,17 +98,16 @@ class MailService
         string $text
     ): void {
         try {
-            $payload = json_encode([
-                'from'     => ['email' => self::FROM_EMAIL, 'name' => self::FROM_NAME],
-                'to'       => [['email' => $toEmail, 'name' => $toName]],
-                'subject'  => $subject,
-                'html'     => $html,
-                'text'     => $text,
-                'category' => 'MUUU Notificaciones',
-            ], JSON_UNESCAPED_UNICODE);
+            $apiKey = getenv('BREVO_KEY') ?: '';
+            if ($apiKey === '') return;
 
-            $apiKey = getenv('MAILTRAP_KEY') ?: '';
-            if ($apiKey === '') return; // sin clave configurada, omitir silenciosamente
+            $payload = json_encode([
+                'sender'      => ['email' => self::FROM_EMAIL, 'name' => self::FROM_NAME],
+                'to'          => [['email' => $toEmail, 'name' => $toName]],
+                'subject'     => $subject,
+                'htmlContent' => $html,
+                'textContent' => $text,
+            ], JSON_UNESCAPED_UNICODE);
 
             $ch = curl_init(self::API_URL);
             curl_setopt_array($ch, [
@@ -116,7 +116,8 @@ class MailService
                 CURLOPT_POSTFIELDS     => $payload,
                 CURLOPT_HTTPHEADER     => [
                     'Content-Type: application/json',
-                    'Authorization: Bearer ' . $apiKey,
+                    'Accept: application/json',
+                    'api-key: ' . $apiKey,
                 ],
                 CURLOPT_TIMEOUT        => 8,
             ]);

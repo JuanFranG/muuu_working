@@ -326,8 +326,8 @@ class SeedController
 
         $diagnostico = [
             'curl_instalado' => function_exists('curl_init'),
-            'mailtrap_key'   => getenv('MAILTRAP_KEY') !== false && getenv('MAILTRAP_KEY') !== ''
-                                    ? substr(getenv('MAILTRAP_KEY'), 0, 6) . '...'
+            'brevo_key'      => getenv('BREVO_KEY') !== false && getenv('BREVO_KEY') !== ''
+                                    ? substr(getenv('BREVO_KEY'), 0, 10) . '...'
                                     : 'NO CONFIGURADA',
         ];
 
@@ -336,44 +336,44 @@ class SeedController
             return;
         }
 
-        if ($diagnostico['mailtrap_key'] === 'NO CONFIGURADA') {
-            echo json_encode(['ok' => false, 'diagnostico' => $diagnostico, 'mensaje' => 'MAILTRAP_KEY no está en las variables de entorno']);
+        if ($diagnostico['brevo_key'] === 'NO CONFIGURADA') {
+            echo json_encode(['ok' => false, 'diagnostico' => $diagnostico, 'mensaje' => 'BREVO_KEY no está en las variables de entorno']);
             return;
         }
 
         // Intentar enviar con respuesta visible
-        $apiKey  = getenv('MAILTRAP_KEY');
+        $apiKey  = getenv('BREVO_KEY');
         $payload = json_encode([
-            'from'     => ['email' => 'hello@demomailtrap.co', 'name' => 'MUUU App'],
-            'to'       => [['email' => $to, 'name' => 'Test']],
-            'subject'  => '✅ MUUU App — Email de prueba funcionando',
-            'text'     => 'Si recibes este correo, la integración con Mailtrap está funcionando correctamente.',
-            'html'     => '<h2 style="color:#4a008f">✅ Mailtrap funcionando</h2><p>La integración de MUUU App con Mailtrap está activa y enviando correctamente.</p>',
-            'category' => 'MUUU Test',
+            'sender'      => ['email' => 'jfgonzalez@unimagdalena.edu.co', 'name' => 'MUUU App'],
+            'to'          => [['email' => $to, 'name' => 'Test']],
+            'subject'     => '✅ MUUU App — Email de prueba funcionando',
+            'textContent' => 'Si recibes este correo, la integración con Brevo está funcionando correctamente.',
+            'htmlContent' => '<h2 style="color:#4a008f">✅ Brevo funcionando</h2><p>La integración de MUUU App con Brevo está activa y enviando correctamente.</p>',
         ], JSON_UNESCAPED_UNICODE);
 
-        $ch = curl_init('https://send.api.mailtrap.io/api/send');
+        $ch = curl_init('https://api.brevo.com/v3/smtp/email');
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST           => true,
             CURLOPT_POSTFIELDS     => $payload,
             CURLOPT_HTTPHEADER     => [
                 'Content-Type: application/json',
-                'Authorization: Bearer ' . $apiKey,
+                'Accept: application/json',
+                'api-key: ' . $apiKey,
             ],
             CURLOPT_TIMEOUT        => 10,
         ]);
-        $respuesta    = curl_exec($ch);
-        $httpCode     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError    = curl_error($ch);
+        $respuesta = curl_exec($ch);
+        $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
         curl_close($ch);
 
         echo json_encode([
-            'ok'          => $httpCode === 200,
-            'diagnostico' => $diagnostico,
-            'http_code'   => $httpCode,
-            'curl_error'  => $curlError ?: null,
-            'mailtrap_respuesta' => json_decode($respuesta, true),
+            'ok'              => $httpCode === 201,
+            'diagnostico'     => $diagnostico,
+            'http_code'       => $httpCode,
+            'curl_error'      => $curlError ?: null,
+            'brevo_respuesta' => json_decode($respuesta, true),
         ], JSON_UNESCAPED_UNICODE);
     }
 }
