@@ -16,7 +16,6 @@ require_once __DIR__ . '/../modelo/Flashcard.php';
 require_once __DIR__ . '/../modelo/Tema.php';
 require_once __DIR__ . '/../modelo/Dificultad.php';
 require_once __DIR__ . '/../modelo/Notificacion.php';
-require_once __DIR__ . '/../modelo/MailService.php';
 
 class FlashcardController
 {
@@ -406,13 +405,6 @@ class FlashcardController
                 'nueva_flashcard',
                 'Nueva flashcard publicada',
                 "{$nombreDocente} publicó una nueva flashcard sobre {$nombreTema}"
-            );
-            // Email
-            MailService::nuevaFlashcard(
-                correoEstudiante: $est['correo'],
-                nombreEstudiante: $est['nombre'],
-                nombreDocente:    $nombreDocente,
-                nombreTema:       $nombreTema
             );
         }
     }

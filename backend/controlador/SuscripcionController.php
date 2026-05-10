@@ -10,7 +10,6 @@
 
 require_once __DIR__ . '/../modelo/Suscripcion.php';
 require_once __DIR__ . '/../modelo/Notificacion.php';
-require_once __DIR__ . '/../modelo/MailService.php';
 
 class SuscripcionController
 {
@@ -88,15 +87,6 @@ class SuscripcionController
                 "{$nombreEst} se suscribió a tu perfil"
             );
 
-            // Email al docente
-            $docente = $modeloNotif->buscarCorreoPorId($idDocente);
-            if ($docente) {
-                MailService::nuevaSuscripcion(
-                    correoDocente:    $docente['correo'],
-                    nombreDocente:    $docente['nombre'],
-                    nombreEstudiante: $nombreEst
-                );
-            }
         } catch (Throwable) { /* no bloquear la respuesta si falla */ }
 
         $this->responder(200, ['ok' => true, 'mensaje' => 'Suscripción registrada.']);

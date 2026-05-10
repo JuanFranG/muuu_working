@@ -6,7 +6,6 @@
 // ============================================================
 
 require_once __DIR__ . '/../modelo/Conexion.php';
-require_once __DIR__ . '/../modelo/MailService.php';
 
 class SeedController
 {
@@ -306,106 +305,4 @@ class SeedController
         ], JSON_UNESCAPED_UNICODE);
     }
 
-    // =========================================================
-    //  GET /api/seed/test-email?key=muuu_seed_2024&to=correo
-    //  Diagnóstico: verifica curl, env var y envía email de prueba
-    // =========================================================
-    public function testEmail(): void
-    {
-        if (($_GET['key'] ?? '') !== 'muuu_seed_2024') {
-            http_response_code(403);
-            echo json_encode(['ok' => false, 'mensaje' => 'Unauthorized']);
-            return;
-        }
-
-        $to = trim($_GET['to'] ?? '');
-        if ($to === '') {
-            echo json_encode(['ok' => false, 'mensaje' => 'Falta ?to=correo']);
-            return;
-        }
-
-        $smtpUser = getenv('BREVO_SMTP_USER') ?: '';
-        $smtpPass = getenv('BREVO_SMTP_PASS') ?: '';
-
-        $diagnostico = [
-            'brevo_smtp_user' => $smtpUser !== '' ? $smtpUser : 'NO CONFIGURADA',
-            'brevo_smtp_pass' => $smtpPass !== '' ? '***' : 'NO CONFIGURADA',
-        ];
-
-        if ($smtpUser === '' || $smtpPass === '') {
-            echo json_encode(['ok' => false, 'diagnostico' => $diagnostico, 'mensaje' => 'Faltan variables BREVO_SMTP_USER o BREVO_SMTP_PASS']);
-            return;
-        }
-
-        // SMTP paso a paso con log visible
-        $log    = [];
-        $error  = null;
-
-        try {
-            $socket = fsockopen('smtp-relay.brevo.com', 587, $errno, $errstr, 10);
-            if (!$socket) throw new Exception("fsockopen fallo: [{$errno}] {$errstr}");
-
-            $recv = function (string $paso) use ($socket, &$log): string {
-                $resp = '';
-                while ($line = fgets($socket, 512)) {
-                    $resp .= $line;
-                    if (strlen($line) >= 4 && $line[3] === ' ') break;
-                }
-                $log[] = "{$paso}: " . trim($resp);
-                return $resp;
-            };
-            $send = function (string $cmd, string $paso) use ($socket, &$log): void {
-                fwrite($socket, $cmd . "\r\n");
-                $log[] = ">>> {$paso}";
-            };
-
-            $recv('BANNER');
-            $send('EHLO muuu-app', 'EHLO');    $recv('EHLO');
-            $send('STARTTLS', 'STARTTLS');     $r = $recv('STARTTLS_resp');
-            if (!str_starts_with($r, '220'))  throw new Exception("STARTTLS rechazado: {$r}");
-
-            stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
-            $log[] = '>>> TLS activado';
-
-            $send('EHLO muuu-app', 'EHLO2');   $recv('EHLO2');
-            $send('AUTH LOGIN', 'AUTH');        $recv('AUTH_resp');
-            $send(base64_encode($smtpUser), 'USER'); $recv('USER_resp');
-            $send(base64_encode($smtpPass), 'PASS'); $r = $recv('PASS_resp');
-            if (!str_starts_with($r, '235'))  throw new Exception("Auth fallo: {$r}");
-
-            $send("MAIL FROM:<jfgonzalez@unimagdalena.edu.co>", 'MAIL_FROM'); $recv('MAIL_FROM_resp');
-            $send("RCPT TO:<{$to}>", 'RCPT');  $r = $recv('RCPT_resp');
-            if (!str_starts_with($r, '250'))  throw new Exception("RCPT rechazado: {$r}");
-
-            $send('DATA', 'DATA');             $recv('DATA_resp');
-
-            $boundary = 'muuu_' . md5(uniqid());
-            $msg  = "From: MUUU App <jfgonzalez@unimagdalena.edu.co>\r\n";
-            $msg .= "To: Test <{$to}>\r\n";
-            $msg .= "Subject: MUUU App - Email de prueba SMTP\r\n";
-            $msg .= "MIME-Version: 1.0\r\n";
-            $msg .= "Content-Type: multipart/alternative; boundary=\"{$boundary}\"\r\n\r\n";
-            $msg .= "--{$boundary}\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n";
-            $msg .= "Prueba SMTP de MUUU App funcionando.\r\n";
-            $msg .= "--{$boundary}\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n";
-            $msg .= "<h2>MUUU App</h2><p>SMTP funcionando correctamente.</p>\r\n";
-            $msg .= "--{$boundary}--\r\n\r\n.\r\n";
-
-            fwrite($socket, $msg);
-            $r = $recv('DATA_end');
-            if (!str_starts_with($r, '250')) throw new Exception("DATA rechazado: {$r}");
-
-            $send('QUIT', 'QUIT'); fclose($socket);
-            $log[] = 'Email enviado OK';
-
-        } catch (Throwable $e) {
-            $error = $e->getMessage();
-        }
-
-        echo json_encode([
-            'ok'    => $error === null,
-            'log'   => $log,
-            'error' => $error,
-        ], JSON_PRETTY_PRINT);
-    }
 }

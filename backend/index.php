@@ -110,9 +110,8 @@ $rutasEstaticas = [
     'GET:notificaciones'              => ['NotificacionController', 'listar'],
     'GET:notificaciones/no-leidas'    => ['NotificacionController', 'contarNoLeidas'],
     'PATCH:notificaciones/leer-todas' => ['NotificacionController', 'marcarTodasLeidas'],
-    // Seed + diagnóstico temporal
+    // Seed temporal
     'GET:seed'                           => ['SeedController',    'seed'],
-    'GET:seed/test-email'                => ['SeedController',    'testEmail'],
     // Ranking y estadísticas
     'GET:ranking'                        => ['RankingController', 'listar'],
     'POST:quiz/resultado'                => ['RankingController', 'guardarResultado'],
