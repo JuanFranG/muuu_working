@@ -6,6 +6,7 @@
 // ============================================================
 
 require_once __DIR__ . '/../modelo/Conexion.php';
+require_once __DIR__ . '/../modelo/MailService.php';
 
 class SeedController
 {
@@ -302,6 +303,77 @@ class SeedController
             'flashcards'  => $insertados,
             'tema8_id'    => $t8,
             'mensaje'     => "Se insertaron {$insertados} flashcards para docente@muuu.com.",
+        ], JSON_UNESCAPED_UNICODE);
+    }
+
+    // =========================================================
+    //  GET /api/seed/test-email?key=muuu_seed_2024&to=correo
+    //  Diagnóstico: verifica curl, env var y envía email de prueba
+    // =========================================================
+    public function testEmail(): void
+    {
+        if (($_GET['key'] ?? '') !== 'muuu_seed_2024') {
+            http_response_code(403);
+            echo json_encode(['ok' => false, 'mensaje' => 'Unauthorized']);
+            return;
+        }
+
+        $to = trim($_GET['to'] ?? '');
+        if ($to === '') {
+            echo json_encode(['ok' => false, 'mensaje' => 'Falta ?to=correo']);
+            return;
+        }
+
+        $diagnostico = [
+            'curl_instalado' => function_exists('curl_init'),
+            'mailtrap_key'   => getenv('MAILTRAP_KEY') !== false && getenv('MAILTRAP_KEY') !== ''
+                                    ? substr(getenv('MAILTRAP_KEY'), 0, 6) . '...'
+                                    : 'NO CONFIGURADA',
+        ];
+
+        if (!$diagnostico['curl_instalado']) {
+            echo json_encode(['ok' => false, 'diagnostico' => $diagnostico, 'mensaje' => 'curl no está instalado en PHP']);
+            return;
+        }
+
+        if ($diagnostico['mailtrap_key'] === 'NO CONFIGURADA') {
+            echo json_encode(['ok' => false, 'diagnostico' => $diagnostico, 'mensaje' => 'MAILTRAP_KEY no está en las variables de entorno']);
+            return;
+        }
+
+        // Intentar enviar con respuesta visible
+        $apiKey  = getenv('MAILTRAP_KEY');
+        $payload = json_encode([
+            'from'     => ['email' => 'hello@demomailtrap.co', 'name' => 'MUUU App'],
+            'to'       => [['email' => $to, 'name' => 'Test']],
+            'subject'  => '✅ MUUU App — Email de prueba funcionando',
+            'text'     => 'Si recibes este correo, la integración con Mailtrap está funcionando correctamente.',
+            'html'     => '<h2 style="color:#4a008f">✅ Mailtrap funcionando</h2><p>La integración de MUUU App con Mailtrap está activa y enviando correctamente.</p>',
+            'category' => 'MUUU Test',
+        ], JSON_UNESCAPED_UNICODE);
+
+        $ch = curl_init('https://send.api.mailtrap.io/api/send');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $payload,
+            CURLOPT_HTTPHEADER     => [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $apiKey,
+            ],
+            CURLOPT_TIMEOUT        => 10,
+        ]);
+        $respuesta    = curl_exec($ch);
+        $httpCode     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError    = curl_error($ch);
+        curl_close($ch);
+
+        echo json_encode([
+            'ok'          => $httpCode === 200,
+            'diagnostico' => $diagnostico,
+            'http_code'   => $httpCode,
+            'curl_error'  => $curlError ?: null,
+            'mailtrap_respuesta' => json_decode($respuesta, true),
         ], JSON_UNESCAPED_UNICODE);
     }
 }
