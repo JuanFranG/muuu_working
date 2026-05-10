@@ -67,6 +67,7 @@ class UserController
         $_SESSION['id_usuario'] = $usuario['id_usuario'];
         $_SESSION['rol']        = $usuario['rol'];
         $_SESSION['nombre']     = $usuario['nombre'];
+        $_SESSION['correo']     = $usuario['correo'];
 
         unset($usuario['contrasena']);
 
@@ -153,6 +154,7 @@ class UserController
             $_SESSION['id_usuario'] = $usuarioExistente['id_usuario'];
             $_SESSION['rol']        = $usuarioExistente['rol'];
             $_SESSION['nombre']     = $usuarioExistente['nombre'];
+            $_SESSION['correo']     = $usuarioExistente['correo'];
 
             $this->responderJson(200, ['ok' => true, 'esNuevo' => false, 'usuario' => $usuarioExistente]);
             return;
@@ -181,6 +183,7 @@ class UserController
         $_SESSION['id_usuario'] = $usuario['id_usuario'];
         $_SESSION['rol']        = $usuario['rol'];
         $_SESSION['nombre']     = $usuario['nombre'];
+        $_SESSION['correo']     = $usuario['correo'];
 
         $this->responderJson(200, ['ok' => true, 'esNuevo' => false, 'usuario' => $usuario]);
     }

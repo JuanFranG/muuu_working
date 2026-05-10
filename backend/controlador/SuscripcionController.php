@@ -10,6 +10,7 @@
 
 require_once __DIR__ . '/../modelo/Suscripcion.php';
 require_once __DIR__ . '/../modelo/Notificacion.php';
+require_once __DIR__ . '/../modelo/MailService.php';
 
 class SuscripcionController
 {
@@ -75,15 +76,27 @@ class SuscripcionController
 
         $this->modelo->suscribir((int) $_SESSION['id_usuario'], $idDocente);
 
-        // ── Notificar al docente ─────────────────────────────
+        // ── Notificar al docente (in-app + email) ────────────
         try {
-            $nombreEst = $_SESSION['nombre'] ?? 'Un estudiante';
-            (new Notificacion())->insertar(
+            $nombreEst  = $_SESSION['nombre'] ?? 'Un estudiante';
+            $modeloNotif = new Notificacion();
+
+            $modeloNotif->insertar(
                 $idDocente,
                 'nueva_suscripcion',
                 'Nuevo suscriptor',
                 "{$nombreEst} se suscribió a tu perfil"
             );
+
+            // Email al docente
+            $docente = $modeloNotif->buscarCorreoPorId($idDocente);
+            if ($docente) {
+                MailService::nuevaSuscripcion(
+                    correoDocente:    $docente['correo'],
+                    nombreDocente:    $docente['nombre'],
+                    nombreEstudiante: $nombreEst
+                );
+            }
         } catch (Throwable) { /* no bloquear la respuesta si falla */ }
 
         $this->responder(200, ['ok' => true, 'mensaje' => 'Suscripción registrada.']);

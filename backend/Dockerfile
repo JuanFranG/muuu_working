@@ -4,11 +4,13 @@
 
 FROM php:8.3-fpm-alpine
 
-# Extensiones necesarias para MySQL y manejo de strings
-RUN docker-php-ext-install \
+# Extensiones necesarias para MySQL, curl y manejo de strings
+RUN apk add --no-cache curl-dev \
+ && docker-php-ext-install \
       mysqli \
       pdo \
-      pdo_mysql
+      pdo_mysql \
+      curl
 
 # Configuración de PHP para desarrollo
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"

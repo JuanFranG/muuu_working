@@ -10,6 +10,7 @@
 require_once __DIR__ . '/../modelo/Material.php';
 require_once __DIR__ . '/../modelo/Conexion.php';
 require_once __DIR__ . '/../modelo/Notificacion.php';
+require_once __DIR__ . '/../modelo/MailService.php';
 
 class MaterialController
 {
@@ -202,11 +203,19 @@ class MaterialController
             $nombreDoc   = $_SESSION['nombre'] ?? 'El docente';
             $suscritos   = $modeloNotif->listarSuscritosPorDocente((int) $_SESSION['id_usuario']);
             foreach ($suscritos as $est) {
+                // Notificación in-app
                 $modeloNotif->insertar(
                     (int) $est['id_estudiante'],
                     'nuevo_material',
                     'Nuevo material disponible',
                     "{$nombreDoc} subió nuevo material: {$titulo}"
+                );
+                // Email
+                MailService::nuevoMaterial(
+                    correoEstudiante: $est['correo'],
+                    nombreEstudiante: $est['nombre'],
+                    nombreDocente:    $nombreDoc,
+                    tituloMaterial:   $titulo
                 );
             }
         } catch (Throwable) { /* silencioso */ }

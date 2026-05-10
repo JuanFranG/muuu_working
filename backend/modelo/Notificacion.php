@@ -103,16 +103,30 @@ class Notificacion
 
     // ----------------------------------------------------------
     // Obtener los estudiantes suscritos a un docente (para notificar)
+    // Devuelve: id_estudiante, nombre, correo
     // ----------------------------------------------------------
     public function listarSuscritosPorDocente(int $idDocente): array
     {
         $stmt = $this->db->prepare(
-            'SELECT s.id_estudiante, u.nombre
+            'SELECT s.id_estudiante, u.nombre, u.correo
              FROM   SUSCRIPCION s
              JOIN   USUARIO     u ON u.id_usuario = s.id_estudiante
              WHERE  s.id_docente = ?'
         );
         $stmt->execute([$idDocente]);
         return $stmt->fetchAll();
+    }
+
+    // ----------------------------------------------------------
+    // Obtener correo y nombre de un usuario por su id
+    // ----------------------------------------------------------
+    public function buscarCorreoPorId(int $idUsuario): ?array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT nombre, correo FROM USUARIO WHERE id_usuario = ?'
+        );
+        $stmt->execute([$idUsuario]);
+        $row = $stmt->fetch();
+        return $row ?: null;
     }
 }
