@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Eye, Download, Users, BookOpen, FileText, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Eye, Download, Users, BookOpen, FileText, BarChart3, FileDown } from 'lucide-react';
 import { obtenerEstadisticasDocenteAPI, type EstadisticasDocenteAPI } from '../services/api';
 import { useThemeColors } from '../contexts/SettingsContext';
+import { ReporteDocente } from './ReporteDocente';
 
 interface EstadisticasDocenteProps {
   onBack: () => void;
@@ -19,8 +20,11 @@ const INICIAL: EstadisticasDocenteAPI = {
 
 export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
   const c = useThemeColors('teacher');
-  const [stats,    setStats]    = useState<EstadisticasDocenteAPI>(INICIAL);
-  const [cargando, setCargando] = useState(true);
+  const [stats,        setStats]        = useState<EstadisticasDocenteAPI>(INICIAL);
+  const [cargando,     setCargando]     = useState(true);
+  const [verReporte,   setVerReporte]   = useState(false);
+
+  if (verReporte) return <ReporteDocente onBack={() => setVerReporte(false)} />;
 
   useEffect(() => {
     obtenerEstadisticasDocenteAPI()
@@ -62,7 +66,7 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
           >
             <ArrowLeft size={20} color={dark} strokeWidth={2.5} />
           </button>
-          <div>
+          <div style={{ flex: 1 }}>
             <h1 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '18px', color: dark, margin: 0 }}>
               Mis Estadísticas
             </h1>
@@ -70,6 +74,19 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
               Rendimiento de tus flashcards
             </p>
           </div>
+          <button
+            onClick={() => setVerReporte(true)}
+            style={{
+              background: 'rgba(255,255,255,0.95)', border: 'none',
+              borderRadius: '20px', padding: '7px 14px', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: '5px',
+              fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '12px', color: '#4a008f',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+            }}
+          >
+            <FileDown size={15} color="#4a008f" strokeWidth={2.5} />
+            PDF
+          </button>
         </div>
 
         {/* ── HERO: Tasa de aciertos global ────────────────── */}

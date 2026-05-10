@@ -117,6 +117,7 @@ $rutasEstaticas = [
     'POST:quiz/resultado'                => ['RankingController', 'guardarResultado'],
     'GET:estadisticas/estudiante'        => ['RankingController', 'estadisticasEstudiante'],
     'GET:estadisticas/docente'           => ['RankingController', 'estadisticasDocente'],
+    'GET:estadisticas/docente/reporte'   => ['RankingController', 'reporteDocente'],
 ];
 
 if (isset($rutasEstaticas[$clave])) {

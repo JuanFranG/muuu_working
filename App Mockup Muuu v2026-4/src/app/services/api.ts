@@ -752,3 +752,43 @@ export async function obtenerEstadisticasDocenteAPI(): Promise<EstadisticasDocen
     };
   }
 }
+
+// ── Tipos para el reporte detallado ──────────────────────────────
+export interface EstudianteReporte {
+  nombre: string;
+  correo: string;
+  puntos: number;
+  posicion: number;
+  respondidas: number;
+  correctas: number;
+  incorrectas: number;
+  tasa: number;
+}
+export interface FlashcardFallada {
+  integral: string;
+  tema: string;
+  veces: number;
+  tasa: number;
+}
+export interface ReporteDocenteData {
+  docente: { nombre: string; correo: string };
+  fechaReporte: string;
+  flashcardsPublicadas: number;
+  materiales: number;
+  totalSuscriptores: number;
+  totalRespuestas: number;
+  tasaAciertos: number;
+  estudiantes: EstudianteReporte[];
+  masFalladas: FlashcardFallada[];
+}
+
+export async function obtenerReporteDocenteAPI(): Promise<ReporteDocenteData | null> {
+  try {
+    const data = await peticion<{ ok: boolean; data: ReporteDocenteData }>(
+      'GET', '/estadisticas/docente/reporte'
+    );
+    return data.data ?? null;
+  } catch {
+    return null;
+  }
+}

@@ -262,4 +262,123 @@ class RankingController
             ],
         ]);
     }
+
+    // ── GET /api/estadisticas/docente/reporte ────────────────
+    public function reporteDocente(): void
+    {
+        session_start();
+        if (empty($_SESSION['id_usuario'])) {
+            http_response_code(401);
+            echo json_encode(['ok' => false, 'error' => 'No autenticado']);
+            return;
+        }
+
+        $idDocente = (int) $_SESSION['id_usuario'];
+        $db        = Conexion::obtener();
+
+        // Info del docente
+        $stmt = $db->prepare('SELECT nombre, correo FROM USUARIO WHERE id_usuario = ?');
+        $stmt->execute([$idDocente]);
+        $docente = $stmt->fetch();
+
+        // Stats generales
+        $stmt = $db->prepare('SELECT COUNT(*) FROM FLASHCARDS WHERE id_usuario = ? AND estado = "PUBLICADO"');
+        $stmt->execute([$idDocente]);
+        $flashcardsPublicadas = (int) $stmt->fetchColumn();
+
+        $stmt = $db->prepare('SELECT COUNT(*) FROM MATERIAL WHERE id_usuario = ?');
+        $stmt->execute([$idDocente]);
+        $materiales = (int) $stmt->fetchColumn();
+
+        // Tasa de aciertos global
+        $stmt = $db->prepare(
+            "SELECT COUNT(*) AS total, COALESCE(SUM(h.resultado = 'correcta'), 0) AS correctas
+             FROM HISTORIAL_FLASHCARD h
+             JOIN FLASHCARDS f ON f.id_flashcard = h.id_flashcard
+             WHERE f.id_usuario = ?"
+        );
+        $stmt->execute([$idDocente]);
+        $fila = $stmt->fetch();
+        $totalRespuestas = (int) $fila['total'];
+        $tasaAciertos    = $totalRespuestas > 0
+            ? (int) round(((int) $fila['correctas'] / $totalRespuestas) * 100) : 0;
+
+        // Detalle por estudiante suscrito
+        $stmt = $db->prepare(
+            "SELECT u.id_usuario, u.nombre, u.correo,
+                    COALESCE(r.puntos, 0)   AS puntos,
+                    COALESCE(r.posicion, 0) AS posicion,
+                    COUNT(h.id_historial)                              AS respondidas,
+                    COALESCE(SUM(h.resultado = 'correcta'),  0)        AS correctas,
+                    COALESCE(SUM(h.resultado = 'incorrecta'), 0)       AS incorrectas
+             FROM   SUSCRIPCION s
+             JOIN   USUARIO u ON u.id_usuario = s.id_estudiante
+             LEFT JOIN RANKING r ON r.id_usuario = u.id_usuario
+             LEFT JOIN HISTORIAL_FLASHCARD h
+                    ON h.id_usuario = u.id_usuario
+                   AND h.id_flashcard IN (
+                       SELECT id_flashcard FROM FLASHCARDS WHERE id_usuario = ?
+                   )
+             WHERE  s.id_docente = ?
+             GROUP  BY u.id_usuario
+             ORDER  BY correctas DESC"
+        );
+        $stmt->execute([$idDocente, $idDocente]);
+        $estudiantes = [];
+        foreach ($stmt->fetchAll() as $r) {
+            $resp = (int) $r['respondidas'];
+            $cor  = (int) $r['correctas'];
+            $estudiantes[] = [
+                'nombre'      => $r['nombre'],
+                'correo'      => $r['correo'],
+                'puntos'      => (int) $r['puntos'],
+                'posicion'    => (int) $r['posicion'],
+                'respondidas' => $resp,
+                'correctas'   => $cor,
+                'incorrectas' => (int) $r['incorrectas'],
+                'tasa'        => $resp > 0 ? (int) round(($cor / $resp) * 100) : 0,
+            ];
+        }
+
+        // Top 5 flashcards más falladas
+        $stmt = $db->prepare(
+            "SELECT f.integral, t.nombre AS tema,
+                    COUNT(*) AS veces,
+                    COALESCE(SUM(h.resultado = 'correcta'), 0) AS correctas
+             FROM   HISTORIAL_FLASHCARD h
+             JOIN   FLASHCARDS f ON f.id_flashcard = h.id_flashcard
+             JOIN   TEMA t ON t.id_tema = f.id_tema
+             WHERE  f.id_usuario = ?
+             GROUP  BY f.id_flashcard
+             ORDER  BY (COALESCE(SUM(h.resultado = 'correcta'), 0) / COUNT(*)) ASC
+             LIMIT  5"
+        );
+        $stmt->execute([$idDocente]);
+        $masFalladas = [];
+        foreach ($stmt->fetchAll() as $r) {
+            $v = (int) $r['veces'];
+            $c = (int) $r['correctas'];
+            $masFalladas[] = [
+                'integral' => $r['integral'],
+                'tema'     => $r['tema'],
+                'veces'    => $v,
+                'tasa'     => $v > 0 ? (int) round(($c / $v) * 100) : 0,
+            ];
+        }
+
+        echo json_encode([
+            'ok'   => true,
+            'data' => [
+                'docente'             => $docente,
+                'fechaReporte'        => date('d/m/Y H:i'),
+                'flashcardsPublicadas'=> $flashcardsPublicadas,
+                'materiales'          => $materiales,
+                'totalSuscriptores'   => count($estudiantes),
+                'totalRespuestas'     => $totalRespuestas,
+                'tasaAciertos'        => $tasaAciertos,
+                'estudiantes'         => $estudiantes,
+                'masFalladas'         => $masFalladas,
+            ],
+        ], JSON_UNESCAPED_UNICODE);
+    }
 }
