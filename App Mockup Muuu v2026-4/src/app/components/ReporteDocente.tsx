@@ -23,6 +23,8 @@ export function ReporteDocente({ onBack }: ReporteDocenteProps) {
     if (!datos) return;
     const colorTasaStr = (t: number) =>
       t >= 70 ? '#15803d' : t >= 40 ? '#b45309' : '#b91c1c';
+    const tdP = 'padding:8px 10px;border-bottom:1px solid #e5e7eb';
+    const thP = 'padding:9px 10px;text-align:left;color:white;font-size:11px;letter-spacing:.3px';
 
     const filasEstudiantes = datos.estudiantes.length === 0
       ? `<tr><td colspan="8" style="text-align:center;padding:20px;color:#9ca3af;font-style:italic;">
@@ -57,8 +59,6 @@ export function ReporteDocente({ onBack }: ReporteDocenteProps) {
             <td style="${tdP};text-align:center;font-weight:700;color:${colorTasaStr(fc.tasa)}">${fc.tasa}%</td>
           </tr>`).join('');
 
-    const tdP = 'padding:8px 10px;border-bottom:1px solid #e5e7eb';
-    const thP = 'padding:9px 10px;text-align:left;color:white;font-size:11px;letter-spacing:.3px';
 
     const html = `<!DOCTYPE html>
 <html lang="es">
