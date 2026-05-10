@@ -415,18 +415,64 @@ class UserController
             return;
         }
 
-        // Leer el contenido del archivo y codificarlo en base64 para persistir
-        // en la base de datos (evita pérdida de archivos en servidores sin
-        // sistema de archivos persistente como Render).
-        $contenido = file_get_contents($archivo['tmp_name']);
-        if ($contenido === false || strlen($contenido) === 0) {
-            http_response_code(500);
-            echo json_encode(['ok' => false, 'mensaje' => 'No se pudo leer la imagen.'], JSON_UNESCAPED_UNICODE);
-            return;
+        // ── Asegurar que la columna fotoPerfil sea MEDIUMTEXT ────────────────
+        // (la primera vez convierte el VARCHAR(255) original)
+        try {
+            $db = \Conexion::obtener();
+            $db->exec("ALTER TABLE USUARIO MODIFY COLUMN fotoPerfil MEDIUMTEXT");
+        } catch (\Throwable) { /* ya es MEDIUMTEXT o no tiene permisos; continuar */ }
+
+        // ── Redimensionar a máx 256×256 con GD y comprimir a JPEG 80% ───────
+        // Esto reduce cualquier imagen a ~15-30 KB antes de codificar en base64.
+        $dataUrl = null;
+        if (function_exists('imagecreatefromstring')) {
+            $original = @imagecreatefromstring(file_get_contents($archivo['tmp_name']));
+            if ($original !== false) {
+                $anchoOrig = imagesx($original);
+                $altoOrig  = imagesy($original);
+                $maxDim    = 256;
+
+                // Calcular nuevas dimensiones manteniendo proporción
+                if ($anchoOrig > $altoOrig) {
+                    $nuevoAncho = $maxDim;
+                    $nuevoAlto  = (int) round($altoOrig * $maxDim / $anchoOrig);
+                } else {
+                    $nuevoAlto  = $maxDim;
+                    $nuevoAncho = (int) round($anchoOrig * $maxDim / $altoOrig);
+                }
+                if ($nuevoAncho < 1) $nuevoAncho = 1;
+                if ($nuevoAlto  < 1) $nuevoAlto  = 1;
+
+                $redim = imagecreatetruecolor($nuevoAncho, $nuevoAlto);
+                // Fondo blanco para PNGs con transparencia
+                imagefill($redim, 0, 0, imagecolorallocate($redim, 255, 255, 255));
+                imagecopyresampled($redim, $original, 0, 0, 0, 0,
+                    $nuevoAncho, $nuevoAlto, $anchoOrig, $altoOrig);
+
+                ob_start();
+                imagejpeg($redim, null, 80);
+                $jpegBytes = ob_get_clean();
+
+                imagedestroy($original);
+                imagedestroy($redim);
+
+                if ($jpegBytes) {
+                    $dataUrl = 'data:image/jpeg;base64,' . base64_encode($jpegBytes);
+                }
+            }
         }
 
-        $mime    = $archivo['type'] ?: "image/{$extension}";
-        $dataUrl = 'data:' . $mime . ';base64,' . base64_encode($contenido);
+        // Fallback: si GD no está disponible, leer el archivo original
+        if ($dataUrl === null) {
+            $contenido = file_get_contents($archivo['tmp_name']);
+            if ($contenido === false || strlen($contenido) === 0) {
+                http_response_code(500);
+                echo json_encode(['ok' => false, 'mensaje' => 'No se pudo procesar la imagen.'], JSON_UNESCAPED_UNICODE);
+                return;
+            }
+            $mime    = $archivo['type'] ?: "image/{$extension}";
+            $dataUrl = 'data:' . $mime . ';base64,' . base64_encode($contenido);
+        }
 
         $this->modelo->actualizarFoto((int) $_SESSION['id_usuario'], $dataUrl);
 
