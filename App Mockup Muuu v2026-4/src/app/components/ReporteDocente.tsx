@@ -12,30 +12,75 @@ interface ReporteDocenteProps {
   onBack: () => void;
 }
 
+// Regex que reconoce un "comando LaTeX completo":
+//   \comando  + sus argumentos {…} + sub/super _…^…
+const LATEX_CMD =
+  /\\[a-zA-Z]+(?:\*)?(?:\[[^\]]*\])?(?:\{[^}]*\})*(?:[_^]\{[^}]*\}|[_^][a-zA-Z0-9])*(?:\\,|\\;|\\!|\\quad)?/g;
+
+/** Renderiza una expresión LaTeX pura con KaTeX. */
+function katexStr(latex: string): string {
+  try {
+    return katex.renderToString(latex.trim(), {
+      throwOnError: false,
+      displayMode:  false,
+      strict:       false,
+    });
+  } catch {
+    return latex;
+  }
+}
+
+/**
+ * Renderiza un fragmento que PUEDE ser LaTeX puro o mezcla con texto español.
+ *
+ * · Si el fragmento tiene caracteres acentuados / no-ASCII → modo mixto:
+ *   busca comandos LaTeX con regex y los renderiza con KaTeX uno a uno;
+ *   el texto plano entre ellos queda intacto.
+ * · Si es LaTeX puro → KaTeX directo.
+ */
+function renderFragment(fragment: string): string {
+  const hasSpanish = /[áéíóúüñÁÉÍÓÚÜÑ¿¡]/.test(fragment);
+
+  if (hasSpanish) {
+    // Modo mixto: renderizar solo los comandos LaTeX; dejar el resto como texto
+    let result = '';
+    let lastIdx = 0;
+    LATEX_CMD.lastIndex = 0;
+    let m: RegExpExecArray | null;
+    while ((m = LATEX_CMD.exec(fragment)) !== null) {
+      result += fragment.slice(lastIdx, m.index);   // texto plano antes del comando
+      result += katexStr(m[0]);                     // comando → KaTeX
+      lastIdx  = m.index + m[0].length;
+    }
+    result += fragment.slice(lastIdx);               // texto plano final
+    return result;
+  }
+
+  // Puro o suficientemente LaTeX → KaTeX directo
+  return katexStr(fragment);
+}
+
 /**
  * LaTeX/texto mixto → HTML (usa katex.min.css ya cargado en la página).
  *
  * Soporta:
- *  · Puro:  "\int_a^b f(x)\,dx"                 → KaTeX directo
- *  · $…$:   "$\int_a^b f(x)\,dx$"               → strip $ + KaTeX
- *  · Mixto: "Si $\int_a^b f(x)\,dx$ = 5 ..."    → partes $…$ con KaTeX,
- *            texto plano intacto ($ de cierre opcional)
+ *  · Puro:  "\int_a^b f(x)\,dx"
+ *  · $…$:   "$\int_a^b f(x)\,dx$"
+ *  · Mixto: "Si $\int_a^b f(x)\,dx$ = 5, ..."
+ *  · Mixto con texto esp. dentro de $…$:
+ *           "$F(x) = \int_o^x t^2 dt, cuáles la derivada F'(x)$"
+ *           → los comandos LaTeX se renderizan, el texto queda intacto.
  */
 const toKatex = (raw: string): string => {
   if (!raw) return '';
 
-  // Mixto: hay al menos un $
+  // Mixto con delimitadores $…$ (cierre opcional)
   if (raw.includes('$')) {
-    return raw.replace(/\$([^$]+)\$?/g, (_m, inner) => {
-      try { return katex.renderToString(inner.trim(), { throwOnError: false, displayMode: false, strict: false }); }
-      catch { return inner; }
-    });
+    return raw.replace(/\$([^$]+)\$?/g, (_m, inner) => renderFragment(inner));
   }
 
-  // Puro LaTeX sin delimitadores
-  const src = raw.trim();
-  try { return katex.renderToString(src, { throwOnError: false, displayMode: false, strict: false }); }
-  catch { return raw; }
+  // Sin delimitadores → tratar todo como LaTeX/mezcla
+  return renderFragment(raw.trim());
 };
 
 const colorTasa = (t: number) =>
@@ -167,6 +212,12 @@ export function ReporteDocente({ onBack }: ReporteDocenteProps) {
           width: 100%;
           height: auto !important;
           overflow: visible !important;
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+        thead tr {
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
         }
         table  { page-break-inside: auto; }
         tr     { page-break-inside: avoid; page-break-after: auto; }
