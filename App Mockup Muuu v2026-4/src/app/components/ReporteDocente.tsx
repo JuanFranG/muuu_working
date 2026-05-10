@@ -1,5 +1,9 @@
-import { useState, useEffect } from 'react';
-import { ArrowLeft, Printer, Loader2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, Download, Loader2 } from 'lucide-react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
 import {
   obtenerReporteDocenteAPI,
   type ReporteDocenteData,
@@ -9,9 +13,21 @@ interface ReporteDocenteProps {
   onBack: () => void;
 }
 
+/** Convierte LaTeX (con o sin $…$) a HTML renderizado por KaTeX */
+const renderLatex = (raw: string): string => {
+  const src = raw.replace(/^\$+|\$+$/g, '').trim();
+  try {
+    return katex.renderToString(src, { throwOnError: false, displayMode: false });
+  } catch {
+    return src;
+  }
+};
+
 export function ReporteDocente({ onBack }: ReporteDocenteProps) {
-  const [datos,    setDatos]    = useState<ReporteDocenteData | null>(null);
-  const [cargando, setCargando] = useState(true);
+  const [datos,       setDatos]       = useState<ReporteDocenteData | null>(null);
+  const [cargando,    setCargando]    = useState(true);
+  const [descargando, setDescargando] = useState(false);
+  const reporteRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     obtenerReporteDocenteAPI()
@@ -19,149 +35,37 @@ export function ReporteDocente({ onBack }: ReporteDocenteProps) {
       .finally(() => setCargando(false));
   }, []);
 
-  const handlePrint = () => {
-    if (!datos) return;
-    const colorTasaStr = (t: number) =>
-      t >= 70 ? '#15803d' : t >= 40 ? '#b45309' : '#b91c1c';
-    const tdP = 'padding:8px 10px;border-bottom:1px solid #e5e7eb';
-    const thP = 'padding:9px 10px;text-align:left;color:white;font-size:11px;letter-spacing:.3px';
+  const handleDownload = async () => {
+    if (!reporteRef.current || !datos) return;
+    setDescargando(true);
+    try {
+      const canvas = await html2canvas(reporteRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
 
-    const filasEstudiantes = datos.estudiantes.length === 0
-      ? `<tr><td colspan="8" style="text-align:center;padding:20px;color:#9ca3af;font-style:italic;">
-           Sin estudiantes suscritos
-         </td></tr>`
-      : datos.estudiantes.map((est, i) => `
-          <tr style="background:${i % 2 === 0 ? '#fff' : '#f9fafb'}">
-            <td style="${tdP};text-align:center">${i + 1}</td>
-            <td style="${tdP};font-weight:600">${est.nombre}</td>
-            <td style="${tdP};font-size:11px;color:#6b7280">${est.correo}</td>
-            <td style="${tdP};text-align:center">${est.respondidas}</td>
-            <td style="${tdP};text-align:center;color:#15803d;font-weight:700">${est.correctas}</td>
-            <td style="${tdP};text-align:center;color:#b91c1c;font-weight:700">${est.incorrectas}</td>
-            <td style="${tdP};text-align:center;font-weight:700;color:${colorTasaStr(est.tasa)}">
-              ${est.respondidas > 0 ? `${est.tasa}%` : '—'}
-            </td>
-            <td style="${tdP};text-align:center;color:#4a008f;font-weight:700">${est.puntos}</td>
-          </tr>`).join('');
+      const pdf      = new jsPDF('p', 'mm', 'a4');
+      const pdfW     = pdf.internal.pageSize.getWidth();
+      const pdfH     = pdf.internal.pageSize.getHeight();
+      const imgH     = (canvas.height * pdfW) / canvas.width;
+      const imgData  = canvas.toDataURL('image/jpeg', 0.95);
 
-    const filasFalladas = datos.masFalladas.length === 0
-      ? `<tr><td colspan="5" style="text-align:center;padding:20px;color:#9ca3af;font-style:italic;">
-           Sin datos de quizzes
-         </td></tr>`
-      : datos.masFalladas.map((fc, i) => `
-          <tr style="background:${i % 2 === 0 ? '#fff' : '#f9fafb'}">
-            <td style="${tdP};text-align:center">${i + 1}</td>
-            <td style="${tdP};font-family:Georgia,serif;font-size:12px">
-              ${fc.integral.replace(/\$/g, '').slice(0, 70)}${fc.integral.length > 70 ? '…' : ''}
-            </td>
-            <td style="${tdP}">${fc.tema}</td>
-            <td style="${tdP};text-align:center">${fc.veces}</td>
-            <td style="${tdP};text-align:center;font-weight:700;color:${colorTasaStr(fc.tasa)}">${fc.tasa}%</td>
-          </tr>`).join('');
+      let remaining = imgH;
+      let page      = 0;
+      while (remaining > 0) {
+        if (page > 0) pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, -(page * pdfH), pdfW, imgH);
+        remaining -= pdfH;
+        page++;
+      }
 
-
-    const html = `<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Reporte MUUU — ${datos.docente.nombre}</title>
-  <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; padding: 24mm 20mm; font-family: Georgia,"Times New Roman",serif;
-           color: #1a1a1a; background: white; font-size: 13px; }
-    h2 { font-family: Poppins,sans-serif; font-size: 13px; font-weight: 700;
-         text-transform: uppercase; border-bottom: 1px solid #d1d5db;
-         padding-bottom: 5px; margin: 28px 0 14px; letter-spacing: .3px; }
-    table { width: 100%; border-collapse: collapse; font-size: 12px;
-            border: 1px solid #d1d5db; margin-bottom: 8px; }
-    @media print {
-      body { padding: 15mm 15mm; }
-      @page { margin: 10mm; size: A4; }
+      const nombreArchivo = `reporte-${datos.docente.nombre.replace(/\s+/g, '_')}.pdf`;
+      pdf.save(nombreArchivo);
+    } finally {
+      setDescargando(false);
     }
-  </style>
-</head>
-<body>
-  <!-- ENCABEZADO -->
-  <div style="border-bottom:3px double #1a1a1a;padding-bottom:18px;margin-bottom:24px">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
-      <div>
-        <div style="font-family:Poppins,sans-serif;font-weight:900;font-size:22px;color:#4a008f">MUUU App</div>
-        <div style="font-size:12px;color:#444;margin-top:3px">Universidad del Magdalena · Cálculo Integral</div>
-      </div>
-      <div style="text-align:right;font-size:11px;color:#555;font-family:Poppins,sans-serif">
-        <div><strong>Generado:</strong> ${datos.fechaReporte}</div>
-        <div><strong>Docente:</strong> ${datos.docente.nombre}</div>
-        <div style="color:#6b7280">${datos.docente.correo}</div>
-      </div>
-    </div>
-    <div style="margin-top:18px;text-align:center;font-family:Poppins,sans-serif;font-weight:700;
-                font-size:17px;text-transform:uppercase;letter-spacing:.5px">
-      Informe de Rendimiento Académico
-    </div>
-    <div style="text-align:center;font-size:11px;color:#888;margin-top:3px">
-      Reporte detallado de actividad estudiantil en flashcards de Cálculo Integral
-    </div>
-  </div>
-
-  <!-- SECCIÓN 1 -->
-  <h2>1. Resumen General</h2>
-  <table>
-    <tr style="background:#4a008f">
-      <th style="${thP}">Flashcards publicadas</th>
-      <th style="${thP}">Estudiantes suscritos</th>
-      <th style="${thP}">Materiales</th>
-      <th style="${thP}">Respuestas totales</th>
-      <th style="${thP}">Tasa de aciertos</th>
-    </tr>
-    <tr style="text-align:center;font-family:Poppins,sans-serif;font-weight:700;font-size:18px">
-      <td style="padding:12px">${datos.flashcardsPublicadas}</td>
-      <td style="padding:12px">${datos.totalSuscriptores}</td>
-      <td style="padding:12px">${datos.materiales}</td>
-      <td style="padding:12px">${datos.totalRespuestas}</td>
-      <td style="padding:12px;color:${colorTasaStr(datos.tasaAciertos)}">${datos.tasaAciertos}%</td>
-    </tr>
-  </table>
-
-  <!-- SECCIÓN 2 -->
-  <h2>2. Rendimiento por Estudiante</h2>
-  <table>
-    <thead>
-      <tr style="background:#4a008f">
-        ${['#','Nombre','Correo','Respondidas','Correctas','Incorrectas','Aciertos','Puntos']
-          .map(h => `<th style="${thP}">${h}</th>`).join('')}
-      </tr>
-    </thead>
-    <tbody>${filasEstudiantes}</tbody>
-  </table>
-
-  <!-- SECCIÓN 3 -->
-  <h2>3. Flashcards con Menor Tasa de Aciertos</h2>
-  <table>
-    <thead>
-      <tr style="background:#4a008f">
-        ${['#','Flashcard (integral)','Tema','Veces respondida','Tasa de aciertos']
-          .map(h => `<th style="${thP}">${h}</th>`).join('')}
-      </tr>
-    </thead>
-    <tbody>${filasFalladas}</tbody>
-  </table>
-
-  <!-- PIE -->
-  <div style="border-top:2px solid #1a1a1a;margin-top:32px;padding-top:12px;
-              display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;
-              font-family:Poppins,sans-serif">
-    <span>MUUU App · Universidad del Magdalena · 2026</span>
-    <span>Generado automáticamente · ${datos.fechaReporte}</span>
-  </div>
-</body>
-</html>`;
-
-    const ventana = window.open('', '_blank', 'width=900,height=700');
-    if (!ventana) return;
-    ventana.document.write(html);
-    ventana.document.close();
-    ventana.focus();
-    setTimeout(() => ventana.print(), 500);
   };
 
   const colorTasa = (t: number) =>
@@ -188,9 +92,8 @@ export function ReporteDocente({ onBack }: ReporteDocenteProps) {
     <>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
-      {/* ── BARRA SUPERIOR (no imprime) ── */}
+      {/* ── BARRA SUPERIOR ── */}
       <div
-        className="no-print"
         style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '14px 20px',
@@ -212,26 +115,28 @@ export function ReporteDocente({ onBack }: ReporteDocenteProps) {
           Vista previa del reporte
         </span>
         <button
-          onClick={handlePrint}
+          onClick={handleDownload}
+          disabled={descargando}
           style={{
-            background: 'white', border: 'none', borderRadius: '20px',
-            padding: '8px 18px', cursor: 'pointer',
+            background: descargando ? 'rgba(255,255,255,0.6)' : 'white',
+            border: 'none', borderRadius: '20px',
+            padding: '8px 18px', cursor: descargando ? 'default' : 'pointer',
             display: 'flex', alignItems: 'center', gap: '6px',
             fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '13px', color: '#4a008f',
+            transition: 'background 0.2s',
           }}
         >
-          <Printer size={16} color="#4a008f" />
-          Exportar PDF
+          {descargando
+            ? <Loader2 size={15} color="#4a008f" style={{ animation: 'spin 1s linear infinite' }} />
+            : <Download size={15} color="#4a008f" />}
+          {descargando ? 'Generando…' : 'Descargar PDF'}
         </button>
       </div>
 
       {/* ── CONTENIDO DEL REPORTE ── */}
-      <div
-        className="reporte-root"
-        style={{ background: '#f8f8f8', minHeight: '100%', overflowY: 'auto' }}
-      >
+      <div style={{ background: '#f8f8f8', minHeight: '100%', overflowY: 'auto' }}>
         <div
-          className="reporte-page"
+          ref={reporteRef}
           style={{
             maxWidth: '820px', margin: '0 auto', background: 'white',
             padding: '40px 48px', fontFamily: 'Georgia, "Times New Roman", serif',
@@ -239,7 +144,7 @@ export function ReporteDocente({ onBack }: ReporteDocenteProps) {
           }}
         >
 
-          {/* ── ENCABEZADO TIPO LaTeX ── */}
+          {/* ── ENCABEZADO ── */}
           <div style={{ borderBottom: '3px double #1a1a1a', paddingBottom: '20px', marginBottom: '28px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
@@ -273,11 +178,11 @@ export function ReporteDocente({ onBack }: ReporteDocenteProps) {
             <h2 style={h2Style}>1. Resumen General</h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '16px' }}>
               {[
-                { label: 'Flashcards publicadas', valor: datos.flashcardsPublicadas, icono: '📚' },
-                { label: 'Estudiantes suscritos', valor: datos.totalSuscriptores,    icono: '👥' },
-                { label: 'Materiales subidos',    valor: datos.materiales,           icono: '📄' },
-                { label: 'Respuestas totales',    valor: datos.totalRespuestas,      icono: '📝' },
-                { label: 'Tasa de aciertos',      valor: `${datos.tasaAciertos}%`,   icono: '🎯' },
+                { label: 'Flashcards publicadas', valor: datos.flashcardsPublicadas,  icono: '📚' },
+                { label: 'Estudiantes suscritos', valor: datos.totalSuscriptores,     icono: '👥' },
+                { label: 'Materiales subidos',    valor: datos.materiales,            icono: '📄' },
+                { label: 'Respuestas totales',    valor: datos.totalRespuestas,       icono: '📝' },
+                { label: 'Tasa de aciertos',      valor: `${datos.tasaAciertos}%`,    icono: '🎯' },
                 { label: 'Nivel docente',         valor: `Nv. ${Math.floor(datos.totalRespuestas / 50)}`, icono: '⭐' },
               ].map((m, i) => (
                 <div key={i} style={{
@@ -285,9 +190,7 @@ export function ReporteDocente({ onBack }: ReporteDocenteProps) {
                   textAlign: 'center', background: '#fafafa',
                 }}>
                   <div style={{ fontSize: '24px', marginBottom: '6px' }}>{m.icono}</div>
-                  <div style={{
-                    fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '22px', color: '#4a008f',
-                  }}>
+                  <div style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 800, fontSize: '22px', color: '#4a008f' }}>
                     {m.valor}
                   </div>
                   <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '4px' }}>{m.label}</div>
@@ -360,9 +263,10 @@ export function ReporteDocente({ onBack }: ReporteDocenteProps) {
                   {datos.masFalladas.map((fc, i) => (
                     <tr key={i} style={{ background: i % 2 === 0 ? '#ffffff' : '#f9fafb' }}>
                       <td style={tdCenterStyle}>{i + 1}</td>
-                      <td style={{ ...tdStyle, fontFamily: 'Georgia, serif', fontSize: '12px' }}>
-                        {fc.integral.replace(/\$/g, '').slice(0, 60)}{fc.integral.length > 60 ? '…' : ''}
-                      </td>
+                      <td
+                        style={{ ...tdStyle, fontSize: '13px' }}
+                        dangerouslySetInnerHTML={{ __html: renderLatex(fc.integral) }}
+                      />
                       <td style={tdStyle}>{fc.tema}</td>
                       <td style={tdCenterStyle}>{fc.veces}</td>
                       <td style={{ ...tdCenterStyle, fontWeight: 700, color: colorTasa(fc.tasa) }}>

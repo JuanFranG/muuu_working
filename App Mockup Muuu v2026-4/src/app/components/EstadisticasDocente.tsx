@@ -3,6 +3,18 @@ import { ArrowLeft, Eye, Download, Users, BookOpen, FileText, BarChart3, FileDow
 import { obtenerEstadisticasDocenteAPI, type EstadisticasDocenteAPI } from '../services/api';
 import { useThemeColors } from '../contexts/SettingsContext';
 import { ReporteDocente } from './ReporteDocente';
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
+
+/** Convierte una cadena LaTeX (con o sin $…$) a HTML renderizado por KaTeX */
+const renderLatex = (raw: string): string => {
+  const src = raw.replace(/^\$+|\$+$/g, '').trim();
+  try {
+    return katex.renderToString(src, { throwOnError: false, displayMode: false });
+  } catch {
+    return src;
+  }
+};
 
 interface EstadisticasDocenteProps {
   onBack: () => void;
@@ -292,11 +304,11 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p
                         style={{
-                          fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '12px',
+                          fontFamily: 'KaTeX_Main, Georgia, serif', fontWeight: 600, fontSize: '13px',
                           color: c.textPrimary, margin: '0 0 2px 0',
                           overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
                         }}
-                        dangerouslySetInnerHTML={{ __html: fc.integral }}
+                        dangerouslySetInnerHTML={{ __html: renderLatex(fc.integral) }}
                       />
                       <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '10px', color: c.textMuted, margin: 0 }}>
                         {fc.tema} · {fc.vecesEstudiada} {fc.vecesEstudiada === 1 ? 'vez' : 'veces'}
