@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, FileDown, Loader2 } from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
+import muuuLogo from 'figma:asset/4de3de61f8e4df99b460b6420b603ae06ba0b967.png';
 import {
   obtenerReporteDocenteAPI,
   type ReporteDocenteData,
@@ -45,93 +46,126 @@ export function ReporteDocente({ onBack }: ReporteDocenteProps) {
   const exportarPDF = () => {
     if (!datos) return;
 
-    /* ── Constantes declaradas primero ── */
+    /* ── helpers (todos antes de los template literals que los usan) ── */
     const clr = (t: number) => t >= 70 ? '#15803d' : t >= 40 ? '#b45309' : '#b91c1c';
-    const tdI = 'padding:8px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle';
-    const thI = 'padding:9px 10px;text-align:left;color:#fff;font-size:11px;letter-spacing:.3px;font-family:Arial,sans-serif';
+
+    /* Estilos de celdas para tabla de 8 columnas — anchos fijos para que quepan en A4 */
+    const tdBase = 'padding:5px 6px;border-bottom:1px solid #e5e7eb;vertical-align:middle;overflow:hidden;font-size:10px';
+    const thBase = 'padding:7px 6px;text-align:left;color:#fff;font-size:10px;letter-spacing:.2px;font-family:Arial,sans-serif;font-weight:700';
+
+    /* Tabla de estudiantes: table-layout:fixed + anchos explícitos */
+    const colWidths = ['5%','15%','22%','9%','8%','9%','9%','8%'];
+    const colGroup  = colWidths.map(w => `<col style="width:${w}">`).join('');
 
     const rowsEst = datos.estudiantes.length === 0
-      ? `<tr><td colspan="8" style="text-align:center;padding:20px;color:#9ca3af;font-style:italic">Sin estudiantes suscritos</td></tr>`
+      ? `<tr><td colspan="8" style="text-align:center;padding:16px;color:#9ca3af;font-style:italic;font-size:11px">Sin estudiantes suscritos</td></tr>`
       : datos.estudiantes.map((e, i) =>
           `<tr style="background:${i % 2 === 0 ? '#fff' : '#f9fafb'}">
-            <td style="${tdI};text-align:center">${i + 1}</td>
-            <td style="${tdI};font-weight:600">${e.nombre}</td>
-            <td style="${tdI};font-size:11px;color:#6b7280">${e.correo}</td>
-            <td style="${tdI};text-align:center">${e.respondidas}</td>
-            <td style="${tdI};text-align:center;color:#15803d;font-weight:700">${e.correctas}</td>
-            <td style="${tdI};text-align:center;color:#b91c1c;font-weight:700">${e.incorrectas}</td>
-            <td style="${tdI};text-align:center;font-weight:700;color:${clr(e.tasa)}">${e.respondidas > 0 ? `${e.tasa}%` : '—'}</td>
-            <td style="${tdI};text-align:center;color:#4a008f;font-weight:700">${e.puntos}</td>
+            <td style="${tdBase};text-align:center;font-family:Arial,sans-serif">${i + 1}</td>
+            <td style="${tdBase};font-weight:600;word-break:break-word">${e.nombre}</td>
+            <td style="${tdBase};color:#6b7280;word-break:break-all">${e.correo}</td>
+            <td style="${tdBase};text-align:center;font-family:Arial,sans-serif">${e.respondidas}</td>
+            <td style="${tdBase};text-align:center;color:#15803d;font-weight:700;font-family:Arial,sans-serif">${e.correctas}</td>
+            <td style="${tdBase};text-align:center;color:#b91c1c;font-weight:700;font-family:Arial,sans-serif">${e.incorrectas}</td>
+            <td style="${tdBase};text-align:center;font-weight:700;color:${clr(e.tasa)};font-family:Arial,sans-serif">${e.respondidas > 0 ? `${e.tasa}%` : '—'}</td>
+            <td style="${tdBase};text-align:center;color:#4a008f;font-weight:700;font-family:Arial,sans-serif">${e.puntos}</td>
           </tr>`).join('');
 
+    const tdFall = 'padding:6px 8px;border-bottom:1px solid #e5e7eb;vertical-align:middle;font-size:11px';
     const rowsFall = datos.masFalladas.length === 0
-      ? `<tr><td colspan="5" style="text-align:center;padding:20px;color:#9ca3af;font-style:italic">Sin datos de quizzes</td></tr>`
+      ? `<tr><td colspan="5" style="text-align:center;padding:16px;color:#9ca3af;font-style:italic;font-size:11px">Sin datos de quizzes</td></tr>`
       : datos.masFalladas.map((fc, i) =>
           `<tr style="background:${i % 2 === 0 ? '#fff' : '#f9fafb'}">
-            <td style="${tdI};text-align:center">${i + 1}</td>
-            <td style="${tdI}">${toMath(fc.integral)}</td>
-            <td style="${tdI}">${fc.tema}</td>
-            <td style="${tdI};text-align:center">${fc.veces}</td>
-            <td style="${tdI};text-align:center;font-weight:700;color:${clr(fc.tasa)}">${fc.tasa}%</td>
+            <td style="${tdFall};text-align:center;width:5%;font-family:Arial,sans-serif">${i + 1}</td>
+            <td style="${tdFall};width:38%">${toMath(fc.integral)}</td>
+            <td style="${tdFall};width:30%;font-family:Arial,sans-serif">${fc.tema}</td>
+            <td style="${tdFall};text-align:center;width:13%;font-family:Arial,sans-serif">${fc.veces}</td>
+            <td style="${tdFall};text-align:center;width:14%;font-weight:700;color:${clr(fc.tasa)};font-family:Arial,sans-serif">${fc.tasa}%</td>
           </tr>`).join('');
 
-    const thsHTML = (cols: string[]) =>
-      cols.map(h => `<th style="${thI}">${h}</th>`).join('');
+    const thsRow = (cols: string[], base = thBase) =>
+      cols.map(h => `<th style="${base}">${h}</th>`).join('');
 
-    /* ── Contenido del reporte (sin <html>/<head>, solo el body) ── */
+    const h2 = 'font-family:Arial,sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;border-bottom:1px solid #d1d5db;padding-bottom:4px;margin:20px 0 10px;letter-spacing:.4px';
+
+    /* ── HTML del reporte ── */
     const contenido = `
-<div style="border-bottom:3px double #1a1a1a;padding-bottom:16px;margin-bottom:22px">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start">
-    <div>
-      <div style="font-family:Arial,sans-serif;font-weight:900;font-size:22px;color:#4a008f">MUUU App</div>
-      <div style="font-size:12px;color:#444;margin-top:3px">Universidad del Magdalena · Cálculo Integral</div>
+<!-- ENCABEZADO -->
+<div style="border-bottom:3px double #1a1a1a;padding-bottom:14px;margin-bottom:20px">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div style="display:flex;align-items:center;gap:12px">
+      <img src="${muuuLogo}" alt="MUUU" style="height:48px;width:auto">
+      <div>
+        <div style="font-family:Arial,sans-serif;font-weight:900;font-size:20px;color:#4a008f;line-height:1">MUUU App</div>
+        <div style="font-size:11px;color:#444;margin-top:3px">Universidad del Magdalena · Cálculo Integral</div>
+      </div>
     </div>
-    <div style="text-align:right;font-size:11px;color:#555;font-family:Arial,sans-serif">
+    <div style="text-align:right;font-size:10px;color:#555;font-family:Arial,sans-serif;line-height:1.6">
       <div><strong>Generado:</strong> ${datos.fechaReporte}</div>
       <div><strong>Docente:</strong> ${datos.docente.nombre}</div>
       <div style="color:#6b7280">${datos.docente.correo}</div>
     </div>
   </div>
-  <div style="margin-top:16px;text-align:center;font-family:Arial,sans-serif;font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.5px">
+  <div style="margin-top:14px;text-align:center;font-family:Arial,sans-serif;font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.5px">
     Informe de Rendimiento Académico
   </div>
-  <div style="text-align:center;font-size:11px;color:#888;margin-top:3px">
+  <div style="text-align:center;font-size:10px;color:#888;margin-top:2px">
     Reporte detallado de actividad estudiantil en flashcards de Cálculo Integral
   </div>
 </div>
 
-<h2 style="font-family:Arial,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;border-bottom:1px solid #d1d5db;padding-bottom:5px;margin:24px 0 12px;letter-spacing:.4px">1. Resumen General</h2>
-<table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #d1d5db;margin-bottom:8px">
-  <thead><tr style="background:#4a008f">${thsHTML(['Flashcards','Estudiantes','Materiales','Respuestas','Tasa aciertos'])}</tr></thead>
+<!-- 1. RESUMEN -->
+<h2 style="${h2}">1. Resumen General</h2>
+<table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #d1d5db;margin-bottom:6px">
+  <thead>
+    <tr style="background:#4a008f">
+      ${thsRow(['Flashcards publicadas','Estudiantes suscritos','Materiales','Respuestas totales','Tasa de aciertos'])}
+    </tr>
+  </thead>
   <tbody>
-    <tr style="text-align:center;font-family:Arial,sans-serif;font-weight:700;font-size:20px">
-      <td style="padding:12px">${datos.flashcardsPublicadas}</td>
-      <td style="padding:12px">${datos.totalSuscriptores}</td>
-      <td style="padding:12px">${datos.materiales}</td>
-      <td style="padding:12px">${datos.totalRespuestas}</td>
-      <td style="padding:12px;color:${clr(datos.tasaAciertos)}">${datos.tasaAciertos}%</td>
+    <tr style="text-align:center;font-family:Arial,sans-serif;font-weight:700;font-size:18px">
+      <td style="padding:10px">${datos.flashcardsPublicadas}</td>
+      <td style="padding:10px">${datos.totalSuscriptores}</td>
+      <td style="padding:10px">${datos.materiales}</td>
+      <td style="padding:10px">${datos.totalRespuestas}</td>
+      <td style="padding:10px;color:${clr(datos.tasaAciertos)}">${datos.tasaAciertos}%</td>
     </tr>
   </tbody>
 </table>
 
-<h2 style="font-family:Arial,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;border-bottom:1px solid #d1d5db;padding-bottom:5px;margin:24px 0 12px;letter-spacing:.4px">2. Rendimiento por Estudiante</h2>
-<table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #d1d5db;margin-bottom:8px">
-  <thead><tr style="background:#4a008f">${thsHTML(['#','Nombre','Correo','Respondidas','Correctas','Incorrectas','Aciertos','Puntos'])}</tr></thead>
+<!-- 2. ESTUDIANTES -->
+<h2 style="${h2}">2. Rendimiento por Estudiante</h2>
+<table style="width:100%;border-collapse:collapse;table-layout:fixed;border:1px solid #d1d5db;margin-bottom:6px">
+  <colgroup>${colGroup}</colgroup>
+  <thead>
+    <tr style="background:#4a008f">
+      ${thsRow(['#','Nombre','Correo','Resp.','Cor.','Inc.','Acier.','Pts.'])}
+    </tr>
+  </thead>
   <tbody>${rowsEst}</tbody>
 </table>
 
-<h2 style="font-family:Arial,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;border-bottom:1px solid #d1d5db;padding-bottom:5px;margin:24px 0 12px;letter-spacing:.4px">3. Flashcards con Menor Tasa de Aciertos</h2>
-<table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #d1d5db;margin-bottom:8px">
-  <thead><tr style="background:#4a008f">${thsHTML(['#','Flashcard (integral)','Tema','Veces respondida','Tasa aciertos'])}</tr></thead>
+<!-- 3. FLASHCARDS FALLADAS -->
+<h2 style="${h2}">3. Flashcards con Menor Tasa de Aciertos</h2>
+<table style="width:100%;border-collapse:collapse;table-layout:fixed;border:1px solid #d1d5db;margin-bottom:6px">
+  <thead>
+    <tr style="background:#4a008f">
+      ${thsRow(['#','Flashcard (integral)','Tema','Veces resp.','Tasa aciertos'])}
+    </tr>
+  </thead>
   <tbody>${rowsFall}</tbody>
 </table>
 
-<div style="border-top:2px solid #1a1a1a;margin-top:28px;padding-top:10px;display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;font-family:Arial,sans-serif">
+<!-- PIE -->
+<div style="border-top:2px solid #1a1a1a;margin-top:24px;padding-top:8px;display:flex;justify-content:space-between;font-size:9px;color:#9ca3af;font-family:Arial,sans-serif">
   <span>MUUU App · Universidad del Magdalena · 2026</span>
   <span>Generado automáticamente · ${datos.fechaReporte}</span>
 </div>`;
 
-    /* ── Inyectar en la misma página con CSS que oculta el resto al imprimir ── */
+    /* ── CSS de impresión:
+       · Sin position:fixed → flujo normal → varias páginas
+       · @page con márgenes correctos para A4
+       · Oculta toda la app, solo muestra el div del reporte ── */
     const styleEl = document.createElement('style');
     styleEl.id = '__muuu_print_style__';
     styleEl.textContent = `
@@ -139,16 +173,15 @@ export function ReporteDocente({ onBack }: ReporteDocenteProps) {
         body > *:not(#__muuu_report__) { display: none !important; }
         #__muuu_report__ {
           display: block !important;
-          position: fixed;
-          top: 0; left: 0;
-          width: 100%;
-          padding: 14mm 16mm;
           font-family: Georgia, "Times New Roman", serif;
-          font-size: 13px;
+          font-size: 12px;
           color: #1a1a1a;
           background: white;
         }
-        @page { margin: 6mm; size: A4 portrait; }
+        table { page-break-inside: auto; }
+        tr    { page-break-inside: avoid; page-break-after: auto; }
+        h2    { page-break-after: avoid; }
+        @page { margin: 12mm 14mm; size: A4 portrait; }
       }
     `;
 
@@ -160,18 +193,16 @@ export function ReporteDocente({ onBack }: ReporteDocenteProps) {
     document.head.appendChild(styleEl);
     document.body.appendChild(divEl);
 
-    /* ── Imprimir y limpiar ── */
     window.print();
 
     const limpiar = () => {
       document.getElementById('__muuu_print_style__')?.remove();
       document.getElementById('__muuu_report__')?.remove();
     };
-
     if ('onafterprint' in window) {
       window.onafterprint = limpiar;
     } else {
-      setTimeout(limpiar, 3000);
+      setTimeout(limpiar, 4000);
     }
   };
 
