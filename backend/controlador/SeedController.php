@@ -354,14 +354,16 @@ class SeedController
         $ch = curl_init('https://api.brevo.com/v3/smtp/email');
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST           => true,
+            CURLOPT_CUSTOMREQUEST  => 'POST',
             CURLOPT_POSTFIELDS     => $payload,
             CURLOPT_HTTPHEADER     => [
                 'Content-Type: application/json',
                 'Accept: application/json',
+                'Content-Length: ' . strlen($payload),
                 'api-key: ' . $apiKey,
             ],
             CURLOPT_TIMEOUT        => 10,
+            CURLOPT_SSL_VERIFYPEER => false,
         ]);
         $respuesta = curl_exec($ch);
         $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -371,9 +373,10 @@ class SeedController
         echo json_encode([
             'ok'              => $httpCode === 201,
             'diagnostico'     => $diagnostico,
+            'payload_enviado' => json_decode($payload, true),
             'http_code'       => $httpCode,
             'curl_error'      => $curlError ?: null,
             'brevo_respuesta' => json_decode($respuesta, true),
-        ], JSON_UNESCAPED_UNICODE);
+        ]);
     }
 }
