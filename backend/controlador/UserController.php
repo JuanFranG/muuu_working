@@ -151,6 +151,7 @@ class UserController
             }
 
             session_start();
+            session_regenerate_id(true);
             $_SESSION['id_usuario'] = $usuarioExistente['id_usuario'];
             $_SESSION['rol']        = $usuarioExistente['rol'];
             $_SESSION['nombre']     = $usuarioExistente['nombre'];
@@ -180,6 +181,7 @@ class UserController
         }
 
         session_start();
+        session_regenerate_id(true);
         $_SESSION['id_usuario'] = $usuario['id_usuario'];
         $_SESSION['rol']        = $usuario['rol'];
         $_SESSION['nombre']     = $usuario['nombre'];
@@ -413,22 +415,22 @@ class UserController
             return;
         }
 
-        $dir = '/var/www/html/uploads/';
-        if (!is_dir($dir)) mkdir($dir, 0755, true);
-
-        $nombreArchivo = 'foto_' . (int) $_SESSION['id_usuario'] . '_' . time() . '.' . $extension;
-        $rutaDestino   = $dir . $nombreArchivo;
-
-        if (!move_uploaded_file($archivo['tmp_name'], $rutaDestino)) {
+        // Leer el contenido del archivo y codificarlo en base64 para persistir
+        // en la base de datos (evita pérdida de archivos en servidores sin
+        // sistema de archivos persistente como Render).
+        $contenido = file_get_contents($archivo['tmp_name']);
+        if ($contenido === false || strlen($contenido) === 0) {
             http_response_code(500);
-            echo json_encode(['ok' => false, 'mensaje' => 'No se pudo guardar la imagen.'], JSON_UNESCAPED_UNICODE);
+            echo json_encode(['ok' => false, 'mensaje' => 'No se pudo leer la imagen.'], JSON_UNESCAPED_UNICODE);
             return;
         }
 
-        $url = '/uploads/' . $nombreArchivo;
-        $this->modelo->actualizarFoto((int) $_SESSION['id_usuario'], $url);
+        $mime    = $archivo['type'] ?: "image/{$extension}";
+        $dataUrl = 'data:' . $mime . ';base64,' . base64_encode($contenido);
 
-        echo json_encode(['ok' => true, 'url' => $url], JSON_UNESCAPED_UNICODE);
+        $this->modelo->actualizarFoto((int) $_SESSION['id_usuario'], $dataUrl);
+
+        echo json_encode(['ok' => true, 'url' => $dataUrl], JSON_UNESCAPED_UNICODE);
     }
 
     /** DELETE /api/auth/cuenta — eliminar cuenta permanentemente */

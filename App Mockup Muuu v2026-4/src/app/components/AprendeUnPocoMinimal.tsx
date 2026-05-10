@@ -14,13 +14,13 @@ interface AprendeUnPocoMinimalProps {
   onBack: () => void;
 }
 
-type FilterType = 'Todas' | 'Guías PDF' | 'Videos' | 'Resumen';
+type FilterType = 'Todas' | 'Guías PDF' | 'Videos';
 
 interface Task {
   id: number;
   title: string;
   subtitle: string;
-  type: 'Guías PDF' | 'Videos' | 'Resumen';
+  type: 'Guías PDF' | 'Videos';
   difficulty: string;
   topic: string;
   progress: number;
@@ -63,8 +63,8 @@ function materialToTask(m: MaterialAPI): Task {
   } else if (tipo === 'PDF' || tipo === 'IMAGEN' || tipo === 'DOCUMENTO' || tipo === 'FOTO') {
     type = 'Guías PDF'; icon = '∫'; color = '#E6D5F0';
   } else {
-    // LINK, RESUMEN y cualquier otro → abrir en pestaña
-    type = 'Resumen'; icon = '📝'; color = '#FEF3C7';
+    // LINK, RESUMEN y cualquier otro → tratarlos como enlace externo (Videos)
+    type = 'Videos'; icon = '🔗'; color = '#FEF3C7';
   }
 
   // "Nuevo" = cargado en las últimas 48 horas
@@ -347,7 +347,7 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
 
         {/* Botón de acción: Descargar (docs/imágenes) o Abrir (videos/links) */}
         {esUrlValida(task.url) && (
-          task.type === 'Videos' || task.type === 'Resumen' ? (
+          task.type === 'Videos' ? (
             /* Videos y links: abrir en nueva pestaña */
             <button
               onClick={(e) => { e.stopPropagation(); window.open(task.url, '_blank', 'noopener,noreferrer'); }}
@@ -584,7 +584,7 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
           borderBottom: `1px solid ${c.border}`
         }}
       >
-        {(['Todas', 'Guías PDF', 'Videos', 'Resumen'] as FilterType[]).map((filter) => (
+        {(['Todas', 'Guías PDF', 'Videos'] as FilterType[]).map((filter) => (
           <button
             key={filter}
             onClick={() => setSelectedFilter(filter)}

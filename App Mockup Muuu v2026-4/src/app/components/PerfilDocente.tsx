@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Edit2, Mail, Calendar, BadgeCheck } from 'lucide-react';
-import { meAPI, UsuarioAPI } from '../services/api';
+import { meAPI, UsuarioAPI, obtenerEstadisticasDocenteAPI, EstadisticasDocenteAPI } from '../services/api';
 import { useThemeColors } from '../contexts/SettingsContext';
 
 interface PerfilDocenteProps {
@@ -12,12 +12,12 @@ interface PerfilDocenteProps {
 
 export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, onNavigate }: PerfilDocenteProps) {
   const c = useThemeColors('teacher');
-  const [data, setData] = useState<UsuarioAPI | null>(null);
+  const [data,  setData]  = useState<UsuarioAPI | null>(null);
+  const [stats, setStats] = useState<EstadisticasDocenteAPI | null>(null);
 
   useEffect(() => {
-    meAPI().then(u => {
-      if (u) setData(u);
-    }).catch(() => {});
+    meAPI().then(u => { if (u) setData(u); }).catch(() => {});
+    obtenerEstadisticasDocenteAPI().then(setStats).catch(() => {});
   }, []);
 
   const nombre = data?.nombre ?? userName;
@@ -162,12 +162,12 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
           </div>
         </div>
 
-        {/* Estadísticas */}
+        {/* Estadísticas del docente */}
         <div
           className="flex items-center justify-center gap-6 pb-6"
           style={{ padding: '0 12px 24px 12px' }}
         >
-          {/* Flashcards */}
+          {/* Flashcards publicadas */}
           <div className="flex flex-col items-center">
             <p
               style={{
@@ -179,7 +179,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
                 marginBottom: '4px'
               }}
             >
-              {data?.flashcardsEstudiadas ?? 0}
+              {stats?.flashcardsPublicadas ?? 0}
             </p>
             <p
               style={{
@@ -189,7 +189,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
                 color: '#92400E'
               }}
             >
-              Cards
+              Flashcards
             </p>
           </div>
 
@@ -203,7 +203,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
             }}
           />
 
-          {/* Puntos */}
+          {/* Materiales */}
           <div className="flex flex-col items-center">
             <p
               style={{
@@ -215,7 +215,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
                 marginBottom: '4px'
               }}
             >
-              {data?.totalPuntos ?? 0}
+              {stats?.materiales ?? 0}
             </p>
             <p
               style={{
@@ -225,7 +225,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
                 color: '#92400E'
               }}
             >
-              Puntos
+              Materiales
             </p>
           </div>
 
@@ -239,7 +239,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
             }}
           />
 
-          {/* Nivel */}
+          {/* Suscriptores */}
           <div className="flex flex-col items-center">
             <p
               style={{
@@ -251,7 +251,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
                 marginBottom: '4px'
               }}
             >
-              {data?.nivel ?? 0}
+              {stats?.suscriptores ?? 0}
             </p>
             <p
               style={{
@@ -261,7 +261,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
                 color: '#92400E'
               }}
             >
-              Nivel
+              Alumnos
             </p>
           </div>
         </div>
@@ -435,7 +435,9 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
                       color: c.textPrimary
                     }}
                   >
-                    {data?.fechaUltimaActividad ?? '—'}
+                    {data?.fechaUltimaActividad
+                      ? new Date(data.fechaUltimaActividad + 'T00:00:00').toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })
+                      : 'Sin actividad de quiz aún'}
                   </p>
                 </div>
               </div>

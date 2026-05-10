@@ -11,12 +11,19 @@ interface PerfilMenuProps {
   userName?: string;
 }
 
-export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenuProps) {
+export function PerfilMenu({ onBack, onNavigate, userName = 'Estudiante' }: PerfilMenuProps) {
   const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
+  const [nombre,     setNombre]     = useState(userName);
+  const [correo,     setCorreo]     = useState('');
   const c = useThemeColors('student');
 
   useEffect(() => {
-    meAPI().then(u => { if (u?.fotoPerfil) setFotoPerfil(u.fotoPerfil); }).catch(() => {});
+    meAPI().then(u => {
+      if (!u) return;
+      if (u.fotoPerfil) setFotoPerfil(u.fotoPerfil);
+      if (u.nombre)     setNombre(u.nombre);
+      if (u.correo)     setCorreo(u.correo);
+    }).catch(() => {});
   }, []);
 
   const menuOptions = [
@@ -131,11 +138,11 @@ export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenu
               <img src={fotoPerfil} alt="Foto de perfil"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
-              userName.charAt(0).toUpperCase()
+              nombre.charAt(0).toUpperCase()
             )}
           </div>
 
-          <h2 
+          <h2
             style={{
               fontFamily: 'Poppins, sans-serif',
               fontWeight: 700,
@@ -144,19 +151,32 @@ export function PerfilMenu({ onBack, onNavigate, userName = 'Juan' }: PerfilMenu
               marginBottom: '4px'
             }}
           >
-            {userName}
+            {nombre}
           </h2>
 
-          <p 
-            style={{
-              fontFamily: 'Poppins, sans-serif',
-              fontWeight: 500,
-              fontSize: '14px',
-              color: c.textSecondary
-            }}
-          >
-            Estudiante
-          </p>
+          {correo ? (
+            <p
+              style={{
+                fontFamily: 'Poppins, sans-serif',
+                fontWeight: 500,
+                fontSize: '13px',
+                color: c.textSecondary
+              }}
+            >
+              {correo}
+            </p>
+          ) : (
+            <p
+              style={{
+                fontFamily: 'Poppins, sans-serif',
+                fontWeight: 500,
+                fontSize: '14px',
+                color: c.textSecondary
+              }}
+            >
+              Estudiante
+            </p>
+          )}
         </div>
 
         {/* Opciones del menú */}

@@ -198,8 +198,8 @@ class Usuario
         int     $idRol
     ): ?array {
         $stmt = $this->db->prepare(
-            'INSERT INTO USUARIO (nombre, correo, contrasena, fotoPerfil, googleId, id_rol)
-             VALUES (?, ?, NULL, ?, ?, ?)'
+            'INSERT INTO USUARIO (nombre, correo, contrasena, fotoPerfil, googleId, id_rol, esActivo)
+             VALUES (?, ?, NULL, ?, ?, ?, 1)'
         );
         $stmt->execute([$nombre, $correo, $fotoPerfil, $googleId, $idRol]);
         return $this->buscarPorId((int) $this->db->lastInsertId());

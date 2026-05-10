@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { Bell, Lightbulb, Swords, Trophy, BookOpen, BarChart3, Flame } from 'lucide-react';
+import { Bell, Lightbulb, Swords, Trophy, BookOpen, BarChart3 } from 'lucide-react';
 import muuuLogo from 'figma:asset/15c96d9f13a3f65cf154aaca4e2380bdb312d1a5.png';
 import { meAPI, contarNoLeidasAPI } from '../services/api';
 import { useThemeColors, useSettings } from '../contexts/SettingsContext';
@@ -11,8 +11,6 @@ interface StudentHomeProps {
 }
 
 export function StudentHome({ userName = 'Martínez', onNavigate }: StudentHomeProps) {
-  const [progress] = useState(65);
-  const [streak] = useState(5);
   const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
   const [noLeidas,   setNoLeidas]   = useState(0);
   const c = useThemeColors('student');
@@ -79,13 +77,6 @@ export function StudentHome({ userName = 'Martínez', onNavigate }: StudentHomeP
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              <Flame size={20} color="#9B2355" strokeWidth={2} fill="#9B2355" />
-              <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '16px', color: '#9B2355' }}>
-                {streak}
-              </span>
-            </div>
-
             <button
               className="relative p-2 rounded-full transition-colors"
               onClick={() => onNavigate('notificaciones')}
