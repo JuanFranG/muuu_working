@@ -12,10 +12,29 @@ interface ReporteDocenteProps {
   onBack: () => void;
 }
 
-/** LaTeX → HTML (usa katex.min.css ya cargado en la página) */
+/**
+ * LaTeX/texto mixto → HTML (usa katex.min.css ya cargado en la página).
+ *
+ * Soporta:
+ *  · Puro:  "\int_a^b f(x)\,dx"                 → KaTeX directo
+ *  · $…$:   "$\int_a^b f(x)\,dx$"               → strip $ + KaTeX
+ *  · Mixto: "Si $\int_a^b f(x)\,dx$ = 5 ..."    → partes $…$ con KaTeX,
+ *            texto plano intacto ($ de cierre opcional)
+ */
 const toKatex = (raw: string): string => {
-  const src = raw.replace(/^\$+|\$+$/g, '').trim();
-  try { return katex.renderToString(src, { throwOnError: false, displayMode: false }); }
+  if (!raw) return '';
+
+  // Mixto: hay al menos un $
+  if (raw.includes('$')) {
+    return raw.replace(/\$([^$]+)\$?/g, (_m, inner) => {
+      try { return katex.renderToString(inner.trim(), { throwOnError: false, displayMode: false, strict: false }); }
+      catch { return inner; }
+    });
+  }
+
+  // Puro LaTeX sin delimitadores
+  const src = raw.trim();
+  try { return katex.renderToString(src, { throwOnError: false, displayMode: false, strict: false }); }
   catch { return raw; }
 };
 

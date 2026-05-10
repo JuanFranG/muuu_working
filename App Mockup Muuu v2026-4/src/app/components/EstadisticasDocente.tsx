@@ -6,14 +6,21 @@ import { ReporteDocente } from './ReporteDocente';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 
-/** Convierte una cadena LaTeX (con o sin $…$) a HTML renderizado por KaTeX */
+/**
+ * Convierte LaTeX / texto mixto a HTML usando KaTeX.
+ * Soporta texto puro, $…$ o mezcla "Si $\int…$ = 5, entonces…"
+ */
 const renderLatex = (raw: string): string => {
-  const src = raw.replace(/^\$+|\$+$/g, '').trim();
-  try {
-    return katex.renderToString(src, { throwOnError: false, displayMode: false });
-  } catch {
-    return src;
+  if (!raw) return '';
+  if (raw.includes('$')) {
+    return raw.replace(/\$([^$]+)\$?/g, (_m, inner) => {
+      try { return katex.renderToString(inner.trim(), { throwOnError: false, displayMode: false, strict: false }); }
+      catch { return inner; }
+    });
   }
+  const src = raw.trim();
+  try { return katex.renderToString(src, { throwOnError: false, displayMode: false, strict: false }); }
+  catch { return raw; }
 };
 
 interface EstadisticasDocenteProps {

@@ -1,87 +1,59 @@
 /**
- * Convierte texto con notación LaTeX/matemática básica a HTML visualizable.
- * Compartido entre QuizScreen, DisenarFlashcard y FlashcardNemotecnia.
+ * renderMath — convierte texto con LaTeX a HTML usando KaTeX.
  *
- * MODO DELIMITADO (recomendado para texto mixto):
- *   Usar $...$ para marcar zonas matemáticas:
- *   "Si $\int_a^b f(x)\,dx$ = 5, entonces..."
- *   → Solo el contenido dentro de $...$ se transforma.
- *   → El texto fuera queda intacto (solo se convierten saltos de línea).
+ * Soporta tres formas de entrada:
  *
- * MODO COMPLETO (retrocompatible):
- *   Si el texto no contiene $, se aplica la transformación a todo el string.
- *   Todos los flashcards existentes siguen funcionando sin cambios.
+ * 1. MIXTA con delimitadores $…$:
+ *      "Si $\int_a^b f(x)\,dx$ = 5, entonces $\int_a^b 2f(x)\,dx$ = 10"
+ *    → solo las zonas entre $…$ se renderizan con KaTeX; el texto
+ *      exterior queda intacto.  Funciona incluso si el $ de cierre
+ *      está ausente (p.ej. el flashcard se guardó sin él).
+ *
+ * 2. PURA (sin delimitadores $):
+ *      "\int_a^b f(x)\,dx"
+ *    → el string completo se pasa a KaTeX.
+ *
+ * 3. TEXTO PLANO (sin $ ni secuencias LaTeX):
+ *      "¿Cuál es la derivada de x²?"
+ *    → se devuelve tal cual (solo se convierten saltos de línea).
  */
+
+import katex from 'katex';
+import 'katex/dist/katex.min.css';
+
+/** Renderiza un string LaTeX con KaTeX; devuelve el original si falla. */
+function renderKatex(latex: string): string {
+  try {
+    return katex.renderToString(latex.trim(), {
+      throwOnError: false,
+      displayMode:  false,
+      strict:       false,
+    });
+  } catch {
+    return latex;
+  }
+}
+
 export function renderMath(text: string): string {
   if (!text) return '';
 
-  // ── Modo delimitado: si hay $...$ procesar solo esas zonas ──
+  // ── Modo mixto: hay al menos un $ en el texto ─────────────────────────────
   if (text.includes('$')) {
-    // Divide en partes: índices pares = texto plano, impares = math
-    const parts = text.split(/\$([^$]+)\$/);
-    return parts
-      .map((part, i) =>
-        i % 2 === 0
-          ? part.replace(/\n/g, '<br/>')   // texto plano → solo saltos
-          : applyLatexTransforms(part)      // zona math → transformar todo
-      )
-      .join('');
+    // Capturamos cada segmento "$…$" (con $ de cierre opcional)
+    // para manejar flashcards mal cerrados.
+    // La regex sustituye el trozo entre $ (y el posible $ de cierre)
+    // por la salida de KaTeX; el texto fuera de $ queda sin tocar.
+    const resultado = text.replace(/\$([^$]+)\$?/g, (_match, inner) =>
+      renderKatex(inner)
+    );
+    return resultado.replace(/\n/g, '<br/>');
   }
 
-  // ── Modo completo (retrocompatible): transforma todo el string ──
-  return applyLatexTransforms(text);
-}
+  // ── Modo puro: sin $, pero parece LaTeX (tiene \ o ^ o _) ────────────────
+  if (text.includes('\\') || /[_^{]/.test(text)) {
+    return renderKatex(text);
+  }
 
-/**
- * Grupo que captura contenido con UN nivel de anidamiento de llaves.
- * Ejemplo: captura  x^{n+1}  dentro de  \frac{x^{n+1}}{n+1}
- *   (?:[^{}]  → cualquier char que no sea llave
- *    |\{[^}]*\})*  → O un grupo {…} sin llaves internas
- */
-const BRACE_CONTENT = '(?:[^{}]|\\{[^}]*\\})*';
-
-/** Aplica todas las transformaciones LaTeX → HTML a un string. */
-function applyLatexTransforms(text: string): string {
-  return text
-    .replace(/\\int/g, '∫')
-    // \frac con soporte de llaves anidadas en numerador y denominador
-    .replace(
-      new RegExp(`\\\\frac\\{(${BRACE_CONTENT})\\}\\{(${BRACE_CONTENT})\\}`, 'g'),
-      '<span style="display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;font-size:0.85em">' +
-      '<span style="border-bottom:1.5px solid currentColor;padding:0 2px">$1</span>' +
-      '<span style="padding:0 2px">$2</span></span>')
-    // \sqrt con soporte de llaves anidadas
-    .replace(
-      new RegExp(`\\\\sqrt\\{(${BRACE_CONTENT})\\}`, 'g'),
-      '√<span style="text-decoration:overline">$1</span>')
-    .replace(/\^{([^}]+)}/g,  '<sup>$1</sup>')
-    .replace(/\^(\w)/g,        '<sup>$1</sup>')
-    .replace(/_{([^}]+)}/g,   '<sub>$1</sub>')
-    .replace(/_(\w)/g,         '<sub>$1</sub>')
-    .replace(/\\cdot/g,  '·')
-    .replace(/\\times/g, '×')
-    .replace(/\\pi/g,    'π')
-    .replace(/\\infty/g, '∞')
-    .replace(/\\alpha/g, 'α')
-    .replace(/\\beta/g,  'β')
-    .replace(/\\theta/g, 'θ')
-    .replace(/\\gamma/g, 'γ')
-    .replace(/\\delta/g, 'δ')
-    .replace(/\\sigma/g, 'σ')
-    .replace(/\\omega/g, 'ω')
-    .replace(/\\sin/g,   'sin')
-    .replace(/\\cos/g,   'cos')
-    .replace(/\\tan/g,   'tan')
-    .replace(/\\ln/g,    'ln')
-    .replace(/\\log/g,   'log')
-    .replace(/\\lim/g,   'lim')
-    .replace(/\\neq/g,   '≠')
-    .replace(/\\leq/g,   '≤')
-    .replace(/\\geq/g,   '≥')
-    // Espaciado LaTeX
-    .replace(/\\,/g,     '&thinsp;')
-    .replace(/\\;/g,     '&ensp;')
-    .replace(/\\quad/g,  '&emsp;')
-    .replace(/\\!/g,     '')
-    .replace(/\n/g,      '<br/>');
+  // ── Texto plano ───────────────────────────────────────────────────────────
+  return text.replace(/\n/g, '<br/>');
 }
