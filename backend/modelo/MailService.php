@@ -107,7 +107,9 @@ class MailService
                 'subject'     => $subject,
                 'htmlContent' => $html,
                 'textContent' => $text,
-            ], JSON_UNESCAPED_UNICODE);
+            ]);
+
+            if ($payload === false) return;
 
             $ch = curl_init(self::API_URL);
             curl_setopt_array($ch, [

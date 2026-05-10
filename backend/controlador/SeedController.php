@@ -346,10 +346,10 @@ class SeedController
         $payload = json_encode([
             'sender'      => ['email' => 'jfgonzalez@unimagdalena.edu.co', 'name' => 'MUUU App'],
             'to'          => [['email' => $to, 'name' => 'Test']],
-            'subject'     => '✅ MUUU App — Email de prueba funcionando',
-            'textContent' => 'Si recibes este correo, la integración con Brevo está funcionando correctamente.',
-            'htmlContent' => '<h2 style="color:#4a008f">✅ Brevo funcionando</h2><p>La integración de MUUU App con Brevo está activa y enviando correctamente.</p>',
-        ], JSON_UNESCAPED_UNICODE);
+            'subject'     => 'MUUU App - Email de prueba',
+            'textContent' => 'Si recibes este correo, la integracion con Brevo esta funcionando.',
+            'htmlContent' => '<h2>MUUU App</h2><p>Integracion con Brevo funcionando correctamente.</p>',
+        ]);
 
         $ch = curl_init('https://api.brevo.com/v3/smtp/email');
         curl_setopt_array($ch, [
