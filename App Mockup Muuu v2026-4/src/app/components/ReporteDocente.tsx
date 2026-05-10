@@ -45,114 +45,46 @@ export function ReporteDocente({ onBack }: ReporteDocenteProps) {
   const exportarPDF = () => {
     if (!datos) return;
 
-    /* ── PASO 1: abrir la ventana AHORA, en el mismo tick del click.
-       Los navegadores solo permiten window.open() sin bloquear si se
-       llama síncronamente dentro del handler del evento de usuario. ── */
-    const win = window.open('about:blank', '_blank');
-    if (!win) {
-      alert(
-        'Tu navegador bloqueó la ventana emergente.\n\n' +
-        'Solución rápida:\n' +
-        '  • Chrome: haz clic en el ícono 🚫 de la barra de dirección → "Permitir siempre"\n' +
-        '  • Safari: Preferencias → Sitios web → Ventanas emergentes → Permitir'
-      );
-      return;
-    }
-
-    /* ── PASO 2: construir el HTML del reporte ─────────────────────────
-       Todas las constantes van ANTES de los template literals que las usan. */
+    /* ── Constantes declaradas primero ── */
     const clr = (t: number) => t >= 70 ? '#15803d' : t >= 40 ? '#b45309' : '#b91c1c';
-    const td  = 'padding:8px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle';
-    const th  = 'padding:9px 10px;text-align:left;color:#fff;font-size:11px;letter-spacing:.3px';
+    const tdI = 'padding:8px 10px;border-bottom:1px solid #e5e7eb;vertical-align:middle';
+    const thI = 'padding:9px 10px;text-align:left;color:#fff;font-size:11px;letter-spacing:.3px;font-family:Arial,sans-serif';
 
     const rowsEst = datos.estudiantes.length === 0
-      ? `<tr><td colspan="8" style="text-align:center;padding:20px;color:#9ca3af;font-style:italic">
-           Sin estudiantes suscritos
-         </td></tr>`
+      ? `<tr><td colspan="8" style="text-align:center;padding:20px;color:#9ca3af;font-style:italic">Sin estudiantes suscritos</td></tr>`
       : datos.estudiantes.map((e, i) =>
           `<tr style="background:${i % 2 === 0 ? '#fff' : '#f9fafb'}">
-            <td style="${td};text-align:center">${i + 1}</td>
-            <td style="${td};font-weight:600">${e.nombre}</td>
-            <td style="${td};font-size:11px;color:#6b7280">${e.correo}</td>
-            <td style="${td};text-align:center">${e.respondidas}</td>
-            <td style="${td};text-align:center;color:#15803d;font-weight:700">${e.correctas}</td>
-            <td style="${td};text-align:center;color:#b91c1c;font-weight:700">${e.incorrectas}</td>
-            <td style="${td};text-align:center;font-weight:700;color:${clr(e.tasa)}">
-              ${e.respondidas > 0 ? `${e.tasa}%` : '—'}
-            </td>
-            <td style="${td};text-align:center;color:#4a008f;font-weight:700">${e.puntos}</td>
-          </tr>`
-        ).join('');
+            <td style="${tdI};text-align:center">${i + 1}</td>
+            <td style="${tdI};font-weight:600">${e.nombre}</td>
+            <td style="${tdI};font-size:11px;color:#6b7280">${e.correo}</td>
+            <td style="${tdI};text-align:center">${e.respondidas}</td>
+            <td style="${tdI};text-align:center;color:#15803d;font-weight:700">${e.correctas}</td>
+            <td style="${tdI};text-align:center;color:#b91c1c;font-weight:700">${e.incorrectas}</td>
+            <td style="${tdI};text-align:center;font-weight:700;color:${clr(e.tasa)}">${e.respondidas > 0 ? `${e.tasa}%` : '—'}</td>
+            <td style="${tdI};text-align:center;color:#4a008f;font-weight:700">${e.puntos}</td>
+          </tr>`).join('');
 
     const rowsFall = datos.masFalladas.length === 0
-      ? `<tr><td colspan="5" style="text-align:center;padding:20px;color:#9ca3af;font-style:italic">
-           Sin datos de quizzes
-         </td></tr>`
+      ? `<tr><td colspan="5" style="text-align:center;padding:20px;color:#9ca3af;font-style:italic">Sin datos de quizzes</td></tr>`
       : datos.masFalladas.map((fc, i) =>
           `<tr style="background:${i % 2 === 0 ? '#fff' : '#f9fafb'}">
-            <td style="${td};text-align:center">${i + 1}</td>
-            <td style="${td}">${toMath(fc.integral)}</td>
-            <td style="${td}">${fc.tema}</td>
-            <td style="${td};text-align:center">${fc.veces}</td>
-            <td style="${td};text-align:center;font-weight:700;color:${clr(fc.tasa)}">${fc.tasa}%</td>
-          </tr>`
-        ).join('');
+            <td style="${tdI};text-align:center">${i + 1}</td>
+            <td style="${tdI}">${toMath(fc.integral)}</td>
+            <td style="${tdI}">${fc.tema}</td>
+            <td style="${tdI};text-align:center">${fc.veces}</td>
+            <td style="${tdI};text-align:center;font-weight:700;color:${clr(fc.tasa)}">${fc.tasa}%</td>
+          </tr>`).join('');
 
-    const ths = (cols: string[]) =>
-      cols.map(h => `<th style="${th}">${h}</th>`).join('');
+    const thsHTML = (cols: string[]) =>
+      cols.map(h => `<th style="${thI}">${h}</th>`).join('');
 
-    const html = `<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Reporte MUUU — ${datos.docente.nombre}</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      padding: 18mm 16mm;
-      font-family: Georgia, "Times New Roman", serif;
-      color: #1a1a1a;
-      background: white;
-      font-size: 13px;
-    }
-    h2 {
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      border-bottom: 1px solid #d1d5db;
-      padding-bottom: 5px;
-      margin: 24px 0 12px;
-      letter-spacing: .4px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-      border: 1px solid #d1d5db;
-      margin-bottom: 6px;
-    }
-    /* MathML estilos básicos */
-    math { font-size: 1em; }
-    @media print {
-      body { padding: 10mm 12mm; }
-      @page { margin: 6mm; size: A4 portrait; }
-      table { page-break-inside: avoid; }
-    }
-  </style>
-</head>
-<body>
-
-<!-- ENCABEZADO -->
+    /* ── Contenido del reporte (sin <html>/<head>, solo el body) ── */
+    const contenido = `
 <div style="border-bottom:3px double #1a1a1a;padding-bottom:16px;margin-bottom:22px">
   <div style="display:flex;justify-content:space-between;align-items:flex-start">
     <div>
-      <div style="font-family:Arial,sans-serif;font-weight:900;font-size:22px;color:#4a008f">
-        MUUU App
-      </div>
-      <div style="font-size:12px;color:#444;margin-top:3px">
-        Universidad del Magdalena · Cálculo Integral
-      </div>
+      <div style="font-family:Arial,sans-serif;font-weight:900;font-size:22px;color:#4a008f">MUUU App</div>
+      <div style="font-size:12px;color:#444;margin-top:3px">Universidad del Magdalena · Cálculo Integral</div>
     </div>
     <div style="text-align:right;font-size:11px;color:#555;font-family:Arial,sans-serif">
       <div><strong>Generado:</strong> ${datos.fechaReporte}</div>
@@ -160,8 +92,7 @@ export function ReporteDocente({ onBack }: ReporteDocenteProps) {
       <div style="color:#6b7280">${datos.docente.correo}</div>
     </div>
   </div>
-  <div style="margin-top:16px;text-align:center;font-family:Arial,sans-serif;
-              font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.5px">
+  <div style="margin-top:16px;text-align:center;font-family:Arial,sans-serif;font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.5px">
     Informe de Rendimiento Académico
   </div>
   <div style="text-align:center;font-size:11px;color:#888;margin-top:3px">
@@ -169,14 +100,9 @@ export function ReporteDocente({ onBack }: ReporteDocenteProps) {
   </div>
 </div>
 
-<!-- 1. RESUMEN -->
-<h2>1. Resumen General</h2>
-<table>
-  <thead>
-    <tr style="background:#4a008f">
-      ${ths(['Flashcards publicadas','Estudiantes suscritos','Materiales','Respuestas totales','Tasa de aciertos'])}
-    </tr>
-  </thead>
+<h2 style="font-family:Arial,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;border-bottom:1px solid #d1d5db;padding-bottom:5px;margin:24px 0 12px;letter-spacing:.4px">1. Resumen General</h2>
+<table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #d1d5db;margin-bottom:8px">
+  <thead><tr style="background:#4a008f">${thsHTML(['Flashcards','Estudiantes','Materiales','Respuestas','Tasa aciertos'])}</tr></thead>
   <tbody>
     <tr style="text-align:center;font-family:Arial,sans-serif;font-weight:700;font-size:20px">
       <td style="padding:12px">${datos.flashcardsPublicadas}</td>
@@ -188,56 +114,65 @@ export function ReporteDocente({ onBack }: ReporteDocenteProps) {
   </tbody>
 </table>
 
-<!-- 2. ESTUDIANTES -->
-<h2>2. Rendimiento por Estudiante</h2>
-<table>
-  <thead>
-    <tr style="background:#4a008f">
-      ${ths(['#','Nombre','Correo','Respondidas','Correctas','Incorrectas','Aciertos','Puntos'])}
-    </tr>
-  </thead>
+<h2 style="font-family:Arial,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;border-bottom:1px solid #d1d5db;padding-bottom:5px;margin:24px 0 12px;letter-spacing:.4px">2. Rendimiento por Estudiante</h2>
+<table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #d1d5db;margin-bottom:8px">
+  <thead><tr style="background:#4a008f">${thsHTML(['#','Nombre','Correo','Respondidas','Correctas','Incorrectas','Aciertos','Puntos'])}</tr></thead>
   <tbody>${rowsEst}</tbody>
 </table>
 
-<!-- 3. FLASHCARDS FALLADAS -->
-<h2>3. Flashcards con Menor Tasa de Aciertos</h2>
-<table>
-  <thead>
-    <tr style="background:#4a008f">
-      ${ths(['#','Flashcard (integral)','Tema','Veces respondida','Tasa de aciertos'])}
-    </tr>
-  </thead>
+<h2 style="font-family:Arial,sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;border-bottom:1px solid #d1d5db;padding-bottom:5px;margin:24px 0 12px;letter-spacing:.4px">3. Flashcards con Menor Tasa de Aciertos</h2>
+<table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #d1d5db;margin-bottom:8px">
+  <thead><tr style="background:#4a008f">${thsHTML(['#','Flashcard (integral)','Tema','Veces respondida','Tasa aciertos'])}</tr></thead>
   <tbody>${rowsFall}</tbody>
 </table>
 
-<!-- PIE -->
-<div style="border-top:2px solid #1a1a1a;margin-top:28px;padding-top:10px;
-            display:flex;justify-content:space-between;
-            font-size:10px;color:#9ca3af;font-family:Arial,sans-serif">
+<div style="border-top:2px solid #1a1a1a;margin-top:28px;padding-top:10px;display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;font-family:Arial,sans-serif">
   <span>MUUU App · Universidad del Magdalena · 2026</span>
   <span>Generado automáticamente · ${datos.fechaReporte}</span>
-</div>
+</div>`;
 
-</body>
-</html>`;
-
-    /* ── PASO 3: escribir el HTML en la ventana ya abierta ── */
-    win.document.open();
-    win.document.write(html);
-    win.document.close();
-
-    /* ── PASO 4: cuando el documento esté listo, disparar print ── */
-    win.onload = () => {
-      win.focus();
-      win.print();
-    };
-    /* Fallback por si onload no dispara (algunos browsers) */
-    setTimeout(() => {
-      if (!win.closed) {
-        win.focus();
-        win.print();
+    /* ── Inyectar en la misma página con CSS que oculta el resto al imprimir ── */
+    const styleEl = document.createElement('style');
+    styleEl.id = '__muuu_print_style__';
+    styleEl.textContent = `
+      @media print {
+        body > *:not(#__muuu_report__) { display: none !important; }
+        #__muuu_report__ {
+          display: block !important;
+          position: fixed;
+          top: 0; left: 0;
+          width: 100%;
+          padding: 14mm 16mm;
+          font-family: Georgia, "Times New Roman", serif;
+          font-size: 13px;
+          color: #1a1a1a;
+          background: white;
+        }
+        @page { margin: 6mm; size: A4 portrait; }
       }
-    }, 1200);
+    `;
+
+    const divEl = document.createElement('div');
+    divEl.id = '__muuu_report__';
+    divEl.style.display = 'none';
+    divEl.innerHTML = contenido;
+
+    document.head.appendChild(styleEl);
+    document.body.appendChild(divEl);
+
+    /* ── Imprimir y limpiar ── */
+    window.print();
+
+    const limpiar = () => {
+      document.getElementById('__muuu_print_style__')?.remove();
+      document.getElementById('__muuu_report__')?.remove();
+    };
+
+    if ('onafterprint' in window) {
+      window.onafterprint = limpiar;
+    } else {
+      setTimeout(limpiar, 3000);
+    }
   };
 
   /* ── color para la preview de React ── */
