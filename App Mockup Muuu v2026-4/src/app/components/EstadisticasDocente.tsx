@@ -36,13 +36,14 @@ export function EstadisticasDocente({ onBack }: EstadisticasDocenteProps) {
   const [cargando,     setCargando]     = useState(true);
   const [verReporte,   setVerReporte]   = useState(false);
 
-  if (verReporte) return <ReporteDocente onBack={() => setVerReporte(false)} />;
-
+  // useEffect ANTES de cualquier return condicional (Rules of Hooks)
   useEffect(() => {
     obtenerEstadisticasDocenteAPI()
       .then(setStats)
       .finally(() => setCargando(false));
   }, []);
+
+  if (verReporte) return <ReporteDocente onBack={() => setVerReporte(false)} />;
 
   const primary = c.yellowDark;
   const dark    = c.headerText;
