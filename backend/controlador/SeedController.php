@@ -371,12 +371,12 @@ class SeedController
         curl_close($ch);
 
         echo json_encode([
-            'ok'              => $httpCode === 201,
-            'diagnostico'     => $diagnostico,
-            'payload_enviado' => json_decode($payload, true),
-            'http_code'       => $httpCode,
-            'curl_error'      => $curlError ?: null,
-            'brevo_respuesta' => json_decode($respuesta, true),
+            'ok'               => $httpCode === 201,
+            'diagnostico'      => $diagnostico,
+            'http_code'        => $httpCode,
+            'curl_error'       => $curlError ?: null,
+            'brevo_raw'        => $respuesta,
+            'brevo_respuesta'  => json_decode($respuesta, true),
         ]);
     }
 }
