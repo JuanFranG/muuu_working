@@ -114,14 +114,17 @@ class MailService
             $ch = curl_init(self::API_URL);
             curl_setopt_array($ch, [
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_POST           => true,
+                CURLOPT_CUSTOMREQUEST  => 'POST',
                 CURLOPT_POSTFIELDS     => $payload,
                 CURLOPT_HTTPHEADER     => [
                     'Content-Type: application/json',
                     'Accept: application/json',
+                    'Content-Length: ' . strlen($payload),
                     'api-key: ' . $apiKey,
                 ],
+                CURLOPT_USERAGENT      => 'MUUU-App/1.0 PHP/' . PHP_VERSION,
                 CURLOPT_TIMEOUT        => 8,
+                CURLOPT_SSL_VERIFYPEER => true,
             ]);
             curl_exec($ch);
             curl_close($ch);

@@ -362,8 +362,9 @@ class SeedController
                 'Content-Length: ' . strlen($payload),
                 'api-key: ' . $apiKey,
             ],
+            CURLOPT_USERAGENT      => 'MUUU-App/1.0 PHP/' . PHP_VERSION,
             CURLOPT_TIMEOUT        => 10,
-            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYPEER => true,
         ]);
         $respuesta = curl_exec($ch);
         $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
