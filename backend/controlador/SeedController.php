@@ -324,60 +324,31 @@ class SeedController
             return;
         }
 
+        $smtpUser = getenv('BREVO_SMTP_USER') ?: '';
+        $smtpPass = getenv('BREVO_SMTP_PASS') ?: '';
+
         $diagnostico = [
-            'curl_instalado' => function_exists('curl_init'),
-            'brevo_key'      => getenv('BREVO_KEY') !== false && getenv('BREVO_KEY') !== ''
-                                    ? substr(getenv('BREVO_KEY'), 0, 10) . '...'
-                                    : 'NO CONFIGURADA',
+            'brevo_smtp_user' => $smtpUser !== '' ? $smtpUser : 'NO CONFIGURADA',
+            'brevo_smtp_pass' => $smtpPass !== '' ? '***' : 'NO CONFIGURADA',
         ];
 
-        if (!$diagnostico['curl_instalado']) {
-            echo json_encode(['ok' => false, 'diagnostico' => $diagnostico, 'mensaje' => 'curl no está instalado en PHP']);
+        if ($smtpUser === '' || $smtpPass === '') {
+            echo json_encode(['ok' => false, 'diagnostico' => $diagnostico, 'mensaje' => 'Faltan variables BREVO_SMTP_USER o BREVO_SMTP_PASS']);
             return;
         }
 
-        if ($diagnostico['brevo_key'] === 'NO CONFIGURADA') {
-            echo json_encode(['ok' => false, 'diagnostico' => $diagnostico, 'mensaje' => 'BREVO_KEY no está en las variables de entorno']);
-            return;
+        // Enviar email de prueba vía SMTP
+        try {
+            MailService::enviar(
+                toEmail: $to,
+                toName:  'Test',
+                subject: 'MUUU App - Email de prueba SMTP',
+                html:    '<h2 style="color:#4a008f">MUUU App</h2><p>Integracion SMTP con Brevo funcionando correctamente.</p>',
+                text:    'Si recibes este correo, la integracion SMTP con Brevo esta funcionando.'
+            );
+            echo json_encode(['ok' => true, 'diagnostico' => $diagnostico, 'mensaje' => 'Email enviado — revisa tu bandeja (y spam)']);
+        } catch (Throwable $e) {
+            echo json_encode(['ok' => false, 'diagnostico' => $diagnostico, 'error' => $e->getMessage()]);
         }
-
-        // Intentar enviar con respuesta visible
-        $apiKey  = getenv('BREVO_KEY');
-        $payload = json_encode([
-            'sender'      => ['email' => 'jfgonzalez@unimagdalena.edu.co', 'name' => 'MUUU App'],
-            'to'          => [['email' => $to, 'name' => 'Test']],
-            'subject'     => 'MUUU App - Email de prueba',
-            'textContent' => 'Si recibes este correo, la integracion con Brevo esta funcionando.',
-            'htmlContent' => '<h2>MUUU App</h2><p>Integracion con Brevo funcionando correctamente.</p>',
-        ]);
-
-        $ch = curl_init('https://api.brevo.com/v3/smtp/email');
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CUSTOMREQUEST  => 'POST',
-            CURLOPT_POSTFIELDS     => $payload,
-            CURLOPT_HTTPHEADER     => [
-                'Content-Type: application/json',
-                'Accept: application/json',
-                'Content-Length: ' . strlen($payload),
-                'api-key: ' . $apiKey,
-            ],
-            CURLOPT_USERAGENT      => 'MUUU-App/1.0 PHP/' . PHP_VERSION,
-            CURLOPT_TIMEOUT        => 10,
-            CURLOPT_SSL_VERIFYPEER => true,
-        ]);
-        $respuesta = curl_exec($ch);
-        $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
-
-        echo json_encode([
-            'ok'               => $httpCode === 201,
-            'diagnostico'      => $diagnostico,
-            'http_code'        => $httpCode,
-            'curl_error'       => $curlError ?: null,
-            'brevo_raw'        => $respuesta,
-            'brevo_respuesta'  => json_decode($respuesta, true),
-        ]);
     }
 }
