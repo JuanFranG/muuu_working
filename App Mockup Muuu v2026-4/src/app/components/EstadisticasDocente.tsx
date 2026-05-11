@@ -6,21 +6,43 @@ import { ReporteDocente } from './ReporteDocente';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 
+// Regex de comandos LaTeX: captura \comando{args}_sub^sup y también \, \; \! sueltos
+const LATEX_CMD_EST =
+  /\\[a-zA-Z]+(?:\*)?(?:\[[^\]]*\])?(?:\{[^}]*\})*(?:[_^]\{[^}]*\}|[_^][a-zA-Z0-9])*(?:\\,|\\;|\\!|\\quad)?|\\[,;!]/g;
+
+function katexOne(src: string): string {
+  try { return katex.renderToString(src.trim(), { throwOnError: false, displayMode: false, strict: false }); }
+  catch { return src; }
+}
+
 /**
  * Convierte LaTeX / texto mixto a HTML usando KaTeX.
  * Soporta texto puro, $…$ o mezcla "Si $\int…$ = 5, entonces…"
+ * Si el fragmento contiene chars no-ASCII (acentos, ñ, …) usa modo mixto:
+ * solo los comandos LaTeX se renderizan, el texto plano queda intacto.
  */
+function renderLatexFrag(inner: string): string {
+  if (/[^\x00-\x7F]/.test(inner)) {
+    let result = '';
+    let lastIdx = 0;
+    LATEX_CMD_EST.lastIndex = 0;
+    let m: RegExpExecArray | null;
+    while ((m = LATEX_CMD_EST.exec(inner)) !== null) {
+      result += inner.slice(lastIdx, m.index);
+      result += katexOne(m[0]);
+      lastIdx = m.index + m[0].length;
+    }
+    return result + inner.slice(lastIdx);
+  }
+  return katexOne(inner);
+}
+
 const renderLatex = (raw: string): string => {
   if (!raw) return '';
   if (raw.includes('$')) {
-    return raw.replace(/\$([^$]+)\$?/g, (_m, inner) => {
-      try { return katex.renderToString(inner.trim(), { throwOnError: false, displayMode: false, strict: false }); }
-      catch { return inner; }
-    });
+    return raw.replace(/\$([^$]+)\$?/g, (_m, inner) => renderLatexFrag(inner));
   }
-  const src = raw.trim();
-  try { return katex.renderToString(src, { throwOnError: false, displayMode: false, strict: false }); }
-  catch { return raw; }
+  return renderLatexFrag(raw.trim());
 };
 
 interface EstadisticasDocenteProps {

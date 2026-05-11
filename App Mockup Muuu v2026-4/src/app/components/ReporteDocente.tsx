@@ -14,8 +14,9 @@ interface ReporteDocenteProps {
 
 // Regex que reconoce un "comando LaTeX completo":
 //   \comando  + sus argumentos {…} + sub/super _…^…
+//   También captura \, \; \! sueltos (espacios LaTeX que no son \letra)
 const LATEX_CMD =
-  /\\[a-zA-Z]+(?:\*)?(?:\[[^\]]*\])?(?:\{[^}]*\})*(?:[_^]\{[^}]*\}|[_^][a-zA-Z0-9])*(?:\\,|\\;|\\!|\\quad)?/g;
+  /\\[a-zA-Z]+(?:\*)?(?:\[[^\]]*\])?(?:\{[^}]*\})*(?:[_^]\{[^}]*\}|[_^][a-zA-Z0-9])*(?:\\,|\\;|\\!|\\quad)?|\\[,;!]/g;
 
 /** Renderiza una expresión LaTeX pura con KaTeX. */
 function katexStr(latex: string): string {
@@ -33,15 +34,21 @@ function katexStr(latex: string): string {
 /**
  * Renderiza un fragmento que PUEDE ser LaTeX puro o mezcla con texto español.
  *
- * · Si el fragmento tiene caracteres acentuados / no-ASCII → modo mixto:
+ * · Si el fragmento contiene caracteres no-ASCII (letras con tilde, ñ, ¿, ¡,
+ *   o cualquier variante Unicode incluyendo NFD) → modo mixto:
  *   busca comandos LaTeX con regex y los renderiza con KaTeX uno a uno;
- *   el texto plano entre ellos queda intacto.
- * · Si es LaTeX puro → KaTeX directo.
+ *   el texto plano entre ellos queda intacto (espacios y acentos preservados).
+ * · Si es LaTeX puro (todo ASCII) → KaTeX directo sobre el fragmento completo.
+ *
+ * NOTA: se usa /[^\x00-\x7F]/ en lugar de listar letras específicas para
+ * manejar tanto la forma NFC (á) como la NFD (a + combining accent) que
+ * puede devolver MySQL según la conexión.
  */
 function renderFragment(fragment: string): string {
-  const hasSpanish = /[áéíóúüñÁÉÍÓÚÜÑ¿¡]/.test(fragment);
+  // Cualquier char no-ASCII indica mezcla texto/LaTeX
+  const hasMixed = /[^\x00-\x7F]/.test(fragment);
 
-  if (hasSpanish) {
+  if (hasMixed) {
     // Modo mixto: renderizar solo los comandos LaTeX; dejar el resto como texto
     let result = '';
     let lastIdx = 0;
