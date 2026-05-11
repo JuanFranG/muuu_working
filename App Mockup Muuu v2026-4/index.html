@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
 
+    <!-- ── Favicon ───────────────────────────────────────────────────────── -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
     <!-- ── Viewport: sin zoom, respeta safe-areas (notch/Dynamic Island) ── -->
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -12,7 +15,10 @@
     <!-- MuuuApp.tsx lo actualiza dinámicamente según la pantalla activa.   -->
     <meta name="theme-color" content="#7952B3" />
 
-    <!-- ── iOS Safari: barra de estado transparente sobre el header ─────── -->
+    <!-- ── PWA / Standalone mode ─────────────────────────────────────────── -->
+    <!-- Estándar W3C (Chrome, Android, escritorio) -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <!-- iOS Safari (se mantiene por compatibilidad; el anterior era el deprecado) -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
