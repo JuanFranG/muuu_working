@@ -686,6 +686,42 @@ export function AgregarMaterial({ onBack, materialId }: AgregarMaterialProps) {
                   Llene este campo
                 </p>
               )}
+              {/* Guía rápida para Google Drive / OneDrive */}
+              <div style={{
+                marginTop: '10px',
+                backgroundColor: '#F0FDF4',
+                border: '1px solid #BBF7D0',
+                borderRadius: '10px',
+                padding: '10px 14px',
+              }}>
+                <p style={{
+                  fontFamily: 'Poppins, sans-serif',
+                  fontWeight: 700,
+                  fontSize: '11px',
+                  color: '#065F46',
+                  margin: '0 0 6px',
+                }}>
+                  ¿Cómo obtener el enlace?
+                </p>
+                <p style={{
+                  fontFamily: 'Poppins, sans-serif',
+                  fontSize: '11px',
+                  color: '#065F46',
+                  margin: '0 0 4px',
+                  lineHeight: '1.5',
+                }}>
+                  <strong>Google Drive:</strong> clic derecho en el archivo → "Compartir" → "Cualquier persona con el enlace" → copiar enlace.
+                </p>
+                <p style={{
+                  fontFamily: 'Poppins, sans-serif',
+                  fontSize: '11px',
+                  color: '#065F46',
+                  margin: 0,
+                  lineHeight: '1.5',
+                }}>
+                  <strong>OneDrive:</strong> seleccionar archivo → "Compartir" → "Cualquiera con el vínculo puede ver" → copiar.
+                </p>
+              </div>
             </div>
           )}
 
@@ -703,6 +739,45 @@ export function AgregarMaterial({ onBack, materialId }: AgregarMaterialProps) {
               >
                 Subir Archivo *
               </label>
+
+              {/* ── Aviso de estabilidad ── */}
+              <div style={{
+                backgroundColor: '#FEF9C3',
+                border: '1px solid #FDE047',
+                borderRadius: '10px',
+                padding: '10px 14px',
+                marginBottom: '10px',
+                display: 'flex',
+                gap: '10px',
+                alignItems: 'flex-start',
+              }}>
+                <span style={{ fontSize: '18px', lineHeight: '1', flexShrink: 0 }}>💡</span>
+                <div>
+                  <p style={{
+                    fontFamily: 'Poppins, sans-serif',
+                    fontWeight: 700,
+                    fontSize: '12px',
+                    color: '#78350F',
+                    margin: '0 0 2px',
+                  }}>
+                    Recomendación: usa un enlace externo
+                  </p>
+                  <p style={{
+                    fontFamily: 'Poppins, sans-serif',
+                    fontSize: '11px',
+                    color: '#92400E',
+                    margin: 0,
+                    lineHeight: '1.5',
+                  }}>
+                    Los archivos subidos directamente pueden perderse si el servidor se reinicia.
+                    Para mayor estabilidad, sube el archivo a{' '}
+                    <strong>Google Drive</strong> o <strong>OneDrive</strong>,
+                    activa el enlace de compartición y pégalo usando el tipo{' '}
+                    <strong>Link</strong>.
+                  </p>
+                </div>
+              </div>
+
               <label
                 className="w-full transition-all hover:scale-[1.01]"
                 style={{
