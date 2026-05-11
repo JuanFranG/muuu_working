@@ -38,6 +38,10 @@ function renderKatex(latex: string): string {
 const LATEX_CMD_MATH =
   /\\[a-zA-Z]+(?:\*)?(?:\[[^\]]*\])?(?:\{[^}]*\})*(?:[_^]\{[^}]*\}|[_^][a-zA-Z0-9])*(?:\\,|\\;|\\!|\\quad)?|\\[,;!]/g;
 
+// Regex extendido: además de \comando, captura tokens con sub/super como t^2, x_0
+const LATEX_CMD_MATH_EXT =
+  /\\[a-zA-Z]+(?:\*)?(?:\[[^\]]*\])?(?:\{[^}]*\})*(?:[_^]\{[^}]*\}|[_^][a-zA-Z0-9])*(?:\\,|\\;|\\!|\\quad)?|\\[,;!]|[a-zA-Z][a-zA-Z0-9']*(?:[_^]\{[^}]*\}|[_^][a-zA-Z0-9])[a-zA-Z0-9_^{}]*/g;
+
 /**
  * Renderiza un fragmento que puede ser LaTeX puro o mezcla texto/LaTeX.
  * Si contiene chars no-ASCII (acentos, ñ, ¿, ¡…) usa modo mixto:
@@ -62,11 +66,32 @@ function renderFragment(inner: string): string {
   return renderKatex(inner);
 }
 
+/** Modo mixto forzado: itera LATEX_CMD_MATH_EXT y renderiza cada token LaTeX,
+ *  dejando el texto entre ellos intacto. Se usa cuando $ está mal colocado. */
+function renderFragmentMixed(inner: string): string {
+  let result = '';
+  let lastIdx = 0;
+  LATEX_CMD_MATH_EXT.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = LATEX_CMD_MATH_EXT.exec(inner)) !== null) {
+    result += inner.slice(lastIdx, m.index);
+    result += renderKatex(m[0]);
+    lastIdx = m.index + m[0].length;
+  }
+  return result + inner.slice(lastIdx);
+}
+
 export function renderMath(text: string): string {
   if (!text) return '';
 
   // ── Modo mixto: hay al menos un $ en el texto ─────────────────────────────
   if (text.includes('$')) {
+    // Si hay comandos LaTeX FUERA de los $…$, los delimitadores están mal puestos
+    const outsideDollar = text.replace(/\$[^$]+\$?/g, '');
+    if (/\\[a-zA-Z,;!]/.test(outsideDollar)) {
+      const result = renderFragmentMixed(text.replace(/\$/g, ''));
+      return result.replace(/\n/g, '<br/>');
+    }
     const resultado = text.replace(/\$([^$]+)\$?/g, (_match, inner) =>
       renderFragment(inner)
     );

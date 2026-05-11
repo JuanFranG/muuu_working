@@ -10,6 +10,10 @@ import 'katex/dist/katex.min.css';
 const LATEX_CMD_EST =
   /\\[a-zA-Z]+(?:\*)?(?:\[[^\]]*\])?(?:\{[^}]*\})*(?:[_^]\{[^}]*\}|[_^][a-zA-Z0-9])*(?:\\,|\\;|\\!|\\quad)?|\\[,;!]/g;
 
+// Regex extendido: además de \comando, captura tokens con sub/super como t^2, x_0
+const LATEX_CMD_EST_EXT =
+  /\\[a-zA-Z]+(?:\*)?(?:\[[^\]]*\])?(?:\{[^}]*\})*(?:[_^]\{[^}]*\}|[_^][a-zA-Z0-9])*(?:\\,|\\;|\\!|\\quad)?|\\[,;!]|[a-zA-Z][a-zA-Z0-9']*(?:[_^]\{[^}]*\}|[_^][a-zA-Z0-9])[a-zA-Z0-9_^{}]*/g;
+
 function katexOne(src: string): string {
   try { return katex.renderToString(src.trim(), { throwOnError: false, displayMode: false, strict: false }); }
   catch { return src; }
@@ -37,9 +41,27 @@ function renderLatexFrag(inner: string): string {
   return katexOne(inner);
 }
 
+function renderLatexFragMixed(inner: string): string {
+  let result = '';
+  let lastIdx = 0;
+  LATEX_CMD_EST_EXT.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = LATEX_CMD_EST_EXT.exec(inner)) !== null) {
+    result += inner.slice(lastIdx, m.index);
+    result += katexOne(m[0]);
+    lastIdx = m.index + m[0].length;
+  }
+  return result + inner.slice(lastIdx);
+}
+
 const renderLatex = (raw: string): string => {
   if (!raw) return '';
   if (raw.includes('$')) {
+    // Si hay LaTeX fuera de los $…$, los delimitadores están mal colocados
+    const outsideDollar = raw.replace(/\$[^$]+\$?/g, '');
+    if (/\\[a-zA-Z,;!]/.test(outsideDollar)) {
+      return renderLatexFragMixed(raw.replace(/\$/g, ''));
+    }
     return raw.replace(/\$([^$]+)\$?/g, (_m, inner) => renderLatexFrag(inner));
   }
   return renderLatexFrag(raw.trim());

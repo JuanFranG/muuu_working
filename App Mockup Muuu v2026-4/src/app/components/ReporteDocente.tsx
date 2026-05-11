@@ -18,6 +18,11 @@ interface ReporteDocenteProps {
 const LATEX_CMD =
   /\\[a-zA-Z]+(?:\*)?(?:\[[^\]]*\])?(?:\{[^}]*\})*(?:[_^]\{[^}]*\}|[_^][a-zA-Z0-9])*(?:\\,|\\;|\\!|\\quad)?|\\[,;!]/g;
 
+// Regex extendido: además de \comando, captura tokens matemáticos con sub/super
+// como t^2, x_0, F^n, etc. que aparecen sin delimitador \
+const LATEX_CMD_EXT =
+  /\\[a-zA-Z]+(?:\*)?(?:\[[^\]]*\])?(?:\{[^}]*\})*(?:[_^]\{[^}]*\}|[_^][a-zA-Z0-9])*(?:\\,|\\;|\\!|\\quad)?|\\[,;!]|[a-zA-Z][a-zA-Z0-9']*(?:[_^]\{[^}]*\}|[_^][a-zA-Z0-9])[a-zA-Z0-9_^{}]*/g;
+
 /** Renderiza una expresión LaTeX pura con KaTeX. */
 function katexStr(latex: string): string {
   try {
@@ -68,6 +73,24 @@ function renderFragment(fragment: string): string {
 }
 
 /**
+ * Modo mixto FORZADO: itera sobre LATEX_CMD_EXT (comandos + token^super)
+ * y renderiza cada pieza con KaTeX; el texto entre ellos queda intacto.
+ * Se usa cuando los delimitadores $ están mal colocados en el texto.
+ */
+function renderFragmentMixed(fragment: string): string {
+  let result = '';
+  let lastIdx = 0;
+  LATEX_CMD_EXT.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = LATEX_CMD_EXT.exec(fragment)) !== null) {
+    result += fragment.slice(lastIdx, m.index);
+    result += katexStr(m[0]);
+    lastIdx = m.index + m[0].length;
+  }
+  return result + fragment.slice(lastIdx);
+}
+
+/**
  * LaTeX/texto mixto → HTML (usa katex.min.css ya cargado en la página).
  *
  * Soporta:
@@ -77,12 +100,21 @@ function renderFragment(fragment: string): string {
  *  · Mixto con texto esp. dentro de $…$:
  *           "$F(x) = \int_o^x t^2 dt, cuáles la derivada F'(x)$"
  *           → los comandos LaTeX se renderizan, el texto queda intacto.
+ *  · $ mal colocado: "Si F(x) = \int_0^x t^2 \, dt $, cual es F'(x)$0"
+ *           → detecta LaTeX fuera de $…$, strip $ y usa modo mixto forzado.
  */
 const toKatex = (raw: string): string => {
   if (!raw) return '';
 
-  // Mixto con delimitadores $…$ (cierre opcional)
   if (raw.includes('$')) {
+    // Detectar si hay comandos LaTeX FUERA de los bloques $…$
+    // (significa que los $ están mal colocados en el texto)
+    const outsideDollar = raw.replace(/\$[^$]+\$?/g, '');
+    if (/\\[a-zA-Z,;!]/.test(outsideDollar)) {
+      // $ mal colocado: quitar $ y renderizar todo con modo mixto forzado
+      return renderFragmentMixed(raw.replace(/\$/g, ''));
+    }
+    // Normal: solo renderizar dentro de $…$
     return raw.replace(/\$([^$]+)\$?/g, (_m, inner) => renderFragment(inner));
   }
 
