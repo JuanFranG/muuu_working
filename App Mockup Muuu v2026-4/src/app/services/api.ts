@@ -19,6 +19,7 @@ export interface UsuarioAPI {
   esActivo:             boolean;
   rachaActual:          number | null;
   fechaUltimaActividad: string | null;
+  ultimaSesion:         string | null; // datetime de último inicio de sesión
   fotoPerfil:           string | null;
   googleId:             string | null;
   totalPuntos:          number;

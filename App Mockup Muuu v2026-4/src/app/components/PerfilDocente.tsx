@@ -425,7 +425,7 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
                       marginBottom: '2px'
                     }}
                   >
-                    Última actividad
+                    Última sesión
                   </p>
                   <p
                     style={{
@@ -435,9 +435,14 @@ export function PerfilDocente({ onBack, userName = 'Russo', onNavigateToMenu, on
                       color: c.textPrimary
                     }}
                   >
-                    {data?.fechaUltimaActividad
-                      ? new Date(data.fechaUltimaActividad + 'T00:00:00').toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })
-                      : 'Sin actividad de quiz aún'}
+                    {data?.ultimaSesion
+                      ? (() => {
+                          const d = new Date(data.ultimaSesion);
+                          const fecha = d.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+                          const hora  = d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true });
+                          return `${fecha} · ${hora}`;
+                        })()
+                      : 'Sin sesión registrada'}
                   </p>
                 </div>
               </div>

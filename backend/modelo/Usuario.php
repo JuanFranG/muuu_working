@@ -32,6 +32,7 @@ class Usuario
                     u.esActivo,
                     u.rachaActual,
                     u.fechaUltimaActividad,
+                    u.ultimaSesion,
                     u.fotoPerfil,
                     r.nombre AS rol
              FROM   USUARIO u
@@ -78,6 +79,7 @@ class Usuario
                     u.esActivo,
                     u.rachaActual,
                     u.fechaUltimaActividad,
+                    u.ultimaSesion,
                     u.fotoPerfil,
                     u.googleId,
                     r.nombre                                    AS rol,

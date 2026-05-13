@@ -273,19 +273,39 @@ export function QuizScreen({
   // ── Pantalla: prueba completada ───────────────────────────────
   if (quizCompleted) {
     const accuracy = Math.round((correctAnswers / totalQuestions) * 100);
+    const aprobado = accuracy >= 60;
     return (
       <div className="h-full flex flex-col items-center justify-center"
-        style={{ background: `linear-gradient(180deg, #D1FAE5 0%, ${c.bgPage} 100%)`, padding: '20px' }}>
-        <div className="text-center" style={{ backgroundColor: c.bgCard, borderRadius: '24px', padding: '40px 30px', boxShadow: '0 8px 32px rgba(16,185,129,0.2)', maxWidth: '340px', width: '100%' }}>
-          <div style={{ fontSize: '64px', marginBottom: '20px' }}>🎉</div>
+        style={{
+          background: aprobado
+            ? `linear-gradient(180deg, #D1FAE5 0%, ${c.bgPage} 100%)`
+            : `linear-gradient(180deg, ${c.errorBg} 0%, ${c.bgPage} 100%)`,
+          padding: '20px'
+        }}>
+        <div className="text-center" style={{
+          backgroundColor: c.bgCard, borderRadius: '24px', padding: '40px 30px',
+          boxShadow: aprobado
+            ? '0 8px 32px rgba(16,185,129,0.2)'
+            : '0 8px 32px rgba(239,68,68,0.2)',
+          maxWidth: '340px', width: '100%'
+        }}>
+          <div style={{ fontSize: '64px', marginBottom: '20px' }}>
+            {aprobado ? '🎉' : '😔'}
+          </div>
           <h2 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '24px', color: c.textPrimary, marginBottom: '12px' }}>
-            ¡Felicitaciones!
+            {aprobado ? '¡Felicitaciones!' : '¡Prueba Terminada!'}
           </h2>
           <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '14px', color: c.textMuted, marginBottom: '24px', lineHeight: '1.5' }}>
-            Has completado la prueba con éxito
+            {aprobado
+              ? 'Has completado la prueba con éxito'
+              : `Obtuviste ${accuracy}% de aciertos. Necesitas al menos un 60% para aprobar. ¡Sigue practicando!`}
           </p>
           <div style={{ backgroundColor: c.bgSurface, borderRadius: '12px', padding: '20px', marginBottom: '16px' }}>
-            <div style={{ fontSize: '36px', fontFamily: 'Poppins, sans-serif', fontWeight: 700, color: '#10B981', marginBottom: '8px' }}>{accuracy}%</div>
+            <div style={{
+              fontSize: '36px', fontFamily: 'Poppins, sans-serif', fontWeight: 700,
+              color: aprobado ? '#10B981' : '#EF4444',
+              marginBottom: '8px'
+            }}>{accuracy}%</div>
             <p style={{ fontFamily: 'Poppins, sans-serif', fontSize: '12px', color: c.textMuted, marginBottom: '16px' }}>Precisión</p>
             <div className="flex justify-between mb-2">
               <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '13px', color: c.textMuted }}>Correctas:</span>
@@ -300,7 +320,7 @@ export function QuizScreen({
               <span style={{ fontFamily: 'Poppins, sans-serif', fontSize: '13px', fontWeight: 600, color: c.textPrimary }}>{formatTime(timeElapsed)}</span>
             </div>
           </div>
-          {puntosGanados > 0 && (
+          {aprobado && puntosGanados > 0 && (
             <div style={{ backgroundColor: '#FEF9C3', border: '2px solid #FDE047', borderRadius: '12px', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '16px' }}>
               <span style={{ fontSize: '20px' }}>⭐</span>
               <span style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px', color: '#92400E' }}>
@@ -308,7 +328,13 @@ export function QuizScreen({
               </span>
             </div>
           )}
-          <button onClick={onBack} className="w-full flex items-center justify-center gap-2" style={{ height: '48px', backgroundColor: '#10B981', color: '#FFFFFF', border: 'none', borderRadius: '12px', fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px', cursor: 'pointer', boxShadow: '0 4px 16px rgba(16,185,129,0.4)' }}>
+          {!aprobado && (
+            <button onClick={resetQuiz} className="w-full mb-3" style={{ height: '48px', backgroundColor: c.purple, color: '#FFFFFF', border: 'none', borderRadius: '12px', fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px', cursor: 'pointer', boxShadow: '0 4px 16px rgba(155,126,199,0.4)' }}>
+              Intentar de Nuevo
+            </button>
+          )}
+          <button onClick={onBack} className="w-full flex items-center justify-center gap-2"
+            style={{ height: '48px', backgroundColor: aprobado ? '#10B981' : c.bgSurface, color: aprobado ? '#FFFFFF' : c.textPrimary, border: 'none', borderRadius: '12px', fontFamily: 'Poppins, sans-serif', fontWeight: 700, fontSize: '14px', cursor: 'pointer', boxShadow: aprobado ? '0 4px 16px rgba(16,185,129,0.4)' : 'none' }}>
             <Home size={18} /> Volver al Home
           </button>
         </div>
@@ -450,6 +476,7 @@ export function QuizScreen({
             onClose={() => setShowNemotecnia(false)}
             question={renderMath(fc?.integral ?? '∫ f(x) dx')}
             answer={renderMath(opciones.find(o => o.esCorrecta)?.contenidoRespuesta ?? '—')}
+            feedback={opciones.find(o => o.esCorrecta)?.retroalimentacion}
           />
         ) : (
           <>

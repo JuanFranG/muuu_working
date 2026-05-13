@@ -5,9 +5,10 @@ interface FlashcardNemotecniaProps {
   onClose: () => void;
   question: string;
   answer: string;
+  feedback?: string; // retroalimentación del docente para la respuesta correcta
 }
 
-export function FlashcardNemotecnia({ onClose, question, answer }: FlashcardNemotecniaProps) {
+export function FlashcardNemotecnia({ onClose, question, answer, feedback }: FlashcardNemotecniaProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -225,110 +226,47 @@ export function FlashcardNemotecnia({ onClose, question, answer }: FlashcardNemo
                 dangerouslySetInnerHTML={{ __html: answer }}
               />
 
-              {/* Paso a paso */}
-              <div
-                style={{
-                  fontFamily: 'Poppins, sans-serif',
-                  fontSize: '13px',
-                  color: '#1E293B',
-                  lineHeight: '1.6'
-                }}
-              >
-                <p style={{ fontWeight: 700, marginBottom: '12px', color: '#7952B3' }}>
-                  📝 Paso a paso:
-                </p>
-
-                <div style={{ marginBottom: '16px' }}>
-                  <p style={{ fontWeight: 600, marginBottom: '6px' }}>1. Identifica u y dv:</p>
-                  <div style={{ paddingLeft: '12px', color: '#7D7D7D' }}>
-                    <p>• u = x</p>
-                    <p>• dv = e<sup>x</sup> dx</p>
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: '16px' }}>
-                  <p style={{ fontWeight: 600, marginBottom: '6px' }}>2. Calcula du y v:</p>
-                  <div style={{ paddingLeft: '12px', color: '#7D7D7D' }}>
-                    <p>• du = dx</p>
-                    <p>• v = e<sup>x</sup></p>
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: '16px' }}>
-                  <p style={{ fontWeight: 600, marginBottom: '6px' }}>3. Aplica la fórmula:</p>
-                  <div
-                    style={{
-                      fontFamily: 'Georgia, serif',
-                      fontSize: '16px',
-                      color: '#7952B3',
-                      fontStyle: 'italic',
-                      padding: '12px',
-                      backgroundColor: '#F3EBFF',
-                      borderRadius: '8px',
-                      margin: '8px 0',
-                      textAlign: 'center'
-                    }}
-                  >
-                    ∫ u dv = uv - ∫ v du
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: '16px' }}>
-                  <p style={{ fontWeight: 600, marginBottom: '6px' }}>4. Sustituye:</p>
-                  <div
-                    style={{
-                      fontFamily: 'Georgia, serif',
-                      fontSize: '16px',
-                      color: '#7952B3',
-                      fontStyle: 'italic',
-                      padding: '12px',
-                      backgroundColor: '#F3EBFF',
-                      borderRadius: '8px',
-                      margin: '8px 0',
-                      textAlign: 'center'
-                    }}
-                  >
-                    x·e<sup>x</sup> - ∫ e<sup>x</sup> dx
-                  </div>
-                </div>
-
-                <div>
-                  <p style={{ fontWeight: 600, marginBottom: '6px' }}>5. Resuelve:</p>
-                  <div
-                    style={{
-                      fontFamily: 'Georgia, serif',
-                      fontSize: '16px',
-                      color: '#10B981',
-                      fontStyle: 'italic',
-                      padding: '12px',
-                      backgroundColor: '#D1FAE5',
-                      borderRadius: '8px',
-                      margin: '8px 0',
-                      textAlign: 'center',
-                      fontWeight: 700
-                    }}
-                  >
-                    x·e<sup>x</sup> - e<sup>x</sup> + C
-                  </div>
-                </div>
-
+              {/* Retroalimentación del docente */}
+              {feedback ? (
                 <div
                   style={{
-                    marginTop: '20px',
-                    padding: '12px',
+                    marginTop: '4px',
+                    padding: '14px',
                     backgroundColor: '#FEF3C7',
-                    borderRadius: '8px',
+                    borderRadius: '10px',
                     borderLeft: '4px solid #F59E0B'
                   }}
                 >
-                  <p style={{ fontWeight: 700, color: '#F59E0B', marginBottom: '4px', fontSize: '12px' }}>
-                    💡 Tip Nemotécnico:
+                  <p style={{
+                    fontFamily: 'Poppins, sans-serif',
+                    fontWeight: 700,
+                    color: '#92400E',
+                    marginBottom: '6px',
+                    fontSize: '12px'
+                  }}>
+                    💡 Retroalimentación del docente:
                   </p>
-                  <p style={{ color: '#92400E', fontSize: '12px', lineHeight: '1.4' }}>
-                    "El producto de x con exponencial: deriva la x, integra el resto, resta lo que falta"
+                  <p style={{
+                    fontFamily: 'Poppins, sans-serif',
+                    color: '#78350F',
+                    fontSize: '13px',
+                    lineHeight: '1.5',
+                    margin: 0
+                  }}>
+                    {feedback}
                   </p>
                 </div>
-              </div>
+              ) : (
+                <p style={{
+                  fontFamily: 'Poppins, sans-serif',
+                  fontSize: '12px',
+                  color: '#9CA3AF',
+                  textAlign: 'center',
+                  marginTop: '8px'
+                }}>
+                  El docente no agregó retroalimentación para esta respuesta.
+                </p>
+              )}
             </div>
           </div>
         </div>
