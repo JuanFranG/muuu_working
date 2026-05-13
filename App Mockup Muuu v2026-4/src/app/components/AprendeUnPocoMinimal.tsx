@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Sparkles, Video, Loader2, Download, ExternalLink, BookOpen } from 'lucide-react';
+import { ArrowLeft, Search, Sparkles, Link, Loader2, Download, ExternalLink, BookOpen } from 'lucide-react';
 import { useThemeColors } from '../contexts/SettingsContext';
 import {
   listarDocentesMaterialesAPI,
@@ -14,13 +14,13 @@ interface AprendeUnPocoMinimalProps {
   onBack: () => void;
 }
 
-type FilterType = 'Todas' | 'Guías PDF' | 'Videos';
+type FilterType = 'Todas' | 'Guías PDF' | 'Enlaces';
 
 interface Task {
   id: number;
   title: string;
   subtitle: string;
-  type: 'Guías PDF' | 'Videos';
+  type: 'Guías PDF' | 'Enlaces';
   difficulty: string;
   topic: string;
   progress: number;
@@ -59,12 +59,12 @@ function materialToTask(m: MaterialAPI): Task {
   let color: string;
 
   if (tipo === 'VIDEO') {
-    type = 'Videos'; icon = '▶'; color = '#FFE4E4';
+    type = 'Enlaces'; icon = '▶'; color = '#FFE4E4';
   } else if (tipo === 'PDF' || tipo === 'IMAGEN' || tipo === 'DOCUMENTO' || tipo === 'FOTO') {
     type = 'Guías PDF'; icon = '∫'; color = '#E6D5F0';
   } else {
-    // LINK, RESUMEN y cualquier otro → tratarlos como enlace externo (Videos)
-    type = 'Videos'; icon = '🔗'; color = '#FEF3C7';
+    // LINK, RESUMEN y cualquier otro → enlace externo
+    type = 'Enlaces'; icon = '🔗'; color = '#FEF3C7';
   }
 
   // "Nuevo" = cargado en las últimas 48 horas
@@ -244,7 +244,7 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
       {/* Header: Icono + Título */}
       <div className="flex items-start gap-3 mb-2" style={{ marginTop: '24px' }}>
         {/* Icono o miniatura de video */}
-        {task.type === 'Videos' && task.videoThumbnail ? (
+        {task.type === 'Enlaces' && task.videoThumbnail ? (
           <div
             className="flex-shrink-0 relative overflow-hidden"
             style={{
@@ -269,7 +269,7 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
                 backgroundColor: 'rgba(0, 0, 0, 0.3)'
               }}
             >
-              <Video size={20} color="#FFFFFF" strokeWidth={2} />
+              <Link size={20} color="#FFFFFF" strokeWidth={2} />
             </div>
           </div>
         ) : (
@@ -347,8 +347,8 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
 
         {/* Botón de acción: Descargar (docs/imágenes) o Abrir (videos/links) */}
         {esUrlValida(task.url) ? (
-          task.type === 'Videos' ? (
-            /* Videos y links: abrir en nueva pestaña */
+          task.type === 'Enlaces' ? (
+            /* Enlaces: abrir en nueva pestaña */
             <button
               onClick={(e) => { e.stopPropagation(); window.open(task.url, '_blank', 'noopener,noreferrer'); }}
               className="flex items-center gap-1 transition-all hover:scale-105"
@@ -593,7 +593,7 @@ export function AprendeUnPocoMinimal({ onBack }: AprendeUnPocoMinimalProps) {
           borderBottom: `1px solid ${c.border}`
         }}
       >
-        {(['Todas', 'Guías PDF', 'Videos'] as FilterType[]).map((filter) => (
+        {(['Todas', 'Guías PDF', 'Enlaces'] as FilterType[]).map((filter) => (
           <button
             key={filter}
             onClick={() => setSelectedFilter(filter)}
