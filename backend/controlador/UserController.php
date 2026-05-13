@@ -70,11 +70,7 @@ class UserController
         $_SESSION['correo']     = $usuario['correo'];
 
         // Registrar fecha y hora exacta del inicio de sesión
-        $ahora = date('Y-m-d H:i:s');
-        $this->db->prepare(
-            'UPDATE USUARIO SET ultimaSesion = ? WHERE id_usuario = ?'
-        )->execute([$ahora, $usuario['id_usuario']]);
-        $usuario['ultimaSesion'] = $ahora;
+        $usuario['ultimaSesion'] = $this->modelo->registrarSesion($usuario['id_usuario']);
 
         unset($usuario['contrasena']);
 
@@ -164,11 +160,7 @@ class UserController
             $_SESSION['nombre']     = $usuarioExistente['nombre'];
             $_SESSION['correo']     = $usuarioExistente['correo'];
 
-            $ahora = date('Y-m-d H:i:s');
-            $this->db->prepare(
-                'UPDATE USUARIO SET ultimaSesion = ? WHERE id_usuario = ?'
-            )->execute([$ahora, $usuarioExistente['id_usuario']]);
-            $usuarioExistente['ultimaSesion'] = $ahora;
+            $usuarioExistente['ultimaSesion'] = $this->modelo->registrarSesion($usuarioExistente['id_usuario']);
 
             $this->responderJson(200, ['ok' => true, 'esNuevo' => false, 'usuario' => $usuarioExistente]);
             return;

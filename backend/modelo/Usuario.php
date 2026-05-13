@@ -20,6 +20,18 @@ class Usuario
     }
 
     // ----------------------------------------------------------
+    // Registrar fecha/hora de inicio de sesión
+    // ----------------------------------------------------------
+    public function registrarSesion(int $id): string
+    {
+        $ahora = date('Y-m-d H:i:s');
+        $this->db->prepare(
+            'UPDATE USUARIO SET ultimaSesion = ? WHERE id_usuario = ?'
+        )->execute([$ahora, $id]);
+        return $ahora;
+    }
+
+    // ----------------------------------------------------------
     // Buscar por correo (para login)
     // ----------------------------------------------------------
     public function buscarPorCorreo(string $correo): ?array
