@@ -56,8 +56,9 @@ export function FlashcardFullMode({ onToggleMode, question, answer }: FlashcardF
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '40px 32px',
-              border: '4px solid #9B7EC7'
+              padding: '40px 28px 24px',
+              border: '4px solid #9B7EC7',
+              overflow: 'hidden'
             }}
           >
             {/* Botón de toggle en esquina superior derecha */}
@@ -78,9 +79,10 @@ export function FlashcardFullMode({ onToggleMode, question, answer }: FlashcardF
                 fontWeight: 700,
                 fontSize: '12px',
                 color: '#9B7EC7',
-                marginBottom: '32px',
+                marginBottom: '16px',
                 textTransform: 'uppercase',
-                letterSpacing: '1.5px'
+                letterSpacing: '1.5px',
+                flexShrink: 0
               }}
             >
               Pregunta
@@ -90,13 +92,18 @@ export function FlashcardFullMode({ onToggleMode, question, answer }: FlashcardF
             <div
               style={{
                 fontFamily: 'Georgia, serif',
-                fontSize: '48px',
+                fontSize: '26px',
                 color: '#7952B3',
                 fontStyle: 'italic',
-                letterSpacing: '1px',
-                lineHeight: '1.4',
+                letterSpacing: '0.5px',
+                lineHeight: '1.5',
                 textAlign: 'center',
-                marginBottom: '32px'
+                overflowY: 'auto',
+                flex: 1,
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
               dangerouslySetInnerHTML={{ __html: question }}
             />
@@ -104,7 +111,8 @@ export function FlashcardFullMode({ onToggleMode, question, answer }: FlashcardF
             {/* Instrucción */}
             <div
               style={{
-                marginTop: 'auto',
+                marginTop: '12px',
+                flexShrink: 0,
                 fontFamily: 'Poppins, sans-serif',
                 fontSize: '12px',
                 color: '#9CA3AF',
@@ -164,16 +172,17 @@ export function FlashcardFullMode({ onToggleMode, question, answer }: FlashcardF
             <div
               style={{
                 fontFamily: 'Georgia, serif',
-                fontSize: '32px',
+                fontSize: '22px',
                 color: '#10B981',
                 fontStyle: 'italic',
-                letterSpacing: '1px',
+                letterSpacing: '0.5px',
                 lineHeight: '1.6',
                 textAlign: 'center',
-                marginBottom: '24px',
-                padding: '16px',
+                marginBottom: '16px',
+                padding: '12px 16px',
                 backgroundColor: '#D1FAE5',
-                borderRadius: '12px'
+                borderRadius: '12px',
+                flexShrink: 0
               }}
               dangerouslySetInnerHTML={{ __html: answer }}
             />
