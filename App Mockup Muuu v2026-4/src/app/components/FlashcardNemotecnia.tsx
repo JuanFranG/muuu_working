@@ -124,20 +124,22 @@ export function FlashcardNemotecnia({ onClose, question, answer, feedback }: Fla
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'center',
-              padding: '32px',
-              border: '4px solid #9B7EC7'
+              justifyContent: 'flex-start',
+              padding: '24px 20px 16px',
+              border: '4px solid #9B7EC7',
+              overflow: 'hidden'
             }}
           >
             <div
               style={{
                 fontFamily: 'Poppins, sans-serif',
                 fontWeight: 700,
-                fontSize: '16px',
+                fontSize: '12px',
                 color: '#9B7EC7',
-                marginBottom: '20px',
+                marginBottom: '12px',
                 textTransform: 'uppercase',
-                letterSpacing: '1px'
+                letterSpacing: '1px',
+                flexShrink: 0
               }}
             >
               Pregunta
@@ -146,19 +148,26 @@ export function FlashcardNemotecnia({ onClose, question, answer, feedback }: Fla
             <div
               style={{
                 fontFamily: 'Georgia, serif',
-                fontSize: isFullscreen ? '48px' : '40px',
+                fontSize: isFullscreen ? '24px' : '20px',
                 color: '#7952B3',
                 fontStyle: 'italic',
-                letterSpacing: '1px',
-                lineHeight: '1.4',
-                textAlign: 'center'
+                letterSpacing: '0.5px',
+                lineHeight: '1.5',
+                textAlign: 'center',
+                flex: 1,
+                width: '100%',
+                overflowY: 'auto',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
               dangerouslySetInnerHTML={{ __html: question }}
             />
 
             <div
               style={{
-                marginTop: 'auto',
+                marginTop: '10px',
+                flexShrink: 0,
                 fontFamily: 'Poppins, sans-serif',
                 fontSize: '12px',
                 color: '#9CA3AF',
@@ -212,7 +221,7 @@ export function FlashcardNemotecnia({ onClose, question, answer, feedback }: Fla
               <div
                 style={{
                   fontFamily: 'Georgia, serif',
-                  fontSize: isFullscreen ? '28px' : '24px',
+                  fontSize: isFullscreen ? '20px' : '18px',
                   color: '#10B981',
                   fontStyle: 'italic',
                   letterSpacing: '1px',
